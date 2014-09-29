@@ -1,4 +1,5 @@
 import tweepy
+from tweepy import Cursor
 from config import Config
 
 # Get config
@@ -24,9 +25,15 @@ print "List of my friends: "
 for friend in api.friends():
     print friend.name + " " + str(friend.friends_count)
 
-public_tweets = api.home_timeline()
-for tweet in public_tweets:
+i = 0
+for tweet in Cursor(api.home_timeline).items():
     print tweet.text
+    if i > 50:
+        break
+    else:
+        i += 1
+
+
 
 
 
