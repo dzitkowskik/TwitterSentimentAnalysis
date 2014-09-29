@@ -14,8 +14,8 @@ def is_hashad(number):
 
 
 def test_is_hashad():
-    assert is_hashad(81) == True
-    assert is_hashad(99) == False
+    assert is_hashad(81)
+    assert ~is_hashad(99)
     print "is_hashad test OK"
 
 
@@ -53,7 +53,7 @@ def factorial_test():
 
 factorial_test()
 
-#print(factorial(10000))
+# print(factorial(10000))
 
 d = {'a': 1, 'c': 2, 'b': 3, 'd': 4}
 
@@ -66,7 +66,10 @@ print s.items()
 if __name__ == "__main__":
     import doctest
     import doctestExample
+
     doctest.testmod(doctestExample)
+
+
 
 
 
