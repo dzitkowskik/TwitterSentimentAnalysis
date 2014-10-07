@@ -1,25 +1,35 @@
-#
 # Sanders-Twitter Sentiment Corpus Install Script
 # Version 0.1
-#
-# Pulls tweet data from Twitter because ToS prevents distributing it directly.
-#
-# Right now we use unauthenticated requests, which are rate-limited to 150/hr.
-# We use 125/hr to stay safe.  
-#
-# We could more than double the download speed by using authentication with
-# OAuth logins.  But for now, this is too much of a PITA to implement.  Just let
-# the script run over a weekend and you'll have all the data.
-#
 #   - Niek Sanders
 #     njs@sananalytics.com
 #     October 20, 2011
-#
-#
-# Excuse the ugly code.  I threw this together as quickly as possible and I
-# don't normally code in Python.
-#
+
 import csv, getpass, json, os, time, urllib
+import tweepy
+from tweepy import Cursor
+from config import Config
+import json
+
+@classmethod
+def parse(cls, api, raw):
+  status = cls.first_parse(api, raw)
+  setattr(status, 'json', json.dumps(raw))
+  return status
+
+tweepy.models.Status.first_parse = tweepy.models.Status.parse
+tweepy.models.Status.parse = parse
+
+# Get config
+f = file('configuration.cfg')
+cfg = Config(f)
+
+# == OAuth Authentication ==
+auth = tweepy.OAuthHandler(cfg.consumer_key, cfg.consumer_secret)
+auth.secure = True
+auth.set_access_token(cfg.access_token, cfg.access_token_secret)
+
+# Get tweepy api
+api = tweepy.API(auth)
 
 
 def get_user_params():
@@ -30,13 +40,13 @@ def get_user_params():
     user_params['inList']  = raw_input( '\nInput file [./corpus.csv]: ' )
     user_params['outList'] = raw_input( 'Results file [./full-corpus.csv]: ' )
     user_params['rawDir']  = raw_input( 'Raw data dir [./rawdata/]: ' )
-    
+
     # apply defaults
-    if user_params['inList']  == '': 
+    if user_params['inList']  == '':
         user_params['inList'] = './corpus.csv'
-    if user_params['outList'] == '': 
+    if user_params['outList'] == '':
         user_params['outList'] = './full-corpus.csv'
-    if user_params['rawDir']  == '': 
+    if user_params['rawDir']  == '':
         user_params['rawDir'] = './rawdata/'
 
     return user_params
@@ -107,7 +117,7 @@ def download_tweets( fetch_list, raw_dir ):
         os.mkdir( raw_dir )
 
     # stay within rate limits
-    max_tweets_per_hr  = 125
+    max_tweets_per_hr  = 700
     download_pause_sec = 3600 / max_tweets_per_hr
 
     # download tweets
@@ -122,10 +132,22 @@ def download_tweets( fetch_list, raw_dir ):
               (item[2], idx+1, len(fetch_list), trem)
 
         # pull data
-        url = 'http://api.twitter.com/1/statuses/show.json?id=' + item[2]
-        urllib.urlretrieve( url, raw_dir + item[2] + '.json' )
+        # url = 'http://api.twitter.com/1/statuses/show.json?id=' + item[2]
 
-        # stay in Twitter API rate limits 
+        try:
+          status = api.get_status(id=item[2])
+        except tweepy.error.TweepError, e:
+          if 'Rate limit exceeded' not in e.message:
+            print item[2], e.message
+        else:
+          # save status as JSON file
+          # urllib.urlretrieve( url, raw_dir + item[2] + '.json' )
+          status_json = json.loads(status.json)
+          with open(raw_dir + item[2] + '.json', 'w') as outfile:
+            json.dump(status_json, outfile)
+
+
+        # stay in Twitter API rate limits
         print '    pausing %d sec to obey Twitter API rate limits' % \
               (download_pause_sec)
         time.sleep( download_pause_sec )
@@ -134,7 +156,7 @@ def download_tweets( fetch_list, raw_dir ):
 
 
 def parse_tweet_json( filename ):
-    
+
     # read tweet
     print 'opening: ' + filename
     fp = open( filename, 'rb' )
@@ -170,15 +192,15 @@ def build_output_corpus( out_filename, raw_dir, total_list ):
         # ensure tweet exists
         if os.path.exists( raw_dir + item[2] + '.json' ):
 
-            try: 
+            try:
                 # parse tweet
                 parsed_tweet = parse_tweet_json( raw_dir + item[2] + '.json' )
                 full_row = item + parsed_tweet
-    
+
                 # character encoding for output
                 for i in range(0,len(full_row)):
                     full_row[i] = full_row[i].encode("utf-8")
-    
+
                 # write csv row
                 writer.writerow( full_row )
 
@@ -194,7 +216,7 @@ def build_output_corpus( out_filename, raw_dir, total_list ):
     if missing_count == 0:
         print '\nSuccessfully downloaded corpus!'
         print 'Output in: ' + out_filename + '\n'
-    else: 
+    else:
         print '\nMissing %d of %d tweets!' % (missing_count, len(total_list))
         print 'Partial output in: ' + out_filename + '\n'
 
@@ -220,7 +242,7 @@ def main():
     download_tweets( fetch_list, user_params['rawDir'] )
 
     # build output corpus
-    build_output_corpus( user_params['outList'], user_params['rawDir'], 
+    build_output_corpus( user_params['outList'], user_params['rawDir'],
                          total_list )
 
     return
