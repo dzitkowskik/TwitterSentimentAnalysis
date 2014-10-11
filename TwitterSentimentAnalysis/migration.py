@@ -16,6 +16,7 @@ from tweepy import Cursor
 from config import Config
 from pymongo import MongoClient
 import json
+import wordSentiment
 
 
 @classmethod
@@ -23,11 +24,6 @@ def parse(cls, api, raw):
     status = cls.first_parse(api, raw)
     setattr(status, 'json', json.dumps(raw))
     return status
-
-
-def get_config(name):
-    f = file(name)
-    return Config(f)
 
 
 def get_wait_time(cfg):
@@ -68,15 +64,21 @@ def get_time_left_str(cur_idx, length, download_pause):
     return '%dh %dm %ds' % (str_hr, str_min, str_sec)
 
 
-def save_tweet(db, item, status):
-    record = [{
-        '_id': item[2],
-        'topic': item[0],
-        'manual_grade': item[1],
-        'text': status.text,
-        'retweet_count': status.retweet_count,
-        'data': json.loads(status.json)
-        }]
+def save_tweet(db, item, status, active, analyzer):
+    if active:
+        word_sentiment = analyzer.get_word_sentiment(status.text)
+        record = [{
+            '_id': item[2],
+            'isActive': True,
+            'topic': item[0],
+            'manual_grade': item[1],
+            'word_sentiment': word_sentiment,
+            'text': status.text,
+            'retweet_count': status.retweet_count,
+            'data': json.loads(status.json)
+            }]
+    else:
+        record = [{'_id': item[2], 'isActive': False}]
     db.test_tweets.insert(record)
 
 
@@ -88,24 +90,25 @@ def wait_between_requests(idx, length, download_pause_sec):
     time.sleep(download_pause_sec)
 
 
-def download_tweets(fetch_list, tweeter_api, db, download_pause_sec):
+def download_tweets(fetch_list, tweeter_api, db, download_pause_sec, analyzer):
     length = len(fetch_list)
     for idx in range(0, length):
         item = fetch_list[idx]
-
-        try:
-            status = tweeter_api.get_status(id=item[2])
-        except tweepy.error.TweepError, e:
-            if 'Rate limit exceeded!!' not in e.message:
-                print item[2], e.message
-        else:
-            if db.test_tweets.find({'_id': item[2]}).count() == 0:
+        if db.test_tweets.find({'_id': item[2]}).count() == 0:
+            try:
                 print '--> downloading tweet #%s (%d of %d)' % \
-                      (item[2], idx+1, length)
-                save_tweet(db, item, status)
-                wait_between_requests(idx, length, download_pause_sec)
+                    (item[2], idx+1, length)
+                status = tweeter_api.get_status(id=item[2])
+            except tweepy.error.TweepError, e:
+                print 'ERROR - %s (Tweet: %s)' % \
+                    (e.message[0]['message'], item[2])
+                save_tweet(db, item, None, False, None)
             else:
-                print 'Tweet ', item[2], ' already downloaded!\n'
+                save_tweet(db, item, status, True, analyzer)
+            finally:
+                wait_between_requests(idx, length, download_pause_sec)
+        else:
+            print 'Tweet ', item[2], ' already downloaded!'
     return
 
 
@@ -113,25 +116,26 @@ def main():
     print "Downloading tweets...\n"
 
     # get configuration
-    cfg = get_config('configuration.cfg')
-
-    # get database connection
-    db_client = MongoClient(cfg.db_host, int(cfg.db_port))
+    config_file_name = 'configuration.cfg'
+    cfg = Config(file(config_file_name))
 
     # get database
+    db_client = MongoClient(cfg.db_host, int(cfg.db_port))
     db = db_client[cfg.db_database_name]
 
     # get tweeter api
     api = get_tweepy_api(cfg)
 
+    # initialize word sentiment analyzer
+    analyzer = wordSentiment.WordSentimentAnalyzer(config_file_name)
+
     # fetch list and download tweets
     tweet_list = read_total_list(cfg.corpus_file)
-    download_tweets(tweet_list, api, db, get_wait_time(cfg))
+    download_tweets(tweet_list, api, db, get_wait_time(cfg), analyzer)
 
-    # disconnect database
+    # disconnect from database
     client.close()
 
-    # second pass for any failed downloads
     print '\nDownloading tweets done!\n'
     return
 

@@ -3,8 +3,15 @@ consumer_key: ''
 consumer_secret: ''
 access_token: ''
 access_token_secret: ''
-corpus_file: './corpus.csv'
+
+# FILES
+corpus_file: 'Data/corpus.csv'
+words_file: 'Data/words.txt'
+
+# DATABASE
 db_host: 'localhost'
 db_port: '27017'
 db_database_name: 'mytestdb'
+
+# OTHER
 max_tweets_per_hour: '1200'
