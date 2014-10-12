@@ -1,3 +1,7 @@
+# Karol Dzitkowski
+# k.dzitkowski@gmail.com
+# 10-10-2014
+
 from config import Config
 import re
 import math
@@ -7,10 +11,11 @@ sys.setdefaultencoding('utf-8')
 
 
 class WordSentimentAnalyzer(object):
-    def __init__(self, cfg_file_name):
-        self.cfg = Config(file(cfg_file_name))
+    def __init__(self, cfg_file_name=None):
         self.__pattern_split = re.compile(r"\W+")
-        self.__initialize()
+        if cfg_file_name is not None:
+            self.cfg = Config(file(cfg_file_name))
+            self.__initialize()
 
     def __initialize(self):
         afinn_file = open(self.cfg.words_file)
