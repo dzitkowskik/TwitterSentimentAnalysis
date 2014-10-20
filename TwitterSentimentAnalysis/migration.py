@@ -10,13 +10,11 @@ import time
 import json
 
 import tweepy
-from tweepy import models
-from tweepy import error
 from config import Config
 from pymongo import MongoClient
 import wordSentiment
 
-
+@classmethod
 def parse(cls, api, raw):
     status = cls.first_parse(api, raw)
     setattr(status, 'json', json.dumps(raw))
