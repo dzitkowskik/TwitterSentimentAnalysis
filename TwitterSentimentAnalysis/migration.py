@@ -6,20 +6,17 @@
 # 10-10-2014
 
 import csv
-import getpass
-import json
-import os
 import time
-import urllib
+import json
+
 import tweepy
-from tweepy import Cursor
+from tweepy import models
+from tweepy import error
 from config import Config
 from pymongo import MongoClient
-import json
 import wordSentiment
 
 
-@classmethod
 def parse(cls, api, raw):
     status = cls.first_parse(api, raw)
     setattr(status, 'json', json.dumps(raw))
@@ -59,8 +56,8 @@ def get_time_left_str(cur_idx, length, download_pause):
     tweets_left = length - cur_idx
     total_seconds = tweets_left * download_pause
     str_hr = int(total_seconds / 3600)
-    str_min = int((total_seconds - str_hr*3600) / 60)
-    str_sec = total_seconds - str_hr*3600 - str_min*60
+    str_min = int((total_seconds - str_hr * 3600) / 60)
+    str_sec = total_seconds - str_hr * 3600 - str_min * 60
     return '%dh %dm %ds' % (str_hr, str_min, str_sec)
 
 
@@ -75,8 +72,7 @@ def save_tweet(db, item, status, active, analyzer):
             'word_sentiment': word_sentiment,
             'text': status.text,
             'retweet_count': status.retweet_count,
-            'data': json.loads(status.json)
-            }]
+            'data': json.loads(status.json)}]
     else:
         record = [{'_id': item[2], 'isActive': False}]
     db.test_tweets.insert(record)
@@ -97,11 +93,11 @@ def download_tweets(fetch_list, tweeter_api, db, download_pause_sec, analyzer):
         if db.test_tweets.find({'_id': item[2]}).count() == 0:
             try:
                 print '--> downloading tweet #%s (%d of %d)' % \
-                    (item[2], idx+1, length)
+                      (item[2], idx + 1, length)
                 status = tweeter_api.get_status(id=item[2])
             except tweepy.error.TweepError, e:
                 print 'ERROR - %s (Tweet: %s)' % \
-                    (e.message[0]['message'], item[2])
+                      (e.message[0]['message'], item[2])
                 save_tweet(db, item, None, False, None)
             else:
                 save_tweet(db, item, status, True, analyzer)
@@ -134,7 +130,7 @@ def main():
     download_tweets(tweet_list, api, db, get_wait_time(cfg), analyzer)
 
     # disconnect from database
-    client.close()
+    db_client.close()
 
     print '\nDownloading tweets done!\n'
     return

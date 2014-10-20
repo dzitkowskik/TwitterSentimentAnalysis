@@ -58,3 +58,6 @@ target/
 
 # Confituration files
 *.cfg
+
+# IDEA PyCharm
+.idea/
