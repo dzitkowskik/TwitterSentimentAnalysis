@@ -8,7 +8,7 @@
 import csv
 import time
 import json
-import configuration
+import core
 import tweepy
 from config import Config
 import inject
@@ -16,30 +16,8 @@ from pymongo import MongoClient
 from wordSentiment import WordSentimentAnalyzer
 
 
-# noinspection PyDecorator
-# this decorator @classmethod must be here
-@classmethod
-def parse(cls, api, raw):
-    status = cls.first_parse(api, raw)
-    setattr(status, 'json', json.dumps(raw))
-    return status
-
-
 def get_wait_time(cfg):
     return 3600.0 / int(cfg.max_tweets_per_hour)
-
-
-def get_tweepy_api(cfg):
-    tweepy.models.Status.first_parse = tweepy.models.Status.parse
-    tweepy.models.Status.parse = parse
-
-    # == OAuth Authentication ==
-    auth = tweepy.OAuthHandler(cfg.consumer_key, cfg.consumer_secret)
-    auth.secure = True
-    auth.set_access_token(cfg.access_token, cfg.access_token_secret)
-
-    # Get tweepy api
-    return tweepy.API(auth)
 
 
 def read_total_list(in_filename):
@@ -116,13 +94,13 @@ def main():
     # get configuration
     cfg = inject.instance(Config)
 
-    # get database
+    # get database and proper table
     db_client = inject.instance(MongoClient)
     db = db_client[cfg.db_database_name]
     table = db.train_data
 
     # get tweeter api
-    api = get_tweepy_api(cfg)
+    api = inject.instance(tweepy.API)
 
     # initialize word sentiment analyzer
     analyzer = WordSentimentAnalyzer()
@@ -131,13 +109,11 @@ def main():
     tweet_list = read_total_list(cfg.corpus_file)
     download_tweets(tweet_list, api, table, get_wait_time(cfg), analyzer)
 
-    # disconnect from database
-    db_client.close()
-
     print '\nDownloading tweets done!\n'
     return
 
 
 if __name__ == '__main__':
-    configuration.configure()
+    core.initialize()
     main()
+    core.terminate()
