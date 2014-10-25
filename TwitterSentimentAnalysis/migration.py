@@ -8,12 +8,16 @@
 import csv
 import time
 import json
-
+import configuration
 import tweepy
 from config import Config
+import inject
 from pymongo import MongoClient
-import wordSentiment
+from wordSentiment import WordSentimentAnalyzer
 
+
+# noinspection PyDecorator
+# this decorator @classmethod must be here
 @classmethod
 def parse(cls, api, raw):
     status = cls.first_parse(api, raw)
@@ -59,7 +63,7 @@ def get_time_left_str(cur_idx, length, download_pause):
     return '%dh %dm %ds' % (str_hr, str_min, str_sec)
 
 
-def save_tweet(db, item, status, active, analyzer):
+def save_tweet(table, item, status, active, analyzer):
     if active:
         word_sentiment = analyzer.get_word_sentiment(status.text)
         record = [{
@@ -73,7 +77,7 @@ def save_tweet(db, item, status, active, analyzer):
             'data': json.loads(status.json)}]
     else:
         record = [{'_id': item[2], 'isActive': False}]
-    db.test_tweets.insert(record)
+    table.insert(record)
 
 
 def wait_between_requests(idx, length, download_pause_sec):
@@ -84,11 +88,11 @@ def wait_between_requests(idx, length, download_pause_sec):
     time.sleep(download_pause_sec)
 
 
-def download_tweets(fetch_list, tweeter_api, db, download_pause_sec, analyzer):
+def download_tweets(fetch_list, tweeter_api, table, download_pause_sec, analyzer):
     length = len(fetch_list)
     for idx in range(0, length):
         item = fetch_list[idx]
-        if db.test_tweets.find({'_id': item[2]}).count() == 0:
+        if table.find({'_id': item[2]}).count() == 0:
             try:
                 print '--> downloading tweet #%s (%d of %d)' % \
                       (item[2], idx + 1, length)
@@ -96,9 +100,9 @@ def download_tweets(fetch_list, tweeter_api, db, download_pause_sec, analyzer):
             except tweepy.error.TweepError, e:
                 print 'ERROR - %s (Tweet: %s)' % \
                       (e.message[0]['message'], item[2])
-                save_tweet(db, item, None, False, None)
+                save_tweet(table, item, None, False, None)
             else:
-                save_tweet(db, item, status, True, analyzer)
+                save_tweet(table, item, status, True, analyzer)
             finally:
                 wait_between_requests(idx, length, download_pause_sec)
         else:
@@ -110,22 +114,22 @@ def main():
     print "Downloading tweets...\n"
 
     # get configuration
-    config_file_name = 'configuration.cfg'
-    cfg = Config(file(config_file_name))
+    cfg = inject.instance(Config)
 
     # get database
-    db_client = MongoClient(cfg.db_host, int(cfg.db_port))
+    db_client = inject.instance(MongoClient)
     db = db_client[cfg.db_database_name]
+    table = db.train_data
 
     # get tweeter api
     api = get_tweepy_api(cfg)
 
     # initialize word sentiment analyzer
-    analyzer = wordSentiment.WordSentimentAnalyzer(config_file_name)
+    analyzer = WordSentimentAnalyzer()
 
     # fetch list and download tweets
     tweet_list = read_total_list(cfg.corpus_file)
-    download_tweets(tweet_list, api, db, get_wait_time(cfg), analyzer)
+    download_tweets(tweet_list, api, table, get_wait_time(cfg), analyzer)
 
     # disconnect from database
     db_client.close()
@@ -135,4 +139,5 @@ def main():
 
 
 if __name__ == '__main__':
+    configuration.configure()
     main()
