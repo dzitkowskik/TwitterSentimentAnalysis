@@ -78,7 +78,7 @@ def download_tweets(fetch_list, tweeter_api, table, download_pause_sec, analyzer
                 status = tweeter_api.get_status(id=item[2])
             except tweepy.error.TweepError, e:
                 print 'ERROR - %s (Tweet: %s)' % \
-                      (e.message[0]['message'], item[2])
+                      (e.message[0], item[2])
                 save_tweet(table, item, None, False, None)
             else:
                 save_tweet(table, item, status, True, analyzer)
