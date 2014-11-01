@@ -35,8 +35,16 @@ class SimpleTweetDatasetFactory(DatasetFactory):
         self.cfg = config
         self.db = db_client[config.db_database_name]
 
-    def __create_classification_dataset(self):
-        return ClassificationDataSet(3, 1, 9, class_labels=self.labels)
+    @staticmethod
+    def __create_classification_dataset():
+        return ClassificationDataSet(3, 1, 9, class_labels=SimpleTweetDatasetFactory.labels)
+
+    @staticmethod
+    def convert_to_ds(x, y):
+        ds = SimpleTweetDatasetFactory.__create_classification_dataset()
+        for i in range(0, len(y)):
+            ds.addSample(x[i], y[i])
+        return ds
 
     @staticmethod
     def __get_input_from_record(record):
@@ -63,4 +71,5 @@ class SimpleTweetDatasetFactory(DatasetFactory):
         for record in self.db.train_data.find({"isActive": True}):
             ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
         return ds
+
 

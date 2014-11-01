@@ -4,15 +4,19 @@
 __author__ = 'Karol Dzitkowski'
 
 import core
+import numpy as np
 from datasets import SimpleTweetDatasetFactory
 from neuralNetworks import MultiClassClassificationNeuralNetwork
 
 
 def main():
+    np.set_printoptions(edgeitems=20)
     dataset = SimpleTweetDatasetFactory().get_dataset()
+    nn = MultiClassClassificationNeuralNetwork(3, 9, epochs=20)
     tst_data, trn_data = dataset.splitWithProportion(0.25)
-    nn = MultiClassClassificationNeuralNetwork(3, 9)
+    #nn.apply_custom_network([3])
     nn.run(trn_data, tst_data)
+    print nn.run_with_crossvalidation(dataset)
     return
 
 if __name__ == '__main__':
