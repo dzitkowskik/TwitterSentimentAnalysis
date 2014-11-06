@@ -1,3 +1,4 @@
+django
 inject
 Cheetah==2.4.4
 CherryPy==3.5.0
