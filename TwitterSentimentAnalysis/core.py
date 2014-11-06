@@ -10,6 +10,9 @@ import tweepy
 import json
 
 
+configuration_file_path = 'configuration.cfg'
+
+
 # noinspection PyDecorator
 # this decorator @classmethod must be here
 @classmethod
@@ -19,9 +22,11 @@ def parse(cls, api, raw):
     return status
 
 
-def get_tweepy_api(cfg):
-    tweepy.models.Status.first_parse = tweepy.models.Status.parse
-    tweepy.models.Status.parse = parse
+def get_tweepy_api(cfg, jsonStatusParse=True):
+
+    if jsonStatusParse:
+        tweepy.models.Status.first_parse = tweepy.models.Status.parse
+        tweepy.models.Status.parse = parse
 
     # == OAuth Authentication ==
     auth = tweepy.OAuthHandler(cfg.consumer_key, cfg.consumer_secret)
@@ -33,7 +38,7 @@ def get_tweepy_api(cfg):
 
 
 def __main_config(binder):
-    cfg = config.Config(file('configuration.cfg'))
+    cfg = config.Config(file(configuration_file_path))
     db_client = pymongo.MongoClient(cfg.db_host, int(cfg.db_port))
     tweepy_api = get_tweepy_api(cfg)
 

@@ -2,6 +2,21 @@
 
 {% block content %}
 
-<p>Hello World!</p>
-
+    <h1>Home timeline</h1>
+    <div id="tweet_table" class="row">
+        <table class="table table-condensed">
+        <tr>
+            <th style="text-align: center">Name</th>
+            <th style="text-align: center">Text</th>
+            <th style="text-align: center">Retweet count</th>
+        </tr>
+        {% for tweet in tweets %}
+            <tr>
+                <td>{{ tweet.author.name }}</td>
+                <td>{{ tweet.text }}</td>
+                <td>{{ tweet.retweet_count }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
 {% endblock %}

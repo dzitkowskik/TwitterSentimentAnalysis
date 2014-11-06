@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Tweet(models.Model):
-    id = models.CharField(max_length=30)
-    isActive = models.BooleanField()
+    number = models.CharField(max_length=30)
+    isActive = models.BooleanField(default=True)
     text = models.TextField()
     retweetCount = models.IntegerField()
     jsonData = models.FileField()
