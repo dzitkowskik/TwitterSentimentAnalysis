@@ -8,8 +8,11 @@ import config
 import pymongo
 import tweepy
 import json
+import sys
 
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
 configuration_file_path = 'configuration.cfg'
 
 
@@ -22,9 +25,9 @@ def parse(cls, api, raw):
     return status
 
 
-def get_tweepy_api(cfg, jsonStatusParse=True):
+def get_tweepy_api(cfg, json_status_parse=True):
 
-    if jsonStatusParse:
+    if json_status_parse:
         tweepy.models.Status.first_parse = tweepy.models.Status.parse
         tweepy.models.Status.parse = parse
 
@@ -42,6 +45,7 @@ def __main_config(binder):
     db_client = pymongo.MongoClient(cfg.db_host, int(cfg.db_port))
     tweepy_api = get_tweepy_api(cfg)
 
+    # bind class implementations
     binder.bind(config.Config, cfg)
     binder.bind(pymongo.MongoClient, db_client)
     binder.bind(tweepy.API, tweepy_api)

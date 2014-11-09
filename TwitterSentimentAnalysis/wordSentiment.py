@@ -7,9 +7,6 @@ import inject
 from config import Config
 import re
 import math
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 
 class WordSentimentAnalyzer(object):

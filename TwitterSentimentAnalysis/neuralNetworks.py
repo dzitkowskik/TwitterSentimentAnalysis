@@ -10,7 +10,9 @@ from pybrain import FeedForwardNetwork, LinearLayer, SigmoidLayer, FullConnectio
 from abc import ABCMeta, abstractmethod
 from sklearn import cross_validation
 import numpy as np
-from TwitterSentimentAnalysis.datasets import SimpleTweetDatasetFactory
+from TwitterSentimentAnalysis.datasets import TweetClassificationDatasetFactory
+from pybrain.tools.xml.networkwriter import NetworkWriter
+from pybrain.tools.xml.networkreader import NetworkReader
 
 
 class NeuralNetwork(object):
@@ -22,6 +24,14 @@ class NeuralNetwork(object):
 
     @abstractmethod
     def __call__(self, ds_train, ds_test):
+        pass
+
+    @abstractmethod
+    def save(self, path):
+        pass
+
+    @abstractmethod
+    def load(self, path):
         pass
 
 
@@ -98,8 +108,8 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
             x_test = x[test_index, :]
             y_test = y[test_index, :]
 
-            ds_train = SimpleTweetDatasetFactory.convert_to_ds(x_train, y_train)
-            ds_test = SimpleTweetDatasetFactory.convert_to_ds(x_test, y_test)
+            ds_train = TweetClassificationDatasetFactory.convert_to_ds(x_train, y_train)
+            ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
             ds_train._convertToOneOfMany()
             ds_test._convertToOneOfMany()
 
@@ -121,3 +131,63 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
 
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
+
+    def save(self, path):
+        NetworkWriter.writeToFile(self.network, path)
+
+    def load(self, path):
+        self.network = NetworkReader.readFrom(path)
+
+
+class SimpleRegressionNeuralNetwork(NeuralNetwork):
+    # TODO: Implement using pybrain.tools.neuralnets.NNregression
+    def __init__(self):
+        pass
+
+    def apply_custom_network(self, hidden_counts):
+        pass
+
+    def __build_default_network(self):
+        pass
+
+    def run(self, ds_train, ds_test):
+        pass
+
+    def run_with_crossvalidation(self, ds, iterations=5):
+        pass
+
+    def __call__(self, ds_train, ds_test):
+        return self.run(ds_train, ds_test)
+
+    def save(self, path):
+        pass
+
+    def load(self, path):
+        pass
+
+
+class SimpleClassificationNeuralNetwork(NeuralNetwork):
+    # TODO: Implement using pybrain.tools.neuralnets.NNclassifier
+    def __init__(self):
+        pass
+
+    def apply_custom_network(self, hidden_counts):
+        pass
+
+    def __build_default_network(self):
+        pass
+
+    def run(self, ds_train, ds_test):
+        pass
+
+    def run_with_crossvalidation(self, ds, iterations=5):
+        pass
+
+    def __call__(self, ds_train, ds_test):
+        return self.run(ds_train, ds_test)
+
+    def save(self, path):
+        pass
+
+    def load(self, path):
+        pass

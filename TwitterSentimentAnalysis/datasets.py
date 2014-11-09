@@ -18,7 +18,7 @@ class DatasetFactory(object):
         pass
 
 
-class SimpleTweetDatasetFactory(DatasetFactory):
+class TweetClassificationDatasetFactory(DatasetFactory):
     labels = [
         'Negative (-4)',
         'Negative (-3)',
@@ -37,11 +37,11 @@ class SimpleTweetDatasetFactory(DatasetFactory):
 
     @staticmethod
     def __create_classification_dataset():
-        return ClassificationDataSet(3, 1, 9, class_labels=SimpleTweetDatasetFactory.labels)
+        return ClassificationDataSet(3, 1, 9, class_labels=TweetClassificationDatasetFactory.labels)
 
     @staticmethod
     def convert_to_ds(x, y):
-        ds = SimpleTweetDatasetFactory.__create_classification_dataset()
+        ds = TweetClassificationDatasetFactory.__create_classification_dataset()
         for i in range(0, len(y)):
             ds.addSample(x[i], y[i])
         return ds
@@ -66,9 +66,10 @@ class SimpleTweetDatasetFactory(DatasetFactory):
 
         return round(word_grade * manual_grade)
 
-    def get_dataset(self):
+    def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
         ds = self.__create_classification_dataset()
-        for record in self.db.train_data.find({"isActive": True}):
+        data = self.db[table_name].find(search_params)
+        for record in data:
             ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
         return ds
 

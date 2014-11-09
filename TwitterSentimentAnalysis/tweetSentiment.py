@@ -5,13 +5,13 @@ __author__ = 'Karol Dzitkowski'
 
 import core
 import numpy as np
-from datasets import SimpleTweetDatasetFactory
+from datasets import TweetClassificationDatasetFactory
 from neuralNetworks import MultiClassClassificationNeuralNetwork
 
 
 def main():
     np.set_printoptions(edgeitems=20)
-    dataset = SimpleTweetDatasetFactory().get_dataset()
+    dataset = TweetClassificationDatasetFactory().get_dataset()
     nn = MultiClassClassificationNeuralNetwork(3, 9, epochs=20)
     tst_data, trn_data = dataset.splitWithProportion(0.25)
     #nn.apply_custom_network([3])
