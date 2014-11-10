@@ -63,6 +63,20 @@ class TweetDownloader(object):
             record = [{'_id': item[2], 'isActive': False}]
         table.insert(record)
 
+    @staticmethod
+    def _save_tweet_from_twitter(table, status, active, analyzer, tag):
+        if active:
+            word_sentiment = analyzer.get_word_sentiment(status.text)
+            record = [{
+                '_id': status['id_str'],
+                'isActive': True,
+                'tag': tag,
+                'word_sentiment': word_sentiment,
+                'text': status['text'],
+                'retweet_count': status["retweet_count"],
+                'data': json.loads(status._json)}]
+        table.insert(record)
+
     def _wait_between_requests(self, idx, length, download_pause_sec):
         # stay in Twitter API rate limits
         time_left_str = self.__get_time_left_str(idx, length, download_pause_sec)
@@ -119,4 +133,34 @@ class TweetDownloader(object):
         # TODO: Implement downloading tweets from query with limit
         # If query is None, then home timeline should be downloaded
         # downloaded tweets should be saved in table table_name
-        pass
+
+        table = self.db[table_name]
+
+        if analyzer is None:
+            analyzer = WordSentimentAnalyzer()
+
+        if tag is None:
+            if query is None:
+                tag = "Timeline"
+            else:
+                tag = query
+
+        if query is None:
+            for tweet in tweepy.Cursor(self.tweeter_api.user_timeline,
+                                       count = limit).item(limit):
+                try:
+                    self._save_tweet_from_twitter(table, tweet, True, analyzer, tag)
+                except tweepy.error.TweepError, e:
+                    print "Error downloading tweet from timeline"
+
+        else:
+            for tweet in tweepy.Cursor(self.tweeter_api.search,
+            q=query,
+            count = limit,
+            lang='en').items(limit):
+                try:
+                    self._save_tweet_from_twitter(table, tweet, True, analyzer, tag)
+                except tweepy.error.TweepError, e:
+                    print "Error downloading tweet from timeline"
+
+        return
