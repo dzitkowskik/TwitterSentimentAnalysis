@@ -68,13 +68,13 @@ class TweetDownloader(object):
         if active:
             word_sentiment = analyzer.get_word_sentiment(status.text)
             record = [{
-                '_id': status['id_str'],
+                '_id': status.id_str,
                 'isActive': True,
                 'tag': tag,
                 'word_sentiment': word_sentiment,
-                'text': status['text'],
-                'retweet_count': status["retweet_count"],
-                'data': json.loads(status._json)}]
+                'text': status.text,
+                'retweet_count': status.retweet_count,
+                'data': json.loads(status.json)}]
         table.insert(record)
 
     def _wait_between_requests(self, idx, length, download_pause_sec):
@@ -130,9 +130,6 @@ class TweetDownloader(object):
             table_name='train_data',
             analyzer=None,
             tag=None):
-        # TODO: Implement downloading tweets from query with limit
-        # If query is None, then home timeline should be downloaded
-        # downloaded tweets should be saved in table table_name
 
         table = self.db[table_name]
 
