@@ -1,0 +1,17 @@
+# TWITTER CREDENTIALS
+consumer_key: ''
+consumer_secret: ''
+access_token: ''
+access_token_secret: ''
+
+# FILES
+corpus_file: '../data/corpus.csv'
+words_file: '../data/words.txt'
+
+# DATABASE
+db_host: 'localhost'
+db_port: '27017'
+db_database_name: 'tweetSentimentAnalysis'
+
+# OTHER
+max_tweets_per_hour: '1200'

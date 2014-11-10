@@ -1,6 +1,8 @@
 # Karol Dzitkowski
 # k.dzitkowski@gmail.com
 # 10-10-2014
+import os
+
 __author__ = 'Karol Dzitkowski'
 
 import inject
@@ -9,27 +11,16 @@ import pymongo
 import tweepy
 import json
 import sys
+from tweepy import models
 
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
-configuration_file_path = 'configuration.cfg'
+base_dir = os.path.dirname(os.path.dirname(__file__))
+configuration_file_path = os.path.join(base_dir, 'TwitterSentimentAnalysis/configuration.cfg')
 
 
-# noinspection PyDecorator
-# this decorator @classmethod must be here
-@classmethod
-def parse(cls, api, raw):
-    status = cls.first_parse(api, raw)
-    setattr(status, 'json', json.dumps(raw))
-    return status
-
-
-def get_tweepy_api(cfg, json_status_parse=True):
-
-    if json_status_parse:
-        tweepy.models.Status.first_parse = tweepy.models.Status.parse
-        tweepy.models.Status.parse = parse
+def get_tweepy_api(cfg):
 
     # == OAuth Authentication ==
     auth = tweepy.OAuthHandler(cfg.consumer_key, cfg.consumer_secret)
@@ -41,6 +32,7 @@ def get_tweepy_api(cfg, json_status_parse=True):
 
 
 def __main_config(binder):
+
     cfg = config.Config(file(configuration_file_path))
     db_client = pymongo.MongoClient(cfg.db_host, int(cfg.db_port))
     tweepy_api = get_tweepy_api(cfg)
@@ -51,8 +43,26 @@ def __main_config(binder):
     binder.bind(tweepy.API, tweepy_api)
 
 
-def initialize():
+# settings for tweepy api
+# downloading also whole tweet and parsing as json
+# noinspection PyDecorator
+def __tweepy_parse_json():
+
+    @classmethod
+    def json_parse(cls, api, raw):
+        status = cls.first_parse(api, raw)
+        setattr(status, 'json', json.dumps(raw))
+        return status
+    models.Status.first_parse = models.Status.parse
+    models.Status.parse = json_parse
+
+
+def initialize(conf_file_name=None):
+    global configuration_file_path
+    if conf_file_name is not None:
+        configuration_file_path = os.path.join(base_dir, conf_file_name)
     inject.configure(__main_config)
+    __tweepy_parse_json()
 
 
 def terminate():

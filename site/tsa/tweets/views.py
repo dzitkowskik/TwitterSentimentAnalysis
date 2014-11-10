@@ -13,7 +13,7 @@ class TweetSearchView(View):
     @inject.params(config=Config)
     def __init__(self, config):
         self.cfg = config
-        self.api = core.get_tweepy_api(self.cfg, False)
+        self.api = core.get_tweepy_api(self.cfg)
 
     def get(self, request):
         records = self.api.home_timeline()
