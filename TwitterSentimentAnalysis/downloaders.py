@@ -46,36 +46,25 @@ class TweetDownloader(object):
         return '%dh %dm %ds' % (str_hr, str_min, str_sec)
 
     @staticmethod
-    def _save_tweet(table, item, status, active, analyzer, tag):
-        if active:
+    def _save_tweet(table, status, active, analyzer, tag, item=None):
+        if status is not None:
             word_sentiment = analyzer.get_word_sentiment(status.text)
-            record = [{
-                '_id': item[2],
-                'isActive': True,
-                'tag': tag,
-                'topic': item[0],
-                'manual_grade': item[1],
-                'word_sentiment': word_sentiment,
-                'text': status.text,
-                'retweet_count': status.retweet_count,
-                'data': json.loads(status.json)}]
-        else:
-            record = [{'_id': item[2], 'isActive': False}]
-        table.insert(record)
-
-    @staticmethod
-    def _save_tweet_from_twitter(table, status, active, analyzer, tag):
-        if active:
-            word_sentiment = analyzer.get_word_sentiment(status.text)
+            topic = "" if item is None else item[0]
+            manual_grade = None if item is None else item[1]
             record = [{
                 '_id': status.id_str,
-                'isActive': True,
+                'isActive': active,
                 'tag': tag,
+                'topic': topic,
+                'manual_grade': manual_grade,
                 'word_sentiment': word_sentiment,
                 'text': status.text,
                 'retweet_count': status.retweet_count,
                 'data': json.loads(status.json)}]
-        table.insert(record)
+            table.insert(record)
+        elif item is not None:
+            record = [{'_id': item[2], 'isActive': False}]
+            table.insert(record)
 
     def _wait_between_requests(self, idx, length, download_pause_sec):
         # stay in Twitter API rate limits
@@ -114,9 +103,9 @@ class TweetDownloader(object):
                 except tweepy.error.TweepError, e:
                     print 'ERROR - %s (Tweet: %s)' % \
                           (e.message[0], item[2])
-                    self._save_tweet(table, item, None, False, None, tag)
+                    self._save_tweet(table, None, False, None, tag, item)
                 else:
-                    self._save_tweet(table, item, status, True, analyzer, tag)
+                    self._save_tweet(table, status, True, analyzer, tag, item)
                 finally:
                     self._wait_between_requests(idx, length, self._get_wait_time())
             else:
@@ -143,21 +132,16 @@ class TweetDownloader(object):
                 tag = query
 
         if query is None:
-            for tweet in tweepy.Cursor(self.tweeter_api.user_timeline,
-                                       count = limit).item(limit):
+            for tweet in tweepy.Cursor(self.tweeter_api.user_timeline, count=limit).item(limit):
                 try:
-                    self._save_tweet_from_twitter(table, tweet, True, analyzer, tag)
+                    self._save_tweet(table, tweet, True, analyzer, tag)
                 except tweepy.error.TweepError, e:
-                    print "Error downloading tweet from timeline"
-
+                    print "Error downloading tweet from timeline" + e.message[0]
         else:
-            for tweet in tweepy.Cursor(self.tweeter_api.search,
-            q=query,
-            count = limit,
-            lang='en').items(limit):
+            for tweet in tweepy.Cursor(self.tweeter_api.search, q=query, count=limit, lang='en').items(limit):
                 try:
-                    self._save_tweet_from_twitter(table, tweet, True, analyzer, tag)
+                    self._save_tweet(table, tweet, True, analyzer, tag)
                 except tweepy.error.TweepError, e:
-                    print "Error downloading tweet from timeline"
+                    print "Error downloading tweet from timeline" + e.message[0]
 
         return
