@@ -43,11 +43,11 @@
         </table>
         <nav>
           <ul class="pagination">
-            <li><a href="javascript:void(0)" onclick="">&laquo;</a></li>
+            <li id="pagination_back"><a href="javascript:void(0)" onclick="toPrevious();">&laquo;</a></li>
             {% for p in pages %}
                 <li><a href="javascript:void(0)" onclick="toPage({{ p }});">{{ p }}</a></li>
             {% endfor %}
-            <li><a href="javascript:void(0)" onclick="">&raquo;</a></li>
+            <li><a href="javascript:void(0)" onclick="toNext();">&raquo;</a></li>
           </ul>
         </nav>
     </div>
@@ -74,4 +74,5 @@
             </div>
         </form>
     </div>
+
 {% endblock %}
