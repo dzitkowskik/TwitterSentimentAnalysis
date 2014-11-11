@@ -6,7 +6,7 @@
         <h1>{{ header }}</h1>
     </div>
     <div class="row">
-        <form class="form-horizontal" role="form" action="" method="post">
+        <form id="query_form" class="form-horizontal" role="form" action="" method="post">
             {% csrf_token %}
             {{ form.non_field_errors }}
 
@@ -26,7 +26,7 @@
             </div>
         </form>
     </div>
-    <div id="tweet_table" class="row">
+    <div id="tweet_table" class="row paginator_content">
         <table class="table table-condensed">
         <tr>
             <th style="text-align: center">Name</th>
@@ -43,11 +43,11 @@
         </table>
         <nav>
           <ul class="pagination">
-            <li><a href="javascript:void(0)" onclick="goBack();">&laquo;</a></li>
+            <li><a href="javascript:void(0)" onclick="">&laquo;</a></li>
             {% for p in pages %}
-                <li><a href="javascript:void(0)" onclick="goToPage({{ p }});">{{ p }}</a></li>
+                <li><a href="javascript:void(0)" onclick="toPage({{ p }});">{{ p }}</a></li>
             {% endfor %}
-            <li><a href="javascript:void(0)" onclick="goForward();">&raquo;</a></li>
+            <li><a href="javascript:void(0)" onclick="">&raquo;</a></li>
           </ul>
         </nav>
     </div>
@@ -56,12 +56,16 @@
             {% csrf_token %}
             {{ form.non_field_errors }}
             <div class="form-group">
-                <label for="id_query" class="col-sm-2 control-label">Name:</label>
-                {{ form.name.errors }}
-                <div class="col-sm-5">{{ form.name|addcss:"form-control" }}</div>
-                <label for="id_query" class="col-sm-2 control-label">Limit:</label>
-                {{ form.limit.errors }}
-                <div class="col-sm-3">{{ form.limit|addcss:"form-control" }}</div>
+                <div class="col-sm-8">
+                    <label for="id_name" class="col-sm-2 control-label">Name:</label>
+                    {{ form.name.errors }}
+                    {{ form.name|addcss:"form-control" }}
+                </div>
+                <div class="col-sm-4">
+                    <label for="id_limit" class="col-sm-2 control-label">Limit:</label>
+                    {{ form.limit.errors }}
+                    {{ form.limit|addcss:"form-control" }}
+                </div>
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-10 col-sm-2">

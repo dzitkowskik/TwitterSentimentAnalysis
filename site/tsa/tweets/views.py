@@ -4,6 +4,7 @@ import inject
 from TwitterSentimentAnalysis import core
 from config import Config
 from forms import QueryForm
+from tweepy import Cursor
 
 
 class TweetSearchView(View):
@@ -11,6 +12,7 @@ class TweetSearchView(View):
     language = 'en'
     tweets_per_page = 10
     pages_shown_count = 5
+    max_pages = 1000
 
     @inject.params(config=Config)
     def __init__(self, config):
@@ -31,12 +33,24 @@ class TweetSearchView(View):
             query = form.cleaned_data['query']
             page = form.cleaned_data['page']
             pages = self.__get_pages_range(page)
-            records = self.api.search(query, self.language, rpp=self.tweets_per_page, page=page)
-            header = "Search: " + query
-            context = {'tweets': records, 'form': form, 'header': header, 'pages': pages}
-            return render(request, self.template_name, context)
+            if not query:
+                header = 'Home timeline'
+                records = self.api.home_timeline(count=self.tweets_per_page, page=page)
+            else:
+                header = "Search: " + query
+                p = Cursor(self.api.search, q=query, lang=self.language, rpp=self.tweets_per_page).pages(page)
+                records = None
+                for records in p:
+                    pass
+            if records:
+                context = {'tweets': records, 'form': form, 'header': header, 'pages': pages}
+                return render(request, self.template_name, context)
+            else:
+                header = 'Nothing found!'
+                pages = []
+                return render(request, self.template_name, {'form': form, 'header': header, 'pages': pages})
 
-        header = 'Nothing found'
+        header = 'Error occurred'
         pages = []
         return render(request, self.template_name, {'form': form, 'header': header, 'pages': pages})
 
@@ -44,6 +58,7 @@ class TweetSearchView(View):
         start = max(1, actual - (self.pages_shown_count / 2))
         end = start + self.pages_shown_count
         return range(start, end + 1)
+
 
 def contact(request):
     return render(request, 'contact.html', {})
