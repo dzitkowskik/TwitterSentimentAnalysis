@@ -6,7 +6,7 @@
         <h1>{{ header }}</h1>
     </div>
     <div class="row">
-        <form id="query_form" class="form-horizontal" role="form" action="" method="post">
+        <form id="query_form" class="form-horizontal" role="form" action="" method="POST">
             {% csrf_token %}
             {{ form.non_field_errors }}
 
@@ -21,7 +21,7 @@
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-10 col-sm-2">
-                    <button type="submit" class="btn btn-default pull-right">Search</button>
+                    <button type="submit" name="form_search" class="btn btn-default pull-right">Search</button>
                 </div>
             </div>
         </form>
@@ -52,7 +52,7 @@
         </nav>
     </div>
     <div class="row">
-        <form class="form-horizontal" role="form" action="save" method="post">
+        <form class="form-horizontal" role="form" action="" method="POST">
             {% csrf_token %}
             {{ form.non_field_errors }}
             <div class="form-group">
@@ -69,7 +69,7 @@
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-10 col-sm-2">
-                    <button type="submit" class="btn btn-default pull-right">Save</button>
+                    <button type="submit" name="form_save" class="btn btn-default pull-right">Save</button>
                 </div>
             </div>
         </form>

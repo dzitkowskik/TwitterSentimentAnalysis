@@ -6,7 +6,7 @@ from TwitterSentimentAnalysis import wordSentiment, core
 class WordSentimentAnalyzerTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        core.initialize('TwitterSentimentAnalysis/test/test_configuration.cfg')
+        core.initialize('test/test_configuration.cfg')
 
     @classmethod
     def tearDownClass(cls):

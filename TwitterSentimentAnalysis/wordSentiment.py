@@ -7,6 +7,7 @@ import inject
 from config import Config
 import re
 import math
+import core
 
 
 class WordSentimentAnalyzer(object):
@@ -18,7 +19,7 @@ class WordSentimentAnalyzer(object):
         self.__initialize()
 
     def __initialize(self):
-        afinn_file = open(self.cfg.words_file)
+        afinn_file = open(core.convert_rel_to_absolute(self.cfg.words_file))
         words = [ws.strip().split('\t') for ws in afinn_file]
         pairs = lambda (word, sent): (word, int(sent))
         self.words_dict = dict(map(pairs, words))

@@ -5,8 +5,8 @@ access_token: ''
 access_token_secret: ''
 
 # FILES
-corpus_file: '../data/corpus.csv'
-words_file: '../data/words.txt'
+corpus_file: 'data/corpus.csv'
+words_file: 'data/words.txt'
 
 # DATABASE
 db_host: 'localhost'

@@ -16,8 +16,8 @@ from tweepy import models
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
-base_dir = os.path.dirname(os.path.dirname(__file__))
-configuration_file_path = os.path.join(base_dir, 'TwitterSentimentAnalysis/configuration.cfg')
+base_dir = os.path.dirname(__file__)
+configuration_file_path = os.path.join(base_dir, 'configuration.cfg')
 
 
 def get_tweepy_api(cfg):
@@ -67,4 +67,8 @@ def initialize(conf_file_name=None):
 
 def terminate():
     inject.instance(pymongo.MongoClient).close()
+
+
+def convert_rel_to_absolute(rel):
+    return os.path.join(base_dir, rel)
 
