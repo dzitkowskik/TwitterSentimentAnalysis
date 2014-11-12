@@ -44,7 +44,7 @@ class DownloadTweetsTestCase(unittest.TestCase):
         self.assertIsNotNone(actual)
 
     def test_download_tweets_using_query_empty_query_check_tweet_number(self):
-        expected = 10
+        expected = 5
         query = ""
         self.tweet_downloader.download_tweets_using_query(query, expected, self.test_table_name, tag="test")
         actual = self.test_db[self.test_table_name].count()
