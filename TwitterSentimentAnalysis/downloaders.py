@@ -135,13 +135,13 @@ class TweetDownloader(object):
                 tag = query
 
         if query is None or query == "":
-            for tweet in tweepy.Cursor(self.tweeter_api.user_timeline).items(limit):
+            for tweet in tweepy.Cursor(self.tweeter_api.user_timeline, count=limit).items(limit):
                 try:
                     self._save_tweet(table, tweet, True, analyzer, tag)
                 except tweepy.error.TweepError, e:
                     print "Error downloading tweet from timeline" + e.message[0]
         else:
-            for tweet in tweepy.Cursor(self.tweeter_api.search, q=query, lang='en').items(limit):
+            for tweet in tweepy.Cursor(self.tweeter_api.search, count=limit, q=query, lang='en').items(limit):
                 try:
                     self._save_tweet(table, tweet, True, analyzer, tag)
                 except tweepy.error.TweepError, e:

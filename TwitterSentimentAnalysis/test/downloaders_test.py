@@ -22,7 +22,7 @@ class DownloadTweetsTestCase(unittest.TestCase):
         self.test_db.drop_collection(self.test_table_name)
 
     def test_download_tweets_using_query_check_tweet_number(self):
-        expected = 50
+        expected = 10
         self.tweet_downloader.download_tweets_using_query("erasmus", expected, self.test_table_name, tag="test")
         number_of_tweets_in_db = self.test_db[self.test_table_name].count()
         self.assertEqual(number_of_tweets_in_db, expected)
@@ -42,6 +42,13 @@ class DownloadTweetsTestCase(unittest.TestCase):
         expected = api.user_timeline(count=limit)[0].text
         actual = self.test_db[self.test_table_name].find_one({'text': expected})
         self.assertIsNotNone(actual)
+
+    def test_download_tweets_using_query_empty_query_check_tweet_number(self):
+        expected = 10
+        query = ""
+        self.tweet_downloader.download_tweets_using_query(query, expected, self.test_table_name, tag="test")
+        actual = self.test_db[self.test_table_name].count()
+        self.assertEqual(expected, actual)
 
 
 if __name__ == '__main__':
