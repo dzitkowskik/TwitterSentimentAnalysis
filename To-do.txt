@@ -1,0 +1,12 @@
+TODO:
+PART 1:
+- Prediction of sentiment based on AFINN
+
+PART 2:
+- NN training to predict retweet rate
+
+PART 3:
+- Implementing NN predicting sentiment on attributes
+
+PART 4:
+- Analysis sentiment and retweet correlation

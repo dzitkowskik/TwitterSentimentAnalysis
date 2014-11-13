@@ -2,12 +2,14 @@ import uuid
 import unittest
 from TwitterSentimentAnalysis import downloaders, core
 from config import Config
-
+import os
 
 class DownloadTweetsTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        core.initialize('test/test_configuration.cfg')
+        base_dir = os.path.dirname(__file__)
+        configuration_file_path = os.path.join(base_dir, 'test_configuration.cfg')
+        core.initialize(configuration_file_path)
 
     @classmethod
     def tearDownClass(cls):
