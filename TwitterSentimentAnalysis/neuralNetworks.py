@@ -248,8 +248,10 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
 
 class SimpleClassificationNeuralNetwork(NeuralNetwork):
     # TODO: Implement using pybrain.tools.neuralnets.NNclassifier
-    def __init__(self):
-        pass
+    def __init__(self, train_DS, hid_cnt = 10, epochs = 100, convergence = 0.01):
+        self.hidden = hid_cnt
+        self.network = None
+        self.convergence = convergence
 
     def apply_custom_network(self, hidden_counts):
         pass
