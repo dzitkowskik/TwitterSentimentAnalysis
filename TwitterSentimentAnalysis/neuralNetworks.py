@@ -97,6 +97,12 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
             weightdecay=0.01)
 
         trainer.trainEpochs(self.epochs)
+        tstresult = percentError(
+            trainer.testOnClassData(dataset=ds_test),
+            ds_test['class'])
+
+        print "Multi class neural network test error: %5.2f%%" % tstresult
+        return tstresult
 
     # noinspection PyProtectedMember
     def run_with_crossvalidation(self, ds, iterations=5):
