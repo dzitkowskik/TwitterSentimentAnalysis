@@ -13,6 +13,7 @@ import numpy as np
 from TwitterSentimentAnalysis.datasets import TweetClassificationDatasetFactory
 from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
+from pybrain.tools.neuralnets import NNregression
 
 
 class NeuralNetwork(object):
@@ -141,14 +142,20 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
 
 class SimpleRegressionNeuralNetwork(NeuralNetwork):
     # TODO: Implement using pybrain.tools.neuralnets.NNregression
-    def __init__(self):
-        pass
+    def __init__(self, train_DS, test_DS, validation_DS, hid_cnt = 10, epochs = 100):
+        self.training_DS = train_DS
+        self.tds = test_DS
+        self.vds = validation_DS
+        self.hidden = hid_cnt
+        self.epoinc = epochs
+        self.network = self.__build_default_network()
+
 
     def apply_custom_network(self, hidden_counts):
-        pass
+        return NNregression.setupNN(hidden = hidden_counts)
 
     def __build_default_network(self):
-        pass
+        return NNregression.setupNN(hidden = self.hidden)
 
     def run(self, ds_train, ds_test):
         pass
