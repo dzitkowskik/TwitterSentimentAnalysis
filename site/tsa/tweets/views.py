@@ -19,6 +19,7 @@ class TweetSearchView(View):
     def __init__(self, config):
         self.cfg = config
         self.api = core.get_tweepy_api(self.cfg)
+        self.td = TweetDownloader()
 
     def get(self, request):
         records = self.api.home_timeline(count=self.tweets_per_page)
@@ -31,10 +32,10 @@ class TweetSearchView(View):
     def post(self, request):
         form = QueryForm(request.POST)
         if form.is_valid():
-            if 'form_search' in request.POST:
-                return self.search(request, form)
-            elif 'form_save' in request.POST:
-                return self.save(request, form)
+            if 'form_save' in request.POST:
+                # TODO: Implement async waiting for saving with progress bar
+                self.save(form)
+            return self.search(request, form)
 
         header = 'Error occurred'
         pages = []
@@ -63,16 +64,11 @@ class TweetSearchView(View):
             pages = []
             return render(request, self.template_name, {'form': form, 'header': header, 'pages': pages})
 
-    def save(self, request, form):
+    def save(self, form):
         query = form.cleaned_data['query']
         name = form.cleaned_data['name']
         limit = form.cleaned_data['limit']
-        td = TweetDownloader()
-        td.download_tweets_using_query(query, limit, 'test_data', tag=name)
-
-        # TODO: Implement async waiting for saving with progress bar
-
-        return self.search(request, form)
+        self.td.download_tweets_using_query(query, limit, 'test_data', tag=name)
 
     def __get_pages_range(self, actual=1):
         if actual is None:
