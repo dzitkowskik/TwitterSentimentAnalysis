@@ -32,7 +32,7 @@ class AIEnum(enum.Enum):
         # filter down to just properties
         props = [m for m in members if not(m[0][:2] == '__')]
         # format into django choice tuple
-        return tuple([(str(p[1].value), p[0]) for p in props])
+        return tuple([(p[0], p[1].value) for p in props])
 
 
 class NeuralNetwork(object):

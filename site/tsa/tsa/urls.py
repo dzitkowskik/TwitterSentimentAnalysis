@@ -8,5 +8,6 @@ from tweets.views import *
 urlpatterns = patterns('',
                        url(r'^$', TweetSearchView.as_view()),
                        url(r'^analysis/$', AnalysisView.as_view()),
+                       url(r'^statistics/$', StatisticsView.as_view()),
                        url(r'^contact/$', contact, name='contact'),
                        url(r'^admin/', include(admin.site.urls)), )

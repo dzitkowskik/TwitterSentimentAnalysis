@@ -4,6 +4,7 @@ import inject
 from pymongo import MongoClient
 from TwitterSentimentAnalysis import core
 from config import Config
+from TwitterSentimentAnalysis.neuralNetworks import AIEnum
 from forms import QueryForm, AnalysisForm
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
@@ -81,7 +82,6 @@ class TweetSearchView(View):
 
 class AnalysisView(View):
     template_name = "analysis.html"
-    language = 'en'
     tweets_per_page = 10
     pages_shown_count = 5
     max_pages = 1000
@@ -98,11 +98,13 @@ class AnalysisView(View):
         return render(request, self.template_name, context)
 
     def post(self, request):
-        form = QueryForm(request.POST)
+        sets = self.get_tweet_sets()
+        form = AnalysisForm(sets, request.POST)
         if form.is_valid():
             # TODO: Implement calling an AI on a set of tweets
+            ai_type = AIEnum[form.cleaned_data['ai_types']]
             header = "Twitter sentiment analysis"
-            form = AnalysisForm(self.get_tweet_sets())
+            form = AnalysisForm(sets)
             context = {'header': header, 'form': form}
             return render(request, self.template_name, context)
 
@@ -119,6 +121,18 @@ class AnalysisView(View):
         return result
 
 
+class StatisticsView(View):
+    template_name = "statistics.html"
+
+    @inject.params(config=Config, db_client=MongoClient)
+    def __init__(self, config, db_client):
+        self.cfg = config
+        self.db = db_client[config.db_database_name]
+
+    def get(self, request):
+        header = "Twitter sentiment statistics"
+        context = {'header': header}
+        return render(request, self.template_name, context)
 
 
 def contact(request):
