@@ -24,6 +24,10 @@ class NeuralNetwork(object):
         pass
 
     @abstractmethod
+    def test(self, ds_test):
+        pass
+
+    @abstractmethod
     def __call__(self, ds_train, ds_test):
         pass
 
@@ -69,6 +73,14 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
         self.network = network
         return self
 
+    def test(self, ds_test):
+        error = percentError(
+            self.network.activateOnDataset(ds_test),
+            ds_test['class'])
+
+        print "Multi class neural network test error: %5.2f%%" % error
+        return error
+
     def __build_default_network(self):
         return buildNetwork(self.inp_cnt, self.hid_cnt, self.out_cnt, outclass=SoftmaxLayer, bias=True)
 
@@ -85,12 +97,6 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
             weightdecay=0.01)
 
         trainer.trainEpochs(self.epochs)
-        tstresult = percentError(
-            trainer.testOnClassData(dataset=ds_test),
-            ds_test['class'])
-
-        print "Multi class neural network test error: %5.2f%%" % tstresult
-        return tstresult
 
     # noinspection PyProtectedMember
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -150,7 +156,6 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
         self.epoinc = epochs
         self.network = self.__build_default_network()
 
-
     def apply_custom_network(self, hidden_counts):
         return NNregression.setupNN(hidden = hidden_counts)
 
@@ -158,6 +163,9 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
         return NNregression.setupNN(hidden = self.hidden)
 
     def run(self, ds_train, ds_test):
+        pass
+
+    def test(self, ds_test):
         pass
 
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -185,6 +193,9 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
         pass
 
     def run(self, ds_train, ds_test):
+        pass
+
+    def test(self, ds_test):
         pass
 
     def run_with_crossvalidation(self, ds, iterations=5):
