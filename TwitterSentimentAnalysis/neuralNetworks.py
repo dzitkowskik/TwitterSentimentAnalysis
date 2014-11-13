@@ -38,12 +38,15 @@ class AIEnum(enum.Enum):
 class NeuralNetwork(object):
     __metaclass__ = ABCMeta
 
-    def factory(type):
-        if type == AIEnum.MultiClassClassificationNeuralNetwork.value: return MultiClassClassificationNeuralNetwork()
-        if type == AIEnum.SimpleClassificationNeuralNetwork.value: return SimpleClassificationNeuralNetwork()
-        if type == AIEnum.SimpleRegressionNeuralNetwork.value: return SimpleRegressionNeuralNetwork()
-        assert 0, "Bad enum given: " + type
-    factory = staticmethod(factory)
+    @staticmethod
+    def factory(ai_type):
+        if ai_type == AIEnum.MultiClassClassificationNeuralNetwork:
+            return MultiClassClassificationNeuralNetwork()
+        if ai_type == AIEnum.SimpleClassificationNeuralNetwork:
+            return SimpleClassificationNeuralNetwork()
+        if ai_type == AIEnum.SimpleRegressionNeuralNetwork:
+            return SimpleRegressionNeuralNetwork()
+        assert 0, "Bad enum given: " + str(ai_type)
 
     @abstractmethod
     def run(self, ds_train, ds_test):

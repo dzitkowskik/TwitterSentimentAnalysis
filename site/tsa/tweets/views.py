@@ -4,7 +4,7 @@ import inject
 from pymongo import MongoClient
 from TwitterSentimentAnalysis import core
 from config import Config
-from TwitterSentimentAnalysis.neuralNetworks import AIEnum
+from TwitterSentimentAnalysis.neuralNetworks import AIEnum, NeuralNetwork
 from forms import QueryForm, AnalysisForm
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
@@ -103,6 +103,7 @@ class AnalysisView(View):
         if form.is_valid():
             # TODO: Implement calling an AI on a set of tweets
             ai_type = AIEnum[form.cleaned_data['ai_types']]
+            nn = NeuralNetwork.factory(ai_type)
             header = "Twitter sentiment analysis"
             form = AnalysisForm(sets)
             context = {'header': header, 'form': form}
