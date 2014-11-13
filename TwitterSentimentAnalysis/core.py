@@ -15,9 +15,11 @@ from tweepy import models
 
 
 reload(sys)
+
 sys.setdefaultencoding('utf-8')
 base_dir = os.path.dirname(__file__)
 configuration_file_path = os.path.join(base_dir, 'configuration.cfg')
+__core_initialized = False
 
 
 def get_tweepy_api(cfg):
@@ -58,15 +60,21 @@ def __tweepy_parse_json():
 
 
 def initialize(conf_file_name=None):
+    global __core_initialized
+    if __core_initialized:
+        return
     global configuration_file_path
     if conf_file_name is not None:
         configuration_file_path = os.path.join(base_dir, conf_file_name)
     inject.configure(__main_config)
     __tweepy_parse_json()
+    __core_initialized = True
 
 
 def terminate():
-    inject.instance(pymongo.MongoClient).close()
+    global __core_initialized
+    if __core_initialized:
+        inject.instance(pymongo.MongoClient).close()
 
 
 def convert_rel_to_absolute(rel):

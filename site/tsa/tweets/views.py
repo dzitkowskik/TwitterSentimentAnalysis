@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.views.generic import View
 import inject
+from pymongo import MongoClient
 from TwitterSentimentAnalysis import core
 from config import Config
-from forms import QueryForm
+from forms import QueryForm, AnalysisForm
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
 
@@ -68,7 +69,7 @@ class TweetSearchView(View):
         query = form.cleaned_data['query']
         name = form.cleaned_data['name']
         limit = form.cleaned_data['limit']
-        self.td.download_tweets_using_query(query, limit, 'test_data', tag=name)
+        self.td.download_tweets_using_query(query, limit, self.cfg.test_tweets_table, tag=name)
 
     def __get_pages_range(self, actual=1):
         if actual is None:
@@ -76,6 +77,48 @@ class TweetSearchView(View):
         start = max(1, actual - (self.pages_shown_count / 2))
         end = start + self.pages_shown_count
         return range(start, end + 1)
+
+
+class AnalysisView(View):
+    template_name = "analysis.html"
+    language = 'en'
+    tweets_per_page = 10
+    pages_shown_count = 5
+    max_pages = 1000
+
+    @inject.params(config=Config, db_client=MongoClient)
+    def __init__(self, config, db_client):
+        self.cfg = config
+        self.db = db_client[config.db_database_name]
+
+    def get(self, request):
+        header = "Twitter sentiment analysis"
+        form = AnalysisForm(self.get_tweet_sets())
+        context = {'header': header, 'form': form}
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = QueryForm(request.POST)
+        if form.is_valid():
+            # TODO: Implement calling an AI on a set of tweets
+            header = "Twitter sentiment analysis"
+            form = AnalysisForm(self.get_tweet_sets())
+            context = {'header': header, 'form': form}
+            return render(request, self.template_name, context)
+
+        header = 'Error occurred'
+        context = {'header': header, 'form': form}
+        return render(request, self.template_name, context)
+
+    def get_tweet_sets(self):
+        table = self.db[self.cfg.test_tweets_table]
+        tags = table.distinct('tag')
+        result = []
+        for tag in tags:
+            result.append((tag, tag))
+        return result
+
+
 
 
 def contact(request):
