@@ -48,6 +48,9 @@ class DownloadTweetsTestCase(unittest.TestCase):
         query = ""
         self.tweet_downloader.download_tweets_using_query(query, expected, self.test_table_name, tag="test")
         actual = self.test_db[self.test_table_name].count()
+        cfg = Config(core.configuration_file_path)
+        api = core.get_tweepy_api(cfg)
+        expected = min(len(api.user_timeline(count=expected)), expected)
         self.assertEqual(expected, actual)
 
 
