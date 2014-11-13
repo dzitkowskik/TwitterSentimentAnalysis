@@ -1,6 +1,8 @@
 # Karol Dzitkowski
 # k.dzitkowski@gmail.com
 # 10-10-2014
+import inspect
+
 __author__ = 'ghash'
 
 from pybrain.supervised.trainers import BackpropTrainer
@@ -14,6 +16,23 @@ from TwitterSentimentAnalysis.datasets import TweetClassificationDatasetFactory
 from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.tools.neuralnets import NNregression
+import enum
+
+
+@enum.unique
+class AIEnum(enum.Enum):
+    MultiClassClassificationNeuralNetwork = "Multi class classification NN"
+    SimpleRegressionNeuralNetwork = "Simple regression NN"
+    SimpleClassificationNeuralNetwork = "Simple classification NN"
+
+    @classmethod
+    def choices(cls):
+        # get all members of the class
+        members = inspect.getmembers(cls, lambda memb: not(inspect.isroutine(memb)))
+        # filter down to just properties
+        props = [m for m in members if not(m[0][:2] == '__')]
+        # format into django choice tuple
+        return tuple([(str(p[1].value), p[0]) for p in props])
 
 
 class NeuralNetwork(object):

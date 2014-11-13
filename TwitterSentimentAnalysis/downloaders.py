@@ -76,7 +76,7 @@ class TweetDownloader(object):
     def download_tweets_from_file(
             self,
             file_name=None,
-            table_name='train_data',
+            table_name='data',
             analyzer=None,
             tag=None):
 
@@ -116,7 +116,7 @@ class TweetDownloader(object):
             self,
             query=None,
             limit=100,
-            table_name='train_data',
+            table_name='data',
             analyzer=None,
             tag=None):
 

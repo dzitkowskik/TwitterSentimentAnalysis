@@ -11,7 +11,9 @@ words_file: 'data/words.txt'
 # DATABASE
 db_host: 'localhost'
 db_port: '27017'
-db_database_name: 'tweetSentimentAnalysis'
+db_database_name: 'tweetSentimentAnalysis_test'
+train_tweets_table: 'train_data'
+test_tweets_table: 'test_data'
 
 # OTHER
 max_tweets_per_hour: '1200'
