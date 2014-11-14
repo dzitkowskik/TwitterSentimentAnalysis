@@ -16,6 +16,7 @@ from TwitterSentimentAnalysis.datasets import TweetClassificationDatasetFactory
 from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.tools.neuralnets import NNregression
+from pybrain.tools.neuralnets import NNclassifier
 import enum
 
 
@@ -256,26 +257,63 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
         self.network = None
         self.convergence = convergence
 
-    def apply_custom_network(self, hidden_counts):
-        pass
-
-    def __build_default_network(self):
-        pass
-
     def run(self, ds_train, ds_test):
-        pass
+        self.network = NNclassifier(ds_train)
+
+        self.network.runTraining(self.convergence)
+
+        tstresult = self.test(ds_test)
+
+        print "Multi class neural network test error: %5.2f%%" % tstresult
+        return tstresult
 
     def test(self, ds_test):
-        pass
+        tstresult = percentError(
+            self.network.activateOnDataset(ds_test),
+            ds_test['class'])
+
+        print "Multi class neural network test error: %5.2f%%" % tstresult
+        return tstresult
 
     def run_with_crossvalidation(self, ds, iterations=5):
-        pass
+        x = ds['input']
+        y = ds['target']
+
+        n, m = x.shape
+        errors = np.zeros(iterations)
+
+        cv = cross_validation.KFold(n, iterations, shuffle=True)
+
+        i = 0
+        for train_index, test_index in cv:
+            x_train = x[train_index, :]
+            y_train = y[train_index, :]
+            x_test = x[test_index, :]
+            y_test = y[test_index, :]
+
+            ds_train = TweetClassificationDatasetFactory.convert_to_ds(x_train, y_train)
+            ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
+            ds_train._convertToOneOfMany()
+            ds_test._convertToOneOfMany()
+
+            self.network = NNclassifier(ds_train)
+
+            self.network.runTraining(self.convergence)
+
+            tstresult = self.test(ds_test)
+
+            errors[i] = tstresult
+
+            i += 1
+
+        print "Multi class NN cross-validation test errors: " % errors
+        return np.average(errors)
 
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        pass
+        NNclassifier.saveNetwork(self.network, path)
 
     def load(self, path):
-        pass
+        self.network = NetworkReader.readFrom(path)
