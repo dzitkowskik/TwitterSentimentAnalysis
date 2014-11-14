@@ -74,3 +74,14 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         return ds
 
 
+class TweetRegressionDatasetFactory(DatasetFactory):
+    @inject.params(config=Config, db_client=MongoClient)
+    def __init__(self, config, db_client):
+        self.cfg = config
+        self.db = db_client[config.db_database_name]
+
+    def get_dataset(self):
+        # TODO: Implement a dataset "factory" for getting a set of tweet records
+        # for regression of retweet_count (as an output) and sentiment + some
+        # attributes as an input
+        pass
