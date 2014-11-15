@@ -72,6 +72,7 @@ class NeuralNetwork(object):
     def load(self, path):
         pass
 
+
 class MultiClassClassificationNeuralNetwork(NeuralNetwork):
     def __init__(self, inp_cnt, out_cnt, hid_cnt=10, epochs=100):
         self.hid_cnt = hid_cnt
@@ -183,30 +184,24 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
 
+
 class SimpleRegressionNeuralNetwork(NeuralNetwork):
-    def __init__(self, train_DS, hid_cnt = 10, epochs = 100, convergence = 0.01):
+    def __init__(self, hid_cnt=10, convergence=0.01):
         self.hidden = hid_cnt
         self.network = None
         self.convergence = convergence
 
     def run(self, ds_train, ds_test):
         self.network = NNregression(ds_train)
-
         self.network.runTraining(self.convergence)
-
         tstresult = self.test(ds_test)
-
-        print "Multi class neural network test error: %5.2f%%" % tstresult
         return tstresult
 
     def test(self, ds_test):
         tstresult = percentError(
             self.network.activateOnDataset(ds_test),
             ds_test['class'])
-
-        print "Multi class neural network test error: %5.2f%%" % tstresult
         return tstresult
-
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -249,29 +244,23 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
 
+
 class SimpleClassificationNeuralNetwork(NeuralNetwork):
-    # TODO: Implement using pybrain.tools.neuralnets.NNclassifier
-    def __init__(self, train_DS, hid_cnt = 10, epochs = 100, convergence = 0.01):
+    def __init__(self, hid_cnt=10, convergence=0.01):
         self.hidden = hid_cnt
         self.network = None
         self.convergence = convergence
 
     def run(self, ds_train, ds_test):
         self.network = NNclassifier(ds_train)
-
         self.network.runTraining(self.convergence)
-
         tstresult = self.test(ds_test)
-
-        print "Multi class neural network test error: %5.2f%%" % tstresult
         return tstresult
 
     def test(self, ds_test):
         tstresult = percentError(
             self.network.activateOnDataset(ds_test),
             ds_test['class'])
-
-        print "Multi class neural network test error: %5.2f%%" % tstresult
         return tstresult
 
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -316,6 +305,7 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
 
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
+
 
 class NaiveBayesClassifier(NeuralNetwork):
     def __init__(self):
@@ -364,6 +354,7 @@ class NaiveBayesClassifier(NeuralNetwork):
         self.classifier = pickle.load(f)
         f.close()
 
+
 class MaxEntropyClassifier(NeuralNetwork):
     def __init__(self):
         self.classifier = nltk.MaxentClassifier()
@@ -411,6 +402,7 @@ class MaxEntropyClassifier(NeuralNetwork):
         self.classifier = pickle.load(f)
         f.close()
 
+
 class LinearRegression(NeuralNetwork):
     def __init__(self):
         self.regression = lm.LinearRegression()
@@ -421,17 +413,13 @@ class LinearRegression(NeuralNetwork):
         X_test = [test[0] for test in ds_test]
         y_test = [test[1] for test in ds_test]
         self.regression.fit(X_train, y_train)
-
         tstresult = self.regression.score(X_test, y_test)
-
         return tstresult
 
     def test(self, ds_test):
         X_test = [test[0] for test in ds_test]
         y_test = [test[1] for test in ds_test]
-
         tstresult = self.regression.score(X_test, y_test)
-
         return tstresult
 
     def run_with_crossvalidation(self, ds, iterations = 5):
@@ -448,26 +436,22 @@ class LinearRegression(NeuralNetwork):
             y_train = [train[1] for train in train_ds]
             X_test = [test[0] for test in test_ds]
             y_test = [test[1] for test in test_ds]
+            
             self.regression.fit(X_train, y_train)
-
-            tstresult = self.regression.score(X_test, y_test)
-
+            errors[i] = self.regression.score(X_test, y_test)
             i += 1
-
-        print "Max Entropy Classifier cross-validation test errors: " % errors
         return np.average(errors)
-
 
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
         f = open(path, 'wb')
-        pickle.dump(self.classifier, f)
+        pickle.dump(self.regression, f)
         f.close()
 
     def load(self, path):
         f = open(path)
-        self.classifier = pickle.load(f)
+        self.regression = pickle.load(f)
         f.close()
 
