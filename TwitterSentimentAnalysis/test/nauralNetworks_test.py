@@ -23,11 +23,6 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         self.test_db = self.tweet_downloader.db
         self.test_table_name = "tweet_download_" + uuid.uuid4().hex + "_test"
 
-    def setUp(self):
-        self.tweet_downloader = downloaders.TweetDownloader()
-        self.test_db = self.tweet_downloader.db
-        self.test_table_name = "tweet_download_" + uuid.uuid4().hex + "_test"
-
     def test_MultiClassClassificationNeuralNetwork(self):
         neural_network = neuralNetworks.MultiClassClassificationNeuralNetwork(3, 1)
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag = "erasmus")
@@ -39,17 +34,10 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
 
         result = neural_network.run(ds_train, ds_test)
 
-        trainer = BackpropTrainer(
-            self.network,
-            dataset=ds_train,
-            momentum=0.1,
-            verbose=True,
-            weightdecay=0.01)
-
-        trainer.trainEpochs(self.epochs)
         tstresult = percentError(
-            trainer.testOnClassData(dataset=ds_test),
+            neural_network.network.activateOnDataset(ds_test),
             ds_test['class'])
+
 
         self.assertEqual(result, tstresult)
 
