@@ -312,12 +312,23 @@ class NaiveBayesClassifier(NeuralNetwork):
         self.classifier = nltk.NaiveBayesClassifier()
 
     def run(self, ds_train, ds_test):
-        self.classifier.train(ds_train)
-        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        X_train = ds_train['input']
+        y_train = ds_train['class']
+        X_test = ds_test['input']
+        y_test = ds_test['class']
+
+        train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
+        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+
+        self.classifier.train(train_fs)
+        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
     def test(self, ds_test):
-        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        X_test = ds_test['input']
+        y_test = ds_test['class']
+        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -327,12 +338,20 @@ class NaiveBayesClassifier(NeuralNetwork):
 
         i = 0
         for train_index, test_index in cv:
-            train_ds = ds[train_index, :]
-            test_ds = ds[test_index, :]
+            ds_train = ds[train_index, :]
+            ds_test = ds[test_index, :]
 
-            self.classifier.train(train_ds)
+            X_train = ds_train['input']
+            y_train = ds_train['class']
+            X_test = ds_test['input']
+            y_test = ds_test['class']
 
-            tstresult = nltk.classify.accuracy(self.classifier, test_ds)
+            train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
+            test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+
+            self.classifier.train(train_fs)
+
+            tstresult = nltk.classify.accuracy(self.classifier, test_fs)
 
             errors[i] = tstresult
 
@@ -360,12 +379,23 @@ class MaxEntropyClassifier(NeuralNetwork):
         self.classifier = nltk.MaxentClassifier()
 
     def run(self, ds_train, ds_test):
-        self.classifier.train(ds_train)
-        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        X_train = ds_train['input']
+        y_train = ds_train['class']
+        X_test = ds_test['input']
+        y_test = ds_test['class']
+
+        train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
+        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+
+        self.classifier.train(train_fs)
+        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
     def test(self, ds_test):
-        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        X_test = ds_test['input']
+        y_test = ds_test['class']
+        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -375,12 +405,20 @@ class MaxEntropyClassifier(NeuralNetwork):
 
         i = 0
         for train_index, test_index in cv:
-            train_ds = ds[train_index, :]
-            test_ds = ds[test_index, :]
+            ds_train = ds[train_index, :]
+            ds_test = ds[test_index, :]
 
-            self.classifier.train(train_ds)
+            X_train = ds_train['input']
+            y_train = ds_train['class']
+            X_test = ds_test['input']
+            y_test = ds_test['class']
 
-            tstresult = nltk.classify.accuracy(self.classifier, test_ds)
+            train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
+            test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+
+            self.classifier.train(train_fs)
+
+            tstresult = nltk.classify.accuracy(self.classifier, test_fs)
 
             errors[i] = tstresult
 
@@ -408,17 +446,18 @@ class LinearRegression(NeuralNetwork):
         self.regression = lm.LinearRegression()
 
     def run(self, ds_train, ds_test):
-        X_train = [train[0] for train in ds_train]
-        y_train = [train[1] for train in ds_train]
-        X_test = [test[0] for test in ds_test]
-        y_test = [test[1] for test in ds_test]
+        X_train = ds_train['input']
+        y_train = ds_train['class']
+        X_test = ds_test['input']
+        y_test = ds_test['class']
         self.regression.fit(X_train, y_train)
         tstresult = self.regression.score(X_test, y_test)
         return tstresult
 
     def test(self, ds_test):
-        X_test = [test[0] for test in ds_test]
-        y_test = [test[1] for test in ds_test]
+        X_test = ds_test['input']
+        y_test = ds_test['class']
+
         tstresult = self.regression.score(X_test, y_test)
         return tstresult
 
@@ -429,14 +468,13 @@ class LinearRegression(NeuralNetwork):
 
         i = 0
         for train_index, test_index in cv:
-            train_ds = ds[train_index, :]
-            test_ds = ds[test_index, :]
+            ds_train = ds[train_index, :]
+            ds_test = ds[test_index, :]
 
-            X_train = [train[0] for train in train_ds]
-            y_train = [train[1] for train in train_ds]
-            X_test = [test[0] for test in test_ds]
-            y_test = [test[1] for test in test_ds]
-            
+            X_train = ds_train['input']
+            y_train = ds_train['class']
+            X_test = ds_test['input']
+            y_test = ds_test['class']
             self.regression.fit(X_train, y_train)
             errors[i] = self.regression.score(X_test, y_test)
             i += 1
