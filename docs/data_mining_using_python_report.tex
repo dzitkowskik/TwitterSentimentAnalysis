@@ -1,0 +1,100 @@
+\documentclass[10pt]{IEEEtran}
+\pdfoutput=1
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[table]{xcolor}
+\usepackage{pdfpages}
+
+\hypersetup{colorlinks=true,citecolor=[rgb]{0,0.4,0}}
+
+
+\title{Online topic-sentiment mining}
+\author{Finn Årup Nielsen}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We describe a lightweight webservice that performs online topic mining
+with sentiment analyze using standard components of Python.
+It can analyze a small corpus on a few hundred small documents in a
+few hundred milliseconds.
+\end{abstract}
+
+\section{Introduction}
+
+
+\section{Related work}
+
+In Suh et. al. \cite{want_to_be_retweeted} the authors tried to quantitatively identify factors that are associated with retweeting. They split up the factors in 2 classes of features: content features and contextual features and found that for the content features URLs and hashtags seemed to have an influence on the retweet rate and for the contextual features, the number of followers and followees and the age of the account seemed to have an influence. 
+
+\section{Methods}
+
+
+
+\section{Results}
+
+
+
+\subsection{Code checking}
+
+
+
+\subsection{Testing}
+
+
+
+\subsection{Profiling}
+
+
+\section{Discussion}
+
+
+
+\section{Conclusion}
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{lyngby}
+
+
+\clearpage
+\onecolumn
+\appendices
+\section{Code listings}
+
+\definecolor{darkgreen}{rgb}{0, 0.4, 0}
+\lstset{language=Python,
+  numbers=left,
+  frame=bottomline,
+  basicstyle=\scriptsize,
+  identifierstyle=\color{blue},
+  keywordstyle=\bfseries,
+  commentstyle=\color{darkgreen},
+  stringstyle=\color{red},
+  literate={Ö}{{\"O}}1 {é}{{\'e}}1 {Å}{{\AA}}1,
+}
+\lstlistoflistings
+
+
+\label{listing:brede_str_nmf}\lstinputlisting{../../matlab/brede/python/brede_str_nmf}
+
+
+\newpage
+\section{Automatic generation of documentation}
+
+Demontration using epydoc:
+\begin{verbatim}
+epydoc --pdf -o /home/fnielsen/tmp/epydoc/ --name RBBase wikipedia/api.py
+\end{verbatim}
+This example does not use \verb!brede_str_nmf! but another more
+well-documented module called {\tt api.py} that are used to download
+material from Wikipedia. 
+
+\includepdf[pages={-}]{/home/fnielsen/tmp/epydoc/api.pdf}
+
+\end{document}
