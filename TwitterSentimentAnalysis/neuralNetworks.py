@@ -330,7 +330,7 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
 
 class NaiveBayesClassifier(NeuralNetwork):
     def __init__(self):
-        self.classifier = nltk.NaiveBayesClassifier()
+        self.classifier = None
 
     def run(self, ds_train, ds_test):
         X_train = ds_train['input']
@@ -340,6 +340,8 @@ class NaiveBayesClassifier(NeuralNetwork):
 
         train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
         test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+
+        self.classifier = nltk.NaiveBayesClassifier().train(train_fs)
 
         self.classifier.train(train_fs)
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)

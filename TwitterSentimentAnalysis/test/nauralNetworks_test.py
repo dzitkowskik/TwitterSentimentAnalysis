@@ -36,3 +36,15 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected = ds_test['class']
         expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
         self.assertEqual(result, expected_error)
+
+    def test_naive_bayes_classifier(self):
+        # TODO: finish
+        classifier = neuralNetworks.NaiveBayesClassifier()
+        self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
+        ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
+        self.assertIsNotNone(classifier.classifier)
+        ds_train, ds_test = ds.splitWithProportion(0.75)
+        result = classifier.run(ds_train, ds_test)
+        res = classifier.classify_many(ds_test['input'])
+        print res
+        print ds_test['target']
