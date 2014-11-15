@@ -20,6 +20,7 @@ from pybrain.tools.neuralnets import NNclassifier
 import enum
 import nltk
 import pickle
+import sklearn.linear_model as lm
 
 
 @enum.unique
@@ -70,7 +71,6 @@ class NeuralNetwork(object):
     @abstractmethod
     def load(self, path):
         pass
-
 
 class MultiClassClassificationNeuralNetwork(NeuralNetwork):
     def __init__(self, inp_cnt, out_cnt, hid_cnt=10, epochs=100):
@@ -411,4 +411,63 @@ class MaxEntropyClassifier(NeuralNetwork):
         self.classifier = pickle.load(f)
         f.close()
 
+class LinearRegression(NeuralNetwork):
+    def __init__(self):
+        self.regression = lm.LinearRegression()
+
+    def run(self, ds_train, ds_test):
+        X_train = [train[0] for train in ds_train]
+        y_train = [train[1] for train in ds_train]
+        X_test = [test[0] for test in ds_test]
+        y_test = [test[1] for test in ds_test]
+        self.regression.fit(X_train, y_train)
+
+        tstresult = self.regression.score(X_test, y_test)
+
+        return tstresult
+
+    def test(self, ds_test):
+        X_test = [test[0] for test in ds_test]
+        y_test = [test[1] for test in ds_test]
+
+        tstresult = self.regression.score(X_test, y_test)
+
+        return tstresult
+
+    def run_with_crossvalidation(self, ds, iterations = 5):
+        n = len(ds)
+        cv = cross_validation.KFold(n, iterations, shuffle=True)
+        errors = np.zeros(iterations)
+
+        i = 0
+        for train_index, test_index in cv:
+            train_ds = ds[train_index, :]
+            test_ds = ds[test_index, :]
+
+            X_train = [train[0] for train in train_ds]
+            y_train = [train[1] for train in train_ds]
+            X_test = [test[0] for test in test_ds]
+            y_test = [test[1] for test in test_ds]
+            self.regression.fit(X_train, y_train)
+
+            tstresult = self.regression.score(X_test, y_test)
+
+            i += 1
+
+        print "Max Entropy Classifier cross-validation test errors: " % errors
+        return np.average(errors)
+
+
+    def __call__(self, ds_train, ds_test):
+        return self.run(ds_train, ds_test)
+
+    def save(self, path):
+        f = open(path, 'wb')
+        pickle.dump(self.classifier, f)
+        f.close()
+
+    def load(self, path):
+        f = open(path)
+        self.classifier = pickle.load(f)
+        f.close()
 
