@@ -10,10 +10,25 @@ from pybrain.datasets import ClassificationDataSet
 from pybrain.datasets import SupervisedDataSet
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
+import enum
+import math
+
+
+class ProblemTypeEnum(enum.Enum):
+    Classification = 1
+    Regression = 2
 
 
 class DatasetFactory(object):
     __metaclass__ = ABCMeta
+
+    @staticmethod
+    def factory(problem_type):
+        if problem_type == ProblemTypeEnum.Classification:
+            return TweetClassificationDatasetFactory()
+        elif problem_type == ProblemTypeEnum.Regression:
+            return TweetRegressionDatasetFactory()
+        assert 0, "Bad enum given: " + str(problem_type)
 
     @abstractmethod
     def get_dataset(self):
@@ -60,11 +75,13 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         # word_sentiment is stored as float between -5 and 5
         scale = 4.0 / 5.0
         word_grade = abs(record['word_sentiment']) * scale  # between 0 and 4
-        manual_grade = 0
+
         if record['manual_grade'] == 'positive':
-            manual_grade = 1
+            manual_grade = 1.0
         elif record['manual_grade'] == 'negative':
-            manual_grade = -1
+            manual_grade = -1.0
+        else:
+            manual_grade = math.copysign(1.0, record['word_sentiment'])
 
         return round(word_grade * manual_grade)
 
@@ -108,6 +125,7 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         followers_count = record['data']['user']['followers_count']
         word_sentiment = record['word_sentiment']
         age_of_tweet = (datetime.now() - datetime.strptime(record['data']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
+
         return favorite_count, followers_count, word_sentiment, age_of_tweet
 
     @staticmethod
