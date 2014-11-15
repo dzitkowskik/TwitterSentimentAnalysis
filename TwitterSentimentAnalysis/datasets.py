@@ -9,7 +9,7 @@ from pymongo import MongoClient
 from pybrain.datasets import ClassificationDataSet
 from pybrain.datasets import SupervisedDataSet
 from abc import ABCMeta, abstractmethod
-import datetime
+from datetime import datetime
 
 
 class DatasetFactory(object):
@@ -106,8 +106,8 @@ class TweetRegressionDatasetFactory(DatasetFactory):
     def __get_input_from_record(record):
         favorite_count = record['data']['favorite_count']
         followers_count = record['data']['user']['followers_count']
-        word_sentiment = record['sentiment']
-        age_of_tweet = (datetime.datetime.now() - datetime.strptime(record['user']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
+        word_sentiment = record['word_sentiment']
+        age_of_tweet = (datetime.now() - datetime.strptime(record['data']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
         return favorite_count, followers_count, word_sentiment, age_of_tweet
 
     @staticmethod

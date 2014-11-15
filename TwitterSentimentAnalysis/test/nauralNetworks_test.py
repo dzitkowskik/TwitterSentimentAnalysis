@@ -36,6 +36,3 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected = ds_test['class']
         expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
         self.assertEqual(result, expected_error)
-
-
-
