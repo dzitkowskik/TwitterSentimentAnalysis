@@ -1,8 +1,6 @@
 # Karol Dzitkowski
 # k.dzitkowski@gmail.com
 # 10-10-2014
-import inspect
-
 __author__ = 'ghash'
 
 from pybrain.supervised.trainers import BackpropTrainer
@@ -12,7 +10,7 @@ from pybrain import FeedForwardNetwork, LinearLayer, SigmoidLayer, FullConnectio
 from abc import ABCMeta, abstractmethod
 from sklearn import cross_validation
 import numpy as np
-from TwitterSentimentAnalysis.datasets import TweetClassificationDatasetFactory
+from TwitterSentimentAnalysis.datasets import TweetClassificationDatasetFactory, ProblemTypeEnum
 from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.tools.neuralnets import NNregression
@@ -21,6 +19,7 @@ import enum
 import nltk
 import pickle
 import sklearn.linear_model as lm
+import inspect
 
 
 @enum.unique
@@ -28,6 +27,9 @@ class AIEnum(enum.Enum):
     MultiClassClassificationNeuralNetwork = "Multi class classification NN"
     SimpleRegressionNeuralNetwork = "Simple regression NN"
     SimpleClassificationNeuralNetwork = "Simple classification NN"
+    NaiveBayesClassifier = "Naive Bayes classifier"
+    MaxEntropyClassifier = "Max entropy classifier"
+    LinearRegression = "Linear regression"
 
     @classmethod
     def choices(cls):
@@ -46,10 +48,16 @@ class NeuralNetwork(object):
     def factory(ai_type):
         if ai_type == AIEnum.MultiClassClassificationNeuralNetwork:
             return MultiClassClassificationNeuralNetwork()
-        if ai_type == AIEnum.SimpleClassificationNeuralNetwork:
+        elif ai_type == AIEnum.SimpleClassificationNeuralNetwork:
             return SimpleClassificationNeuralNetwork()
-        if ai_type == AIEnum.SimpleRegressionNeuralNetwork:
+        elif ai_type == AIEnum.SimpleRegressionNeuralNetwork:
             return SimpleRegressionNeuralNetwork()
+        elif ai_type == AIEnum.NaiveBayesClassifier:
+            return NaiveBayesClassifier()
+        elif ai_type == AIEnum.MaxEntropyClassifier:
+            return MaxEntropyClassifier()
+        elif ai_type == AIEnum.LinearRegression:
+            return LinearRegression()
         assert 0, "Bad enum given: " + str(ai_type)
 
     @abstractmethod
@@ -72,9 +80,13 @@ class NeuralNetwork(object):
     def load(self, path):
         pass
 
+    @abstractmethod
+    def get_type(self):
+        pass
+
 
 class MultiClassClassificationNeuralNetwork(NeuralNetwork):
-    def __init__(self, inp_cnt, out_cnt, hid_cnt=10, epochs=100):
+    def __init__(self, inp_cnt=3, out_cnt=9, hid_cnt=10, epochs=100):
         self.hid_cnt = hid_cnt
         self.out_cnt = out_cnt
         self.inp_cnt = inp_cnt
@@ -184,6 +196,9 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
 
+    def get_type(self):
+        return ProblemTypeEnum.Classification
+
 
 class SimpleRegressionNeuralNetwork(NeuralNetwork):
     def __init__(self, hid_cnt=10, convergence=0.01):
@@ -243,6 +258,9 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
 
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
+
+    def get_type(self):
+        return ProblemTypeEnum.Regression
 
 
 class SimpleClassificationNeuralNetwork(NeuralNetwork):
@@ -305,6 +323,9 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
 
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
+
+    def get_type(self):
+        return ProblemTypeEnum.Classification
 
 
 class NaiveBayesClassifier(NeuralNetwork):
@@ -373,6 +394,9 @@ class NaiveBayesClassifier(NeuralNetwork):
         self.classifier = pickle.load(f)
         f.close()
 
+    def get_type(self):
+        return ProblemTypeEnum.Classification
+
 
 class MaxEntropyClassifier(NeuralNetwork):
     def __init__(self):
@@ -440,6 +464,9 @@ class MaxEntropyClassifier(NeuralNetwork):
         self.classifier = pickle.load(f)
         f.close()
 
+    def get_type(self):
+        return ProblemTypeEnum.Classification
+
 
 class LinearRegression(NeuralNetwork):
     def __init__(self):
@@ -493,3 +520,5 @@ class LinearRegression(NeuralNetwork):
         self.regression = pickle.load(f)
         f.close()
 
+    def get_type(self):
+        return ProblemTypeEnum.Regression
