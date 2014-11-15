@@ -18,6 +18,8 @@ from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.tools.neuralnets import NNregression
 from pybrain.tools.neuralnets import NNclassifier
 import enum
+import nltk
+import pickle
 
 
 @enum.unique
@@ -224,8 +226,6 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
 
             ds_train = TweetClassificationDatasetFactory.convert_to_ds(x_train, y_train)
             ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
-            ds_train._convertToOneOfMany()
-            ds_test._convertToOneOfMany()
 
             self.network = NNregression(ds_train)
 
@@ -237,7 +237,7 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
 
             i += 1
 
-        print "Multi class NN cross-validation test errors: " % errors
+        print "Simple Regression Neural Network cross-validation test errors: " % errors
         return np.average(errors)
 
     def __call__(self, ds_train, ds_test):
@@ -248,7 +248,6 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
 
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
-
 
 class SimpleClassificationNeuralNetwork(NeuralNetwork):
     # TODO: Implement using pybrain.tools.neuralnets.NNclassifier
@@ -306,7 +305,7 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
 
             i += 1
 
-        print "Multi class NN cross-validation test errors: " % errors
+        print "Simple Classification Neural Network cross-validation test errors: " % errors
         return np.average(errors)
 
     def __call__(self, ds_train, ds_test):
@@ -317,3 +316,99 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
 
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
+
+class NaiveBayesClassifier(NeuralNetwork):
+    def __init__(self):
+        self.classifier = nltk.NaiveBayesClassifier()
+
+    def run(self, ds_train, ds_test):
+        self.classifier.train(ds_train)
+        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        return tstresult
+
+    def test(self, ds_test):
+        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        return tstresult
+
+    def run_with_crossvalidation(self, ds, iterations=5):
+        n = len(ds)
+        cv = cross_validation.KFold(n, iterations, shuffle=True)
+        errors = np.zeros(iterations)
+
+        i = 0
+        for train_index, test_index in cv:
+            train_ds = ds[train_index, :]
+            test_ds = ds[test_index, :]
+
+            self.classifier.train(train_ds)
+
+            tstresult = nltk.classify.accuracy(self.classifier, test_ds)
+
+            errors[i] = tstresult
+
+            i += 1
+
+        print "Naive Bayes Classifier cross-validation test errors: " % errors
+        return np.average(errors)
+
+    def __call__(self, ds_train, ds_test):
+        return self.run(ds_train, ds_test)
+
+    def save(self, path):
+        f = open(path, 'wb')
+        pickle.dump(self.classifier, f)
+        f.close()
+
+    def load(self, path):
+        f = open(path)
+        self.classifier = pickle.load(f)
+        f.close()
+
+class MaxEntropyClassifier(NeuralNetwork):
+    def __init__(self):
+        self.classifier = nltk.MaxentClassifier()
+
+    def run(self, ds_train, ds_test):
+        self.classifier.train(ds_train)
+        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        return tstresult
+
+    def test(self, ds_test):
+        tstresult = nltk.classify.accuracy(self.classifier, ds_test)
+        return tstresult
+
+    def run_with_crossvalidation(self, ds, iterations=5):
+        n = len(ds)
+        cv = cross_validation.KFold(n, iterations, shuffle=True)
+        errors = np.zeros(iterations)
+
+        i = 0
+        for train_index, test_index in cv:
+            train_ds = ds[train_index, :]
+            test_ds = ds[test_index, :]
+
+            self.classifier.train(train_ds)
+
+            tstresult = nltk.classify.accuracy(self.classifier, test_ds)
+
+            errors[i] = tstresult
+
+            i += 1
+
+        print "Max Entropy Classifier cross-validation test errors: " % errors
+        return np.average(errors)
+
+    def __call__(self, ds_train, ds_test):
+        return self.run(ds_train, ds_test)
+
+    def save(self, path):
+        f = open(path, 'wb')
+        pickle.dump(self.classifier, f)
+        f.close()
+
+    def load(self, path):
+        f = open(path)
+        self.classifier = pickle.load(f)
+        f.close()
+
+

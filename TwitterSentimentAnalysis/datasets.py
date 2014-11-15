@@ -7,7 +7,9 @@ import inject
 from config import Config
 from pymongo import MongoClient
 from pybrain.datasets import ClassificationDataSet
+from pybrain.datasets import SupervisedDataSet
 from abc import ABCMeta, abstractmethod
+import datetime
 
 
 class DatasetFactory(object):
@@ -73,6 +75,11 @@ class TweetClassificationDatasetFactory(DatasetFactory):
             ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
         return ds
 
+    def get_dataset_class(self, table_name='train_data', search_params={"isActive": True}):
+        data = self.db[table_name].find(search_params)
+        featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
+        return featureset
+
 
 class TweetRegressionDatasetFactory(DatasetFactory):
     @inject.params(config=Config, db_client=MongoClient)
@@ -80,8 +87,42 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         self.cfg = config
         self.db = db_client[config.db_database_name]
 
-    def get_dataset(self):
-        # TODO: Implement a dataset "factory" for getting a set of tweet records
-        # for regression of retweet_count (as an output) and sentiment + some
-        # attributes as an input
-        pass
+    # input :   - sentiment of tweet
+    #           - number of followers
+    #           - age of tweet
+    #           - number of favorites
+    @staticmethod
+    def __create_regression_dataset():
+        return SupervisedDataSet(4, 1)
+
+    @staticmethod
+    def convert_to_ds(x, y):
+        ds = TweetRegressionDatasetFactory.__create_regression_dataset()
+        for i in range(0, len(y)):
+            ds.addSample(x[i], y[i])
+        return ds
+
+    @staticmethod
+    def __get_input_from_record(record):
+        favorite_count = record['data']['favorite_count']
+        followers_count = record['data']['user']['followers_count']
+        word_sentiment = record['sentiment']
+        age_of_tweet = (datetime.datetime.now() - datetime.strptime(record['user']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
+        return favorite_count, followers_count, word_sentiment, age_of_tweet
+
+    @staticmethod
+    def __get_output_from_record(record):
+        retweet_count = record['data']['retweet_count']
+        return retweet_count
+
+    def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
+        ds = self.__create_regression_dataset()
+        data = self.db[table_name].find(search_params)
+        for record in data:
+            ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
+        return ds
+
+    def get_dataset_class(self, table_name='train_data', search_params={"isActive": True}):
+        data = self.db[table_name].find(search_params)
+        featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
+        return featureset
