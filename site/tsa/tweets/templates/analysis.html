@@ -31,5 +31,9 @@
         </div>
     </form>
 </div>
-
+{% if error %}
+<div id="tweet_table" class="row paginator_content">
+<p>Error = {{ error }}</p>
+{% endif %}
+</div>
 {% endblock %}

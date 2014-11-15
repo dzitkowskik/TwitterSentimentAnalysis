@@ -4,6 +4,7 @@ import inject
 from pymongo import MongoClient
 from TwitterSentimentAnalysis import core
 from config import Config
+from TwitterSentimentAnalysis.datasets import DatasetFactory, ProblemTypeEnum
 from TwitterSentimentAnalysis.neuralNetworks import AIEnum, NeuralNetwork
 from forms import QueryForm, AnalysisForm
 from tweepy import Cursor
@@ -101,12 +102,19 @@ class AnalysisView(View):
         sets = self.get_tweet_sets()
         form = AnalysisForm(sets, request.POST)
         if form.is_valid():
-            # TODO: Implement calling an AI on a set of tweets
+            tag = form.cleaned_data['tweet_sets']
             ai_type = AIEnum[form.cleaned_data['ai_types']]
-            nn = NeuralNetwork.factory(ai_type)
+            network = NeuralNetwork.factory(ai_type)
+            problem_type = network.get_type()
+            factory = DatasetFactory.factory(problem_type)
+            ds = factory.get_dataset(
+                table_name='test_data',
+                search_params={"isActive": True, "tag": tag})
+            ds_train, ds_test = ds.splitWithProportion(0.5)
+            error = network.run(ds_train, ds_test)
             header = "Twitter sentiment analysis"
             form = AnalysisForm(sets)
-            context = {'header': header, 'form': form}
+            context = {'header': header, 'form': form, 'error': error}
             return render(request, self.template_name, context)
 
         header = 'Error occurred'
