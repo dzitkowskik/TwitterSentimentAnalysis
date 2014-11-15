@@ -1,10 +1,9 @@
 import uuid
 import unittest
 from TwitterSentimentAnalysis import neuralNetworks, core, downloaders, datasets
-from pybrain.utilities import percentError
-from pybrain.supervised.trainers import BackpropTrainer
-from config import Config
+import numpy as np
 import os
+
 
 class NeuralNetworksTweetsTestCase(unittest.TestCase):
     @classmethod
@@ -23,23 +22,20 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         self.test_db = self.tweet_downloader.db
         self.test_table_name = "tweet_download_" + uuid.uuid4().hex + "_test"
 
-    def test_MultiClassClassificationNeuralNetwork(self):
-        neural_network = neuralNetworks.MultiClassClassificationNeuralNetwork(3, 1)
-        self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag = "erasmus")
+    def tearDown(self):
+        self.test_db.drop_collection(self.test_table_name)
+
+    def test_multi_class_classification_neural_network(self):
+        neural_network = neuralNetworks.MultiClassClassificationNeuralNetwork(3, 9)
+        self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
         ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
-
         self.assertIsNotNone(neural_network.network)
-
         ds_train, ds_test = ds.splitWithProportion(0.75)
-
         result = neural_network.run(ds_train, ds_test)
-
-        tstresult = percentError(
-            neural_network.network.activateOnDataset(ds_test),
-            ds_test['class'])
-
-
-        self.assertEqual(result, tstresult)
+        actual = neural_network.network.activateOnDataset(ds_test)
+        expected = ds_test['class']
+        expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
+        self.assertEqual(result, expected_error)
 
 
 
