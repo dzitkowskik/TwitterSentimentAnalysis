@@ -1,12 +1,13 @@
+import os
 from django.shortcuts import render
 from django.views.generic import View
 import inject
 from pymongo import MongoClient
 from TwitterSentimentAnalysis import core
 from config import Config
-from TwitterSentimentAnalysis.datasets import DatasetFactory, ProblemTypeEnum
+from TwitterSentimentAnalysis.datasets import DatasetFactory
 from TwitterSentimentAnalysis.neuralNetworks import AIEnum, NeuralNetwork
-from forms import QueryForm, AnalysisForm
+from forms import QueryForm, AnalysisForm, ActionEnum
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
 
@@ -92,18 +93,30 @@ class AnalysisView(View):
         self.cfg = config
         self.db = db_client[config.db_database_name]
 
+    def get_form(self, post=None):
+        sets = self.get_tweet_sets()
+        ais = self.get_saved_ais()
+        if post is None:
+            return AnalysisForm(sets, ais)
+        else:
+            return AnalysisForm(sets, ais, post)
+
     def get(self, request):
         header = "Twitter sentiment analysis"
-        form = AnalysisForm(self.get_tweet_sets())
+        form = self.get_form()
         context = {'header': header, 'form': form}
         return render(request, self.template_name, context)
 
     def post(self, request):
-        sets = self.get_tweet_sets()
-        form = AnalysisForm(sets, request.POST)
+        form = self.get_form(request.POST)
         if form.is_valid():
+            action = form.cleaned_data['action']
+            save = form.cleaned_data['save_results']
+            custom = form.cleaned_data['custom_tweet_set']
+
             tag = form.cleaned_data['tweet_sets']
             ai_type = AIEnum[form.cleaned_data['ai_types']]
+
             network = NeuralNetwork.factory(ai_type)
             problem_type = network.get_type()
             factory = DatasetFactory.factory(problem_type)
@@ -114,7 +127,6 @@ class AnalysisView(View):
             error = network.run(ds_train, ds_test)
 
             header = "Twitter sentiment analysis"
-            form = AnalysisForm(sets)
             context = {'header': header, 'form': form, 'error': error}
             return render(request, self.template_name, context)
 
@@ -129,6 +141,20 @@ class AnalysisView(View):
         for tag in tags:
             result.append((tag, tag))
         return result
+
+    def get_saved_ais(self):
+        results = []
+        save_dir = core.convert_rel_to_absolute(self.cfg.ai_save_dir)
+        for file_name in os.listdir(save_dir):
+            if file_name.endswith(".net"):
+                results.append((file_name, file_name))
+        return results
+
+    def get_predicted_data(self):
+        pass
+
+    def save_trained_network(self):
+        pass
 
 
 class StatisticsView(View):

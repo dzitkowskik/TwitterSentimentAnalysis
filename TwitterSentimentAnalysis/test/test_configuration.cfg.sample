@@ -7,6 +7,7 @@ access_token_secret: ''
 # FILES
 corpus_file: 'data/corpus.csv'
 words_file: 'data/words.txt'
+ai_save_dir: 'data/ai/'
 
 # DATABASE
 db_host: 'localhost'

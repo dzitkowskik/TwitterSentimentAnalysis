@@ -1,5 +1,18 @@
+import inspect
 from django import forms
+import enum
 from TwitterSentimentAnalysis.neuralNetworks import AIEnum
+
+
+class ActionEnum(enum.Enum):
+    Create = 1
+    Load = 2
+
+    @classmethod
+    def choices(cls):
+        members = inspect.getmembers(cls, lambda memb: not(inspect.isroutine(memb)))
+        props = [m for m in members if not(m[0][:2] == '__')]
+        return tuple([(p[1].value, p[0]) for p in props])
 
 
 class QueryForm(forms.Form):
@@ -10,14 +23,20 @@ class QueryForm(forms.Form):
 
 
 class AnalysisForm(forms.Form):
-    def __init__(self, tweet_sets, *args, **kwargs):
+    def __init__(self, tweet_sets, saved_ais, *args, **kwargs):
         super(AnalysisForm, self).__init__(*args, **kwargs)
         self.fields['tweet_sets'] = forms.ChoiceField(choices=tweet_sets)
+        self.fields['saved_ais'] = forms.ChoiceField(choices=saved_ais)
 
     ai_types = forms.TypedChoiceField(
         choices=AIEnum.choices(),
         coerce=str,
-        initial=AIEnum.MultiClassClassificationNeuralNetwork)
+        initial=AIEnum.MultiClassClassificationNeuralNetwork.name)
+
+    action = forms.ChoiceField(
+        choices=ActionEnum.choices(),
+        widget=forms.RadioSelect(),
+        initial=ActionEnum.Create.value)
 
     custom_tweet_set = forms.BooleanField(label="Custom tweet set", initial=False)
     save_results = forms.BooleanField(label="Save", initial=False)
