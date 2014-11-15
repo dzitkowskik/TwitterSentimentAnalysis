@@ -112,6 +112,7 @@ class AnalysisView(View):
                 search_params={"isActive": True, "tag": tag})
             ds_train, ds_test = ds.splitWithProportion(0.5)
             error = network.run(ds_train, ds_test)
+
             header = "Twitter sentiment analysis"
             form = AnalysisForm(sets)
             context = {'header': header, 'form': form, 'error': error}

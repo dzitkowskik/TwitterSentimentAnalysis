@@ -14,4 +14,11 @@ class AnalysisForm(forms.Form):
         super(AnalysisForm, self).__init__(*args, **kwargs)
         self.fields['tweet_sets'] = forms.ChoiceField(choices=tweet_sets)
 
-    ai_types = forms.TypedChoiceField(choices=AIEnum.choices(), coerce=str)
+    ai_types = forms.TypedChoiceField(
+        choices=AIEnum.choices(),
+        coerce=str,
+        initial=AIEnum.MultiClassClassificationNeuralNetwork)
+
+    custom_tweet_set = forms.BooleanField(label="Custom tweet set", initial=False)
+    save_results = forms.BooleanField(label="Save", initial=False)
+    name = forms.CharField(label='Name', max_length=40, required=False)
