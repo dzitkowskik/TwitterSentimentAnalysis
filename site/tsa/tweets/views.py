@@ -15,6 +15,8 @@ from TwitterSentimentAnalysis.ai import AIEnum, AI
 from forms import QueryForm, AnalysisForm, ActionEnum
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
+from TwitterSentimentAnalysis.statistics import TweetStatistics
+from chartit import Chart
 
 
 class TweetSearchView(View):
@@ -209,8 +211,29 @@ class StatisticsView(View):
 
     def get(self, request):
         header = "Twitter sentiment statistics"
-        context = {'header': header}
+        cht = self.get_sample_chart()
+        context = {'header': header, 'chart': cht}
         return render(request, self.template_name, context)
+
+    @staticmethod
+    def get_sample_chart():
+        sample_stat = TweetStatistics.get_sample_stat()
+        cht = Chart(
+            datasource=sample_stat,
+            series_options=[{
+                'options': {
+                    'type': 'line',
+                    'stacking': False},
+                'terms': {
+                    'retweet_count': [
+                        'sentiment']}}],
+            chart_options={
+                'title': {
+                    'text': 'Retweet count vs Sentiment'},
+                'xAxis': {
+                    'title': {
+                        'text': 'Retweet count'}}})
+        return cht
 
 
 def contact(request):
