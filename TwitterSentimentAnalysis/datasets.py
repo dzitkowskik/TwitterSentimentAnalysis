@@ -31,7 +31,15 @@ class DatasetFactory(object):
         assert 0, "Bad enum given: " + str(problem_type)
 
     @abstractmethod
-    def get_dataset(self):
+    def get_dataset(self, table_name, search_params):
+        pass
+
+    @abstractmethod
+    def get_dataset_class(self, table_name, search_params):
+        pass
+
+    @abstractmethod
+    def get_data(self, table_name, search_params):
         pass
 
 
@@ -97,6 +105,10 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
         return featureset
 
+    def get_data(self, table_name='train_data', search_params={"isActive": True}):
+        # TODO: Implement getting records of data from db
+        pass
+
 
 class TweetRegressionDatasetFactory(DatasetFactory):
     @inject.params(config=Config, db_client=MongoClient)
@@ -144,3 +156,7 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         data = self.db[table_name].find(search_params)
         featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
         return featureset
+
+    def get_data(self, table_name='train_data', search_params={"isActive": True}):
+        # TODO: Implement getting records of data from db
+        pass
