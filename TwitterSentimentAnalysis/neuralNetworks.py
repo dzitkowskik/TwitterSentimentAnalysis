@@ -90,6 +90,10 @@ class NeuralNetwork(object):
     def get_type(self):
         pass
 
+    @abstractmethod
+    def fill_with_predicted_data(self, ds, data):
+        pass
+
 
 class MultiClassClassificationNeuralNetwork(NeuralNetwork):
     def __init__(self, inp_cnt=3, out_cnt=9, hid_cnt=10, epochs=100):
@@ -125,12 +129,10 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
         return self
 
     def test(self, ds_test):
-        error = percentError(
-            self.network.activateOnDataset(ds_test),
-            ds_test['class'])
-
+        result = self.network.activateOnDataset(ds_test)
+        error = percentError(result, ds_test['class'])
         print "Multi class neural network test error: %5.2f%%" % error
-        return error
+        return error, result
 
     def __build_default_network(self):
         return buildNetwork(self.inp_cnt, self.hid_cnt, self.out_cnt, outclass=SoftmaxLayer, bias=True)
@@ -205,6 +207,11 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
     def get_type(self):
         return ProblemTypeEnum.Classification
 
+    def fill_with_predicted_data(self, ds, data):
+        # TODO: Implement filling data (list of dictionaries)
+        # with predicted values on ds dataset
+        pass
+
 
 class SimpleRegressionNeuralNetwork(NeuralNetwork):
     def __init__(self, hid_cnt=10, convergence=0.01):
@@ -219,18 +226,15 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
         return tstresult
 
     def test(self, ds_test):
-        tstresult = percentError(
-            self.network.activateOnDataset(ds_test),
-            ds_test['class'])
-        return tstresult
+        result = self.network.activateOnDataset(ds_test)
+        error = percentError(result, ds_test['class'])
+        return error, result
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
         y = ds['target']
-
         n, m = x.shape
         errors = np.zeros(iterations)
-
         cv = cross_validation.KFold(n, iterations, shuffle=True)
 
         i = 0
@@ -244,13 +248,9 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
             ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
 
             self.network = NNregression(ds_train)
-
             self.network.runTraining(self.convergence)
-
             tstresult = self.test(ds_test)
-
             errors[i] = tstresult
-
             i += 1
 
         print "Simple Regression Neural Network cross-validation test errors: " % errors
@@ -268,6 +268,11 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
     def get_type(self):
         return ProblemTypeEnum.Regression
 
+    def fill_with_predicted_data(self, ds, data):
+        # TODO: Implement filling data (list of dictionaries)
+        # with predicted values on ds dataset
+        pass
+
 
 class SimpleClassificationNeuralNetwork(NeuralNetwork):
     def __init__(self, hid_cnt=10, convergence=0.01):
@@ -282,18 +287,16 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
         return tstresult
 
     def test(self, ds_test):
-        tstresult = percentError(
-            self.network.activateOnDataset(ds_test),
-            ds_test['class'])
-        return tstresult
+        result = self.network.activateOnDataset(ds_test)
+        error = percentError(result, ds_test['class'])
+        return error, result
 
+    # noinspection PyProtectedMember
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
         y = ds['target']
-
         n, m = x.shape
         errors = np.zeros(iterations)
-
         cv = cross_validation.KFold(n, iterations, shuffle=True)
 
         i = 0
@@ -309,13 +312,9 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
             ds_test._convertToOneOfMany()
 
             self.network = NNclassifier(ds_train)
-
             self.network.runTraining(self.convergence)
-
             tstresult = self.test(ds_test)
-
             errors[i] = tstresult
-
             i += 1
 
         print "Simple Classification Neural Network cross-validation test errors: " % errors
@@ -332,6 +331,11 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
 
     def get_type(self):
         return ProblemTypeEnum.Classification
+
+    def fill_with_predicted_data(self, ds, data):
+        # TODO: Implement filling data (list of dictionaries)
+        # with predicted values on ds dataset
+        pass
 
 
 class NaiveBayesClassifier(NeuralNetwork):
@@ -405,6 +409,11 @@ class NaiveBayesClassifier(NeuralNetwork):
     def get_type(self):
         return ProblemTypeEnum.Classification
 
+    def fill_with_predicted_data(self, ds, data):
+        # TODO: Implement filling data (list of dictionaries)
+        # with predicted values on ds dataset
+        pass
+
 
 class MaxEntropyClassifier(NeuralNetwork):
     def __init__(self):
@@ -439,7 +448,6 @@ class MaxEntropyClassifier(NeuralNetwork):
         for train_index, test_index in cv:
             ds_train = ds[train_index, :]
             ds_test = ds[test_index, :]
-
             X_train = ds_train['input']
             y_train = ds_train['class']
             X_test = ds_test['input']
@@ -449,11 +457,8 @@ class MaxEntropyClassifier(NeuralNetwork):
             test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
 
             self.classifier.train(train_fs)
-
             tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-
             errors[i] = tstresult
-
             i += 1
 
         print "Max Entropy Classifier cross-validation test errors: " % errors
@@ -475,6 +480,11 @@ class MaxEntropyClassifier(NeuralNetwork):
     def get_type(self):
         return ProblemTypeEnum.Classification
 
+    def fill_with_predicted_data(self, ds, data):
+        # TODO: Implement filling data (list of dictionaries)
+        # with predicted values on ds dataset
+        pass
+
 
 class LinearRegression(NeuralNetwork):
     def __init__(self):
@@ -492,7 +502,6 @@ class LinearRegression(NeuralNetwork):
     def test(self, ds_test):
         X_test = ds_test['input']
         y_test = ds_test['class']
-
         tstresult = self.regression.score(X_test, y_test)
         return tstresult
 
@@ -530,3 +539,8 @@ class LinearRegression(NeuralNetwork):
 
     def get_type(self):
         return ProblemTypeEnum.Regression
+
+    def fill_with_predicted_data(self, ds, data):
+        # TODO: Implement filling data (list of dictionaries)
+        # with predicted values on ds dataset
+        pass

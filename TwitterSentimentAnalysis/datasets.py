@@ -95,7 +95,7 @@ class TweetClassificationDatasetFactory(DatasetFactory):
 
     def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
         ds = self.__create_classification_dataset()
-        data = self.db[table_name].find(search_params)
+        data = self.get_data(table_name, search_params)
         for record in data:
             ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
         return ds
@@ -106,8 +106,7 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         return featureset
 
     def get_data(self, table_name='train_data', search_params={"isActive": True}):
-        # TODO: Implement getting records of data from db
-        pass
+        return self.db[table_name].find(search_params)
 
 
 class TweetRegressionDatasetFactory(DatasetFactory):
@@ -147,7 +146,7 @@ class TweetRegressionDatasetFactory(DatasetFactory):
 
     def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
         ds = self.__create_regression_dataset()
-        data = self.db[table_name].find(search_params)
+        data = self.get_data(table_name, search_params)
         for record in data:
             ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
         return ds
@@ -158,5 +157,4 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         return featureset
 
     def get_data(self, table_name='train_data', search_params={"isActive": True}):
-        # TODO: Implement getting records of data from db
-        pass
+        return self.db[table_name].find(search_params)

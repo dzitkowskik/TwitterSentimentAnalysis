@@ -118,8 +118,8 @@ class AnalysisView(View):
             action = int(form.cleaned_data['action'])
 
             if action == ActionEnum.Create.value:
-                save = form.cleaned_data['save_results']
-                custom = form.cleaned_data['custom_tweet_set']
+                # save = form.cleaned_data['save_results']
+                # custom = form.cleaned_data['custom_tweet_set']
                 tag = form.cleaned_data['tweet_sets']
                 ai_type = AIEnum[form.cleaned_data['ai_types']]
                 network = NeuralNetwork.factory(ai_type)
@@ -129,13 +129,17 @@ class AnalysisView(View):
 
             problem_type = network.get_type()
             factory = DatasetFactory.factory(problem_type)
+
             ds = factory.get_dataset(
                 table_name='test_data',
                 search_params={"isActive": True, "tag": tag})
+            data = list(factory.get_data(
+                table_name='test_data',
+                search_params={"isActive": True, "tag": tag}))
+
             ds_train, ds_test = ds.splitWithProportion(0.5)
             error = network.run(ds_train, ds_test)
-
-            data = self.get_predicted_data(network, ds)
+            network.fill_with_predicted_data(ds, data)
 
             context = {
                 'header': self.default_header,
@@ -165,13 +169,6 @@ class AnalysisView(View):
             if file_name.endswith(".net"):
                 results.append((file_name, file_name))
         return results
-
-    def get_predicted_data(self, network, ds):
-        result = []
-        test_results = network.activateOnDataset(ds)
-        data = ds['input']
-
-        return result
 
     def save_trained_network(self, network, name):
         save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
