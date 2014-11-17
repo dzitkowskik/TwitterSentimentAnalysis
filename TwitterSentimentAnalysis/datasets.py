@@ -96,8 +96,11 @@ class TweetClassificationDatasetFactory(DatasetFactory):
     def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
         ds = self.__create_classification_dataset()
         data = self.get_data(table_name, search_params)
+        i = 0
         for record in data:
-            ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
+            inp = self.__get_input_from_record(record)
+            target = self.__get_output_from_record(record)
+            ds.addSample(inp, target)
         return ds
 
     def get_dataset_class(self, table_name='train_data', search_params={"isActive": True}):

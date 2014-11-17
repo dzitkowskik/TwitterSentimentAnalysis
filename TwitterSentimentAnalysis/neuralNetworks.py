@@ -208,9 +208,14 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
         return ProblemTypeEnum.Classification
 
     def fill_with_predicted_data(self, ds, data):
-        # TODO: Implement filling data (list of dictionaries)
-        # with predicted values on ds dataset
-        pass
+        out = self.network.activateOnDataset(ds)
+        results = np.ravel(np.argmax(out, 1))
+        i = 0
+        assert(len(ds) == len(data))
+        for record in data:
+            record['sentiment'] = ds['target'][i]
+            record['predicted_sentiment'] = results[i]
+            i += 1
 
 
 class SimpleRegressionNeuralNetwork(NeuralNetwork):

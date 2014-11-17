@@ -66,9 +66,72 @@
         </div>
     </form>
 </div>
-{% if error %}
+
 <div id="tweet_table" class="row paginator_content">
-<p>Error = {{ error }}</p>
-{% endif %}
+  <table class="table table-condensed">
+      <tr>
+          <th style="text-align: center">Text</th>
+          <th style="text-align: center">RC</th>
+          <th style="text-align: center">Predicted RC</th>
+          <th style="text-align: center">Sentiment</th>
+          <th style="text-align: center">Predicted Sent.</th>
+      </tr>
+        {% for record in data %}
+          <tr>
+            <td>{{ record.text }}</td>
+            <td>{{ record.retweet_count }}</td>
+            {% if 'predicted_retweet_count' in record %}
+              <td>{{ record.predicted_retweet_count }}</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+            <td>{{ record.sentiment }}</td>
+            {% if 'predicted_sentiment' in record %}
+              <td>{{ record.predicted_sentiment }}</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+  </table>
+
+    {% if error %}
+        <p>Error = {{ error }}</p>
+    {% endif %}
 </div>
+
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
