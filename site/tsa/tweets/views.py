@@ -99,14 +99,6 @@ class AnalysisView(View):
         self.cfg = config
         self.db = db_client[config.db_database_name]
 
-    def get_form(self, post=None):
-        sets = self.get_tweet_sets()
-        ais = self.get_saved_ais()
-        if post is None:
-            return AnalysisForm(sets, ais)
-        else:
-            return AnalysisForm(sets, ais, post)
-
     def get(self, request):
         form = self.get_form()
         context = {'header': self.default_header, 'form': form}
@@ -115,44 +107,69 @@ class AnalysisView(View):
     def post(self, request):
         form = self.get_form(request.POST)
         if form.is_valid():
-            action = int(form.cleaned_data['action'])
-
-            if action == ActionEnum.Create.value:
-                # save = form.cleaned_data['save_results']
-                # custom = form.cleaned_data['custom_tweet_set']
-                tag = form.cleaned_data['tweet_sets']
-                ai_type = AIEnum[form.cleaned_data['ai_types']]
-                network = NeuralNetwork.factory(ai_type)
-            else:
-                saved_ai_name = form.cleaned_data['saved_ais']
-                network = self.load_trained_network(saved_ai_name)
-
-            problem_type = network.get_type()
-            factory = DatasetFactory.factory(problem_type)
-
-            ds = factory.get_dataset(
-                table_name='test_data',
-                search_params={"isActive": True, "tag": tag})
-            data = list(factory.get_data(
-                table_name='test_data',
-                search_params={"isActive": True, "tag": tag}))
-
+            network, create = self.get_network(form)
+            ds, data = self.get_data(form, network)
             ds_train, ds_test = ds.splitWithProportion(0.5)
-            error = network.run(ds_train, ds_test)
+
+            if create:
+                error = network.run(ds_train, ds_test)
+            else:
+                error = network.test(ds_test)
+
             network.fill_with_predicted_data(ds, data)
+
+            if form.cleaned_data['save_results']:
+                name = form.cleaned_data['name']
+                self.save_trained_network(network, name)
 
             context = {
                 'header': self.default_header,
                 'form': form,
                 'error': error,
-                'data': data,
-                'problem': problem_type
+                'data': data
             }
             return render(request, self.template_name, context)
 
         header = 'Error occurred'
         context = {'header': header, 'form': form}
         return render(request, self.template_name, context)
+
+    def get_form(self, post=None):
+        sets = self.get_tweet_sets()
+        ais = self.get_saved_ais()
+        if post is None:
+            return AnalysisForm(sets, ais)
+        else:
+            return AnalysisForm(sets, ais, post)
+
+    def get_network(self, form):
+        action = int(form.cleaned_data['action'])
+        if action == ActionEnum.Create.value:
+            result = True
+            ai_type = AIEnum[form.cleaned_data['ai_types']]
+            network = NeuralNetwork.factory(ai_type)
+        else:
+            result = False
+            saved_ai_name = form.cleaned_data['saved_ais']
+            network = self.load_trained_network(saved_ai_name)
+        return network, result
+
+    def get_data(self, form, network):
+        problem_type = network.get_type()
+        factory = DatasetFactory.factory(problem_type)
+        custom = form.cleaned_data['custom_tweet_set']
+        if custom:
+            tag = form.cleaned_data['tweet_sets']
+            ds = factory.get_dataset(
+                table_name=self.cfg.test_tweets_table,
+                search_params={"isActive": True, "tag": tag})
+            data = list(factory.get_data(
+                table_name=self.cfg.test_tweets_table,
+                search_params={"isActive": True, "tag": tag}))
+        else:
+            ds = factory.get_dataset()
+            data = list(factory.get_data())
+        return ds, data
 
     def get_tweet_sets(self):
         table = self.db[self.cfg.test_tweets_table]
@@ -171,8 +188,11 @@ class AnalysisView(View):
         return results
 
     def save_trained_network(self, network, name):
-        save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
-        network.save(save_path)
+        if name != "" and name is not None:
+            save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
+            network.save(save_path)
+        else:
+            raise NameError('Name cannot be blank')
 
     def load_trained_network(self, name):
         path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)

@@ -41,8 +41,8 @@ class AnalysisForm(forms.Form):
         widget=forms.RadioSelect(),
         initial=ActionEnum.Create.value)
     custom_tweet_set = forms.BooleanField(
-        label="Custom tweet set", initial=False, required=False)
+        label="Custom tweet set", initial=True, required=False)
     save_results = forms.BooleanField(
-        label="Save", initial=False, required=False)
+        label="Save", initial=True, required=False)
     name = forms.CharField(
         label='Name', max_length=40, required=False)
