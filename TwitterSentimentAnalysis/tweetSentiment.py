@@ -6,7 +6,7 @@ __author__ = 'Karol Dzitkowski'
 import core
 import numpy as np
 from datasets import TweetClassificationDatasetFactory
-from neuralNetworks import MultiClassClassificationNeuralNetwork
+from ai import MultiClassClassificationNeuralNetwork
 
 
 def main():

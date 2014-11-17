@@ -4,6 +4,7 @@ from TwitterSentimentAnalysis import downloaders, core
 from config import Config
 import os
 
+
 class DownloadTweetsTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

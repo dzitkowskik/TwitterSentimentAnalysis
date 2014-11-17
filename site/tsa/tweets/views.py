@@ -1,7 +1,7 @@
 # Karol Dzitkowski
 # k.dzitkowski@gmail.com
 # 10-10-2014
-__author__ = 'ghash'
+__author__ = 'Karol Dzitkowski'
 
 import os
 from django.shortcuts import render
@@ -11,7 +11,7 @@ from pymongo import MongoClient
 from TwitterSentimentAnalysis import core
 from config import Config
 from TwitterSentimentAnalysis.datasets import DatasetFactory
-from TwitterSentimentAnalysis.neuralNetworks import AIEnum, NeuralNetwork
+from TwitterSentimentAnalysis.ai import AIEnum, AI
 from forms import QueryForm, AnalysisForm, ActionEnum
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
@@ -147,7 +147,7 @@ class AnalysisView(View):
         if action == ActionEnum.Create.value:
             result = True
             ai_type = AIEnum[form.cleaned_data['ai_types']]
-            network = NeuralNetwork.factory(ai_type)
+            network = AI.factory(ai_type)
         else:
             result = False
             saved_ai_name = form.cleaned_data['saved_ais']
@@ -196,7 +196,7 @@ class AnalysisView(View):
 
     def load_trained_network(self, name):
         path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
-        return NeuralNetwork.load_network_from_file(path)
+        return AI.load_network_from_file(path)
 
 
 class StatisticsView(View):

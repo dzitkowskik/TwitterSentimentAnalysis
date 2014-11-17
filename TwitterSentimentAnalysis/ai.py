@@ -1,7 +1,7 @@
 # Karol Dzitkowski
 # k.dzitkowski@gmail.com
 # 10-10-2014
-__author__ = 'ghash'
+__author__ = 'Karol Dzitkowski'
 
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.utilities import percentError
@@ -41,7 +41,7 @@ class AIEnum(enum.Enum):
         return tuple([(p[0], p[1].value) for p in props])
 
 
-class NeuralNetwork(object):
+class AI(object):
     __metaclass__ = ABCMeta
 
     @staticmethod
@@ -95,7 +95,7 @@ class NeuralNetwork(object):
         pass
 
 
-class MultiClassClassificationNeuralNetwork(NeuralNetwork):
+class MultiClassClassificationNeuralNetwork(AI):
     def __init__(self, inp_cnt=3, out_cnt=9, hid_cnt=10, epochs=100):
         self.hid_cnt = hid_cnt
         self.out_cnt = out_cnt
@@ -218,7 +218,7 @@ class MultiClassClassificationNeuralNetwork(NeuralNetwork):
             i += 1
 
 
-class SimpleRegressionNeuralNetwork(NeuralNetwork):
+class SimpleRegressionNeuralNetwork(AI):
     def __init__(self, hid_cnt=10, convergence=0.01):
         self.hidden = hid_cnt
         self.network = None
@@ -279,7 +279,7 @@ class SimpleRegressionNeuralNetwork(NeuralNetwork):
         pass
 
 
-class SimpleClassificationNeuralNetwork(NeuralNetwork):
+class SimpleClassificationNeuralNetwork(AI):
     def __init__(self, hid_cnt=10, convergence=0.01):
         self.hidden = hid_cnt
         self.network = None
@@ -343,7 +343,7 @@ class SimpleClassificationNeuralNetwork(NeuralNetwork):
         pass
 
 
-class NaiveBayesClassifier(NeuralNetwork):
+class NaiveBayesClassifier(AI):
     def __init__(self):
         self.classifier = None
 
@@ -420,7 +420,7 @@ class NaiveBayesClassifier(NeuralNetwork):
         pass
 
 
-class MaxEntropyClassifier(NeuralNetwork):
+class MaxEntropyClassifier(AI):
     def __init__(self):
         self.classifier = nltk.MaxentClassifier()
 
@@ -491,7 +491,7 @@ class MaxEntropyClassifier(NeuralNetwork):
         pass
 
 
-class LinearRegression(NeuralNetwork):
+class LinearRegression(AI):
     def __init__(self):
         self.regression = lm.LinearRegression()
 

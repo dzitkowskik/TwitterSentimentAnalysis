@@ -1,7 +1,7 @@
 import inspect
 from django import forms
 import enum
-from TwitterSentimentAnalysis.neuralNetworks import AIEnum
+from TwitterSentimentAnalysis.ai import AIEnum
 
 
 class ActionEnum(enum.Enum):
