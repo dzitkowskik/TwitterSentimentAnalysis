@@ -67,6 +67,7 @@
     </form>
 </div>
 
+{% if data %}
 <div id="tweet_table" class="row paginator_content">
   <table class="table table-condensed">
       <tr>
@@ -99,7 +100,7 @@
         <p>Error = {{ error }}</p>
     {% endif %}
 </div>
-
+{% endif %}
 {% endblock %}
 
 
