@@ -1,3 +1,8 @@
+# Karol Dzitkowski
+# k.dzitkowski@gmail.com
+# 10-10-2014
+__author__ = 'ghash'
+
 import os
 from django.shortcuts import render
 from django.views.generic import View
@@ -84,6 +89,7 @@ class TweetSearchView(View):
 
 class AnalysisView(View):
     template_name = "analysis.html"
+    default_header = "Data analysis"
     tweets_per_page = 10
     pages_shown_count = 5
     max_pages = 1000
@@ -102,22 +108,25 @@ class AnalysisView(View):
             return AnalysisForm(sets, ais, post)
 
     def get(self, request):
-        header = "Twitter sentiment analysis"
         form = self.get_form()
-        context = {'header': header, 'form': form}
+        context = {'header': self.default_header, 'form': form}
         return render(request, self.template_name, context)
 
     def post(self, request):
         form = self.get_form(request.POST)
         if form.is_valid():
-            action = form.cleaned_data['action']
-            save = form.cleaned_data['save_results']
-            custom = form.cleaned_data['custom_tweet_set']
+            action = int(form.cleaned_data['action'])
 
-            tag = form.cleaned_data['tweet_sets']
-            ai_type = AIEnum[form.cleaned_data['ai_types']]
+            if action == ActionEnum.Create.value:
+                save = form.cleaned_data['save_results']
+                custom = form.cleaned_data['custom_tweet_set']
+                tag = form.cleaned_data['tweet_sets']
+                ai_type = AIEnum[form.cleaned_data['ai_types']]
+                network = NeuralNetwork.factory(ai_type)
+            else:
+                saved_ai_name = form.cleaned_data['saved_ais']
+                network = self.load_trained_network(saved_ai_name)
 
-            network = NeuralNetwork.factory(ai_type)
             problem_type = network.get_type()
             factory = DatasetFactory.factory(problem_type)
             ds = factory.get_dataset(
@@ -126,8 +135,15 @@ class AnalysisView(View):
             ds_train, ds_test = ds.splitWithProportion(0.5)
             error = network.run(ds_train, ds_test)
 
-            header = "Twitter sentiment analysis"
-            context = {'header': header, 'form': form, 'error': error}
+            data = self.get_predicted_data(network, ds)
+
+            context = {
+                'header': self.default_header,
+                'form': form,
+                'error': error,
+                'data': data,
+                'problem': problem_type
+            }
             return render(request, self.template_name, context)
 
         header = 'Error occurred'
@@ -150,11 +166,20 @@ class AnalysisView(View):
                 results.append((file_name, file_name))
         return results
 
-    def get_predicted_data(self):
-        pass
+    def get_predicted_data(self, network, ds):
+        result = []
+        test_results = network.activateOnDataset(ds)
+        data = ds['input']
 
-    def save_trained_network(self):
-        pass
+        return result
+
+    def save_trained_network(self, network, name):
+        save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
+        network.save(save_path)
+
+    def load_trained_network(self, name):
+        path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
+        return NeuralNetwork.load_network_from_file(path)
 
 
 class StatisticsView(View):

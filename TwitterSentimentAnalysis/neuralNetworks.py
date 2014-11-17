@@ -60,6 +60,12 @@ class NeuralNetwork(object):
             return LinearRegression()
         assert 0, "Bad enum given: " + str(ai_type)
 
+    @staticmethod
+    def load_network_from_file(file_path):
+        # TODO: Implement loading suitable AI from file
+        # !! It requires a knowledge of what type of AI it is !!
+        pass
+
     @abstractmethod
     def run(self, ds_train, ds_test):
         pass
