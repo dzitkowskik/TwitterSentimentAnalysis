@@ -1,4 +1,14 @@
 from django.contrib import admin
-from .models import Tweet
+from models import Tweet, Statistic
 
-admin.register(Tweet)
+
+class TweetModelAdmin(admin.ModelAdmin):
+    pass
+
+
+class StatisticModelAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(Tweet, TweetModelAdmin)
+admin.site.register(Statistic, StatisticModelAdmin)
