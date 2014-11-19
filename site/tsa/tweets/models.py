@@ -1,11 +1,23 @@
 from django.db import models
 
 
+class ArtificialIntelligence(models.Model):
+    name = models.CharField(max_length=50)
+    path = models.CharField(max_length=250)
+    ai_type = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Statistic(models.Model):
     name = models.CharField(max_length=50)
     problem_type = models.IntegerField()
-    ai = models.CharField(max_length=100)
+    ai = models.ForeignKey(ArtificialIntelligence)
     data = models.CharField(max_length=50)
+
+    def __unicode__(self):
+        return self.name
 
 
 class Tweet(models.Model):

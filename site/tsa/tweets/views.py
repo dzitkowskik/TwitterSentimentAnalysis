@@ -109,20 +109,20 @@ class AnalysisView(View):
     def post(self, request):
         form = self.get_form(request.POST)
         if form.is_valid():
-            network, create = self.get_network(form)
-            ds, data = self.get_data(form, network)
+            ai, create = self.get_ai(form)
+            ds, data = self.get_data(form, ai)
             ds_train, ds_test = ds.splitWithProportion(0.5)
 
             if create:
-                error = network.run(ds_train, ds_test)
+                error = ai.run(ds_train, ds_test)
             else:
-                error = network.test(ds_test)
+                error = ai.test(ds_test)
 
-            network.fill_with_predicted_data(ds, data)
+            ai.fill_with_predicted_data(ds, data)
 
             if form.cleaned_data['save_results']:
                 name = form.cleaned_data['name']
-                self.save_trained_network(network, name)
+                self.save_trained_ai(ai, name)
 
             context = {
                 'header': self.default_header,
@@ -144,20 +144,20 @@ class AnalysisView(View):
         else:
             return AnalysisForm(sets, ais, post)
 
-    def get_network(self, form):
+    def get_ai(self, form):
         action = int(form.cleaned_data['action'])
         if action == ActionEnum.Create.value:
             result = True
             ai_type = AIEnum[form.cleaned_data['ai_types']]
-            network = AI.factory(ai_type)
+            ai = AI.factory(ai_type)
         else:
             result = False
             saved_ai_name = form.cleaned_data['saved_ais']
-            network = self.load_trained_network(saved_ai_name)
-        return network, result
+            ai = self.load_trained_ai(saved_ai_name)
+        return ai, result
 
-    def get_data(self, form, network):
-        problem_type = network.get_type()
+    def get_data(self, form, ai):
+        problem_type = ai.get_type()
         factory = DatasetFactory.factory(problem_type)
         custom = form.cleaned_data['custom_tweet_set']
         if custom:
@@ -185,20 +185,21 @@ class AnalysisView(View):
         results = []
         save_dir = core.convert_rel_to_absolute(self.cfg.ai_save_dir)
         for file_name in os.listdir(save_dir):
-            if file_name.endswith(".net"):
+            if file_name.endswith(".ai"):
                 results.append((file_name, file_name))
         return results
 
-    def save_trained_network(self, network, name):
+    def save_trained_ai(self, ai, name):
         if name != "" and name is not None:
-            save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
-            network.save(save_path)
+            save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name + ".ai")
+            ai.save(save_path)
+            
         else:
             raise NameError('Name cannot be blank')
 
-    def load_trained_network(self, name):
+    def load_trained_ai(self, name):
         path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
-        return AI.load_network_from_file(path)
+        return AI.load_ai_from_file(path)
 
 
 class StatisticsView(View):

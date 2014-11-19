@@ -26,3 +26,6 @@ class TweetStatistics(object):
                     'source': source},
                 'terms': ['retweet_count', 'sentiment']}])
         return data
+
+    def create_statistic(self):
+        pass
