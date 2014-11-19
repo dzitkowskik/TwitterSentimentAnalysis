@@ -60,12 +60,6 @@ class AI(object):
             return LinearRegression()
         assert 0, "Bad enum given: " + str(ai_type)
 
-    @staticmethod
-    def load_network_from_file(file_path):
-        # TODO: Implement loading suitable AI from file
-        # !! It requires a knowledge of what type of AI it is !!
-        pass
-
     @abstractmethod
     def run(self, ds_train, ds_test):
         pass
@@ -205,7 +199,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         self.network = NetworkReader.readFrom(path)
 
     def get_type(self):
-        return ProblemTypeEnum.Classification
+        return ProblemTypeEnum.Classification, AIEnum.MultiClassClassificationNeuralNetwork
 
     def fill_with_predicted_data(self, ds, data):
         out = self.network.activateOnDataset(ds)
@@ -271,7 +265,7 @@ class SimpleRegressionNeuralNetwork(AI):
         self.network = NetworkReader.readFrom(path)
 
     def get_type(self):
-        return ProblemTypeEnum.Regression
+        return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
 
     def fill_with_predicted_data(self, ds, data):
         # TODO: Implement filling data (list of dictionaries)
@@ -335,7 +329,7 @@ class SimpleClassificationNeuralNetwork(AI):
         self.network = NetworkReader.readFrom(path)
 
     def get_type(self):
-        return ProblemTypeEnum.Classification
+        return ProblemTypeEnum.Classification, AIEnum.SimpleClassificationNeuralNetwork
 
     def fill_with_predicted_data(self, ds, data):
         # TODO: Implement filling data (list of dictionaries)
@@ -412,7 +406,7 @@ class NaiveBayesClassifier(AI):
         f.close()
 
     def get_type(self):
-        return ProblemTypeEnum.Classification
+        return ProblemTypeEnum.Classification, AIEnum.NaiveBayesClassifier
 
     def fill_with_predicted_data(self, ds, data):
         # TODO: Implement filling data (list of dictionaries)
@@ -483,7 +477,7 @@ class MaxEntropyClassifier(AI):
         f.close()
 
     def get_type(self):
-        return ProblemTypeEnum.Classification
+        return ProblemTypeEnum.Classification, AIEnum.MaxEntropyClassifier
 
     def fill_with_predicted_data(self, ds, data):
         # TODO: Implement filling data (list of dictionaries)
@@ -543,7 +537,7 @@ class LinearRegression(AI):
         f.close()
 
     def get_type(self):
-        return ProblemTypeEnum.Regression
+        return ProblemTypeEnum.Regression, AIEnum.LinearRegression
 
     def fill_with_predicted_data(self, ds, data):
         # TODO: Implement filling data (list of dictionaries)

@@ -17,6 +17,7 @@ from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
 from TwitterSentimentAnalysis.statistics import TweetStatistics
 from chartit import Chart
+from models import ArtificialIntelligence
 
 
 class TweetSearchView(View):
@@ -138,12 +139,13 @@ class AnalysisView(View):
 
     def get_form(self, post=None):
         sets = self.get_tweet_sets()
-        ais = self.get_saved_ais()
+        ais = map(lambda ai: (ai.name, ai.name), ArtificialIntelligence.objects.all())
         if post is None:
             return AnalysisForm(sets, ais)
         else:
             return AnalysisForm(sets, ais, post)
 
+    # noinspection PyMethodMayBeStatic
     def get_ai(self, form):
         action = int(form.cleaned_data['action'])
         if action == ActionEnum.Create.value:
@@ -153,7 +155,9 @@ class AnalysisView(View):
         else:
             result = False
             saved_ai_name = form.cleaned_data['saved_ais']
-            ai = self.load_trained_ai(saved_ai_name)
+            ai_model = ArtificialIntelligence.objects.get(name=saved_ai_name)
+            ai = AI.factory(ai_model.ai_type)
+            ai.load(ai_model.path)
         return ai, result
 
     def get_data(self, form, ai):
@@ -181,25 +185,15 @@ class AnalysisView(View):
             result.append((tag, tag))
         return result
 
-    def get_saved_ais(self):
-        results = []
-        save_dir = core.convert_rel_to_absolute(self.cfg.ai_save_dir)
-        for file_name in os.listdir(save_dir):
-            if file_name.endswith(".ai"):
-                results.append((file_name, file_name))
-        return results
-
     def save_trained_ai(self, ai, name):
         if name != "" and name is not None:
             save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name + ".ai")
             ai.save(save_path)
-            
+            _, ai_type = ai.get_type()
+            ai_model = ArtificialIntelligence(name=name, path=save_path, ai_type=ai_type)
+            ai_model.save()
         else:
             raise NameError('Name cannot be blank')
-
-    def load_trained_ai(self, name):
-        path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name)
-        return AI.load_ai_from_file(path)
 
 
 class StatisticsView(View):
