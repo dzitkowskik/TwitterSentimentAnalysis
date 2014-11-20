@@ -211,6 +211,7 @@ class MultiClassClassificationNeuralNetwork(AI):
             record['predicted_sentiment'] = results[i]
             i += 1
 
+
 class SimpleRegressionNeuralNetwork(AI):
     def __init__(self, hid_cnt=10, convergence=0.01):
         self.hidden = hid_cnt
@@ -277,6 +278,7 @@ class SimpleRegressionNeuralNetwork(AI):
             record['retweets'] = ds['target'][i]
             record['predicted_retweets'] = results[i]
             i += 1
+
 
 class SimpleClassificationNeuralNetwork(AI):
     def __init__(self, hid_cnt=10, convergence=0.01):
@@ -347,6 +349,7 @@ class SimpleClassificationNeuralNetwork(AI):
             record['sentiment'] = ds['target'][i]
             record['predicted_sentiment'] = results[i]
             i += 1
+
 
 class NaiveBayesClassifier(AI):
     def __init__(self):
@@ -458,6 +461,7 @@ class NaiveBayesClassifier(AI):
             record['predicted_sentiment'] = out[i]
             i += 1
 
+
 class MaxEntropyClassifier(AI):
     def __init__(self):
         self.classifier = None
@@ -562,6 +566,7 @@ class MaxEntropyClassifier(AI):
             record['sentiment'] = ds['target'][i]
             record['predicted_sentiment'] = out[i]
             i += 1
+
 
 class LinearRegression(AI):
     def __init__(self):

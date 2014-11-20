@@ -2,6 +2,8 @@ import inspect
 from django import forms
 import enum
 from TwitterSentimentAnalysis.ai import AIEnum
+from TwitterSentimentAnalysis.statistics import StatisticEnum
+from models import ArtificialIntelligence
 
 
 class ActionEnum(enum.Enum):
@@ -46,3 +48,14 @@ class AnalysisForm(forms.Form):
         label="Save", initial=True, required=False)
     name = forms.CharField(
         label='Name', max_length=40, required=False)
+
+
+class StatisticsForm(forms.Form):
+    tweet_sets = forms.ModelChoiceField(
+        queryset=ArtificialIntelligence.objects.all(),
+        empty_label=None)
+
+    statistic_types = forms.TypedChoiceField(
+        choices=StatisticEnum.choices(),
+        coerce=str,
+        initial=StatisticEnum.sample.name)
