@@ -209,6 +209,8 @@ class AnalysisView(View):
                     if 'predicted_sentiment' in record else None
                 retweet_count_estimated = record['predicted_retweet_count'] \
                     if 'predicted_retweet_count' in record else None
+                sentiment = record['sentiment'] if 'sentiment' in record \
+                    else record['word_sentiment']
                 new_tweet_save = Tweet(
                     number=record['_id'],
                     text=record['text'],
@@ -216,7 +218,7 @@ class AnalysisView(View):
                     followers_count=record['data']['user']['followers_count'],
                     retweet_count_actual=record['retweet_count'],
                     retweet_count_estimated=retweet_count_estimated,
-                    sentiment_actual=record['sentiment'],
+                    sentiment_actual=sentiment,
                     sentiment_estimated=sentiment_estimated,
                     ai=ai
                 )
