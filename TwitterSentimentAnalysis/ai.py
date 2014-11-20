@@ -343,23 +343,39 @@ class NaiveBayesClassifier(AI):
 
     def run(self, ds_train, ds_test):
         X_train = ds_train['input']
-        y_train = ds_train['class']
+        y_train = ds_train['target']
         X_test = ds_test['input']
-        y_test = ds_test['class']
+        y_test = ds_test['target']
 
-        train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
-        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+        train_fs = []
+        test_fs = []
+        for i, k in enumerate(X_train):
+            features = {}
+            features['first'] = X_train[i][0]
+            features['second'] = X_train[i][1]
+            features['third'] = X_train[i][2]
+            train_fs.append((features, y_train[i][0]))
 
-        self.classifier = nltk.NaiveBayesClassifier().train(train_fs)
 
-        self.classifier.train(train_fs)
+        for i, k in enumerate(X_test):
+            features = {}
+            features['first'] = X_test[i][0]
+            features['second'] = X_test[i][1]
+            features['third'] = X_test[i][2]
+            test_fs.append((features, y_test[i][0]))
+
+        self.classifier = nltk.NaiveBayesClassifier.train(train_fs)
+
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
+
+        print tstresult
+
         return tstresult
 
     def test(self, ds_test):
         X_test = ds_test['input']
-        y_test = ds_test['class']
-        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+        y_test = ds_test['target']
+        test_fs = [(X_test[i], y_test[i]) for i, k in enumerate(X_test)]
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 

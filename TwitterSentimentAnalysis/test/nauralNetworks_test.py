@@ -35,16 +35,44 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         actual = neural_network.network.activateOnDataset(ds_test)
         expected = ds_test['class']
         expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
-        self.assertEqual(result, expected_error)
+        self.assertEqual(result/100, expected_error)
 
     def test_naive_bayes_classifier(self):
-        # TODO: finish
         classifier = ai.NaiveBayesClassifier()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
         ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
-        self.assertIsNotNone(classifier.classifier)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         result = classifier.run(ds_train, ds_test)
-        res = classifier.classify_many(ds_test['input'])
-        print res
-        print ds_test['target']
+        self.assertIsNotNone(classifier.classifier)
+
+        test_ds = []
+        for i, k in enumerate(ds_test['input']):
+            features = {}
+            features['first'] = ds_test['input'][i][0]
+            features['second'] = ds_test['input'][i][1]
+            features['third'] = ds_test['input'][i][2]
+            test_ds.append(features)
+
+        print features
+
+        res = []
+        for i, test_rec in enumerate(test_ds):
+            res.append(classifier.classifier.classify(test_rec))
+
+        target = []
+        for x in ds_test['target']:
+            if x[0] > 0:
+                target.append(1)
+            elif x[0] == 0:
+                target.append(0)
+            else:
+                target.append(-1)
+
+        tot = 0
+        for i, x in enumerate(target):
+            if x == res[i]:
+                tot = tot + 1
+
+        expected_error = tot/len(target)
+
+        self.assertEqual(result, expected_error)
