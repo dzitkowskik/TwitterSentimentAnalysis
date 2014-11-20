@@ -1,14 +1,14 @@
 from django.contrib import admin
-from models import Tweet, Statistic
+from models import Tweet, ArtificialIntelligence
 
 
 class TweetModelAdmin(admin.ModelAdmin):
     pass
 
 
-class StatisticModelAdmin(admin.ModelAdmin):
+class ArtificialIntelligenceModelAdmin(admin.ModelAdmin):
     pass
 
 
 admin.site.register(Tweet, TweetModelAdmin)
-admin.site.register(Statistic, StatisticModelAdmin)
+admin.site.register(ArtificialIntelligence, ArtificialIntelligenceModelAdmin)

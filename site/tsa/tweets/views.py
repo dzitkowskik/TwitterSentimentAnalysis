@@ -16,7 +16,7 @@ from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
 from TwitterSentimentAnalysis.statistics import TweetStatistics
 from chartit import Chart
-from models import ArtificialIntelligence
+from models import ArtificialIntelligence, Tweet
 
 
 class TweetSearchView(View):
@@ -123,6 +123,7 @@ class AnalysisView(View):
             if form.cleaned_data['save_results']:
                 name = form.cleaned_data['name']
                 self.save_trained_ai(ai, name)
+                self.save_data_for_statistics(data, name)
 
             context = {
                 'header': self.default_header,
@@ -186,13 +187,42 @@ class AnalysisView(View):
 
     def save_trained_ai(self, ai, name):
         if name != "" and name is not None:
-            save_path = core.convert_rel_to_absolute(self.cfg.ai_save_dir + name + ".ai")
+            save_path = core.convert_rel_to_absolute(
+                self.cfg.ai_save_dir + name + ".ai")
             ai.save(save_path)
-            _, ai_type = ai.get_type()
-            ai_model = ArtificialIntelligence(name=name, path=save_path, ai_type=ai_type)
+            problem_type, ai_type = ai.get_type()
+            ai_model = ArtificialIntelligence(
+                name=name,
+                path=save_path,
+                ai_type=ai_type,
+                problem_type=problem_type.value)
             ai_model.save()
         else:
             raise NameError('Name cannot be blank')
+
+    # noinspection PyMethodMayBeStatic
+    def save_data_for_statistics(self, data, ai_name):
+        if ai_name != "" and ai_name is not None:
+            ai = ArtificialIntelligence.objects.get(name=ai_name)
+            for record in data:
+                sentiment_estimated = record['predicted_sentiment'] \
+                    if 'predicted_sentiment' in record else None
+                retweet_count_estimated = record['predicted_retweet_count'] \
+                    if 'predicted_retweet_count' in record else None
+                new_tweet_save = Tweet(
+                    number=record['_id'],
+                    text=record['text'],
+                    favourites_count=record['data']['favorite_count'],
+                    followers_count=record['data']['user']['followers_count'],
+                    retweet_count_actual=record['retweet_count'],
+                    retweet_count_estimated=retweet_count_estimated,
+                    sentiment_actual=record['sentiment'],
+                    sentiment_estimated=sentiment_estimated,
+                    ai=ai
+                )
+                new_tweet_save.save()
+        else:
+            raise NameError('ai_name cannot be blank')
 
 
 class StatisticsView(View):

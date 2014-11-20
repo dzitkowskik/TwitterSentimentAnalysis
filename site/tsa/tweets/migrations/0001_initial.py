@@ -11,13 +11,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Statistic',
+            name='ArtificialIntelligence',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50)),
+                ('path', models.CharField(max_length=250)),
+                ('ai_type', models.CharField(max_length=100)),
                 ('problem_type', models.IntegerField()),
-                ('ai', models.CharField(max_length=100)),
-                ('data', models.CharField(max_length=50)),
             ],
             options={
             },
@@ -31,11 +31,11 @@ class Migration(migrations.Migration):
                 ('text', models.TextField()),
                 ('favourites_count', models.IntegerField()),
                 ('followers_count', models.IntegerField()),
-                ('retweetCount_actual', models.IntegerField()),
-                ('retweetCount_estimated', models.IntegerField()),
+                ('retweet_count_actual', models.IntegerField()),
+                ('retweet_count_estimated', models.IntegerField(null=True)),
                 ('sentiment_actual', models.CharField(max_length=30)),
-                ('sentiment_estimated', models.CharField(max_length=30)),
-                ('statistic', models.ForeignKey(to='tweets.Statistic')),
+                ('sentiment_estimated', models.CharField(max_length=30, null=True)),
+                ('ai', models.ForeignKey(to='tweets.ArtificialIntelligence')),
             ],
             options={
             },
