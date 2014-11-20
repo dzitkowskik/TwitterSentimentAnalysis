@@ -14,7 +14,7 @@ from TwitterSentimentAnalysis.ai import AIEnum, AI
 from forms import QueryForm, AnalysisForm, ActionEnum
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
-from TwitterSentimentAnalysis.statistics import TweetStatistics
+from TwitterSentimentAnalysis.statistics import TweetStatistics, StatisticEnum
 from models import ArtificialIntelligence, Tweet
 
 
@@ -234,7 +234,12 @@ class StatisticsView(View):
 
     def get(self, request):
         header = "Twitter sentiment statistics"
-        cht = TweetStatistics.get_sample_chart(Tweet.objects.all())
+
+        cht = TweetStatistics.get_chart(
+            StatisticEnum.sample,
+            Tweet.objects.all(),
+            ArtificialIntelligence.objects.all()[:1].get())
+
         context = {'header': header, 'chart_list': cht}
         return render(request, self.template_name, context)
 
