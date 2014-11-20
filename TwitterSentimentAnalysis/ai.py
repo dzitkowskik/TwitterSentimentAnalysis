@@ -247,9 +247,10 @@ class SimpleRegressionNeuralNetwork(AI):
             ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
 
             self.network = NNregression(ds_train)
+            self.network.setupNN(hidden = self.hidden)
             self.network.runTraining(self.convergence)
             tstresult = self.test(ds_test)
-            errors[i] = tstresult
+            errors[i] = tstresult[0]
             i += 1
 
         print "Simple Regression Neural Network cross-validation test errors: " % errors
@@ -270,8 +271,6 @@ class SimpleRegressionNeuralNetwork(AI):
     def fill_with_predicted_data(self, ds, data):
         out = self.network.Trainer.activateOnDataset(ds)
         results = np.ravel(np.argmax(out, 1))
-        print out
-        print results
         i = 0
         assert(len(ds) == len(data))
         for record in data:
@@ -318,9 +317,10 @@ class SimpleClassificationNeuralNetwork(AI):
             ds_test._convertToOneOfMany()
 
             self.network = NNclassifier(ds_train)
+            self.network.setupNN(hidden = self.hidden)
             self.network.runTraining(self.convergence)
             tstresult = self.test(ds_test)
-            errors[i] = tstresult
+            errors[i] = tstresult[0]
             i += 1
 
         print "Simple Classification Neural Network cross-validation test errors: " % errors
@@ -339,9 +339,14 @@ class SimpleClassificationNeuralNetwork(AI):
         return ProblemTypeEnum.Classification, AIEnum.SimpleClassificationNeuralNetwork
 
     def fill_with_predicted_data(self, ds, data):
-        # TODO: Implement filling data (list of dictionaries)
-        # with predicted values on ds dataset
-        pass
+        out = self.network.Trainer.activateOnDataset(ds)
+        results = np.ravel(np.argmax(out, 1))
+        i = 0
+        assert(len(ds) == len(data))
+        for record in data:
+            record['sentiment'] = ds['target'][i]
+            record['predicted_sentiment'] = results[i]
+            i += 1
 
 class NaiveBayesClassifier(AI):
     def __init__(self):
@@ -384,30 +389,43 @@ class NaiveBayesClassifier(AI):
         return tstresult
 
     def run_with_crossvalidation(self, ds, iterations=5):
-        n = len(ds)
+        x = ds['input']
+        y = ds['target']
+        n, m = x.shape
         cv = cross_validation.KFold(n, iterations, shuffle=True)
         errors = np.zeros(iterations)
 
-        i = 0
+        q = 0
         for train_index, test_index in cv:
-            ds_train = ds[train_index, :]
-            ds_test = ds[test_index, :]
+            X_train = x[train_index, :]
+            y_train = y[train_index, :]
+            X_test = x[test_index, :]
+            y_test = y[test_index, :]
 
-            X_train = ds_train['input']
-            y_train = ds_train['class']
-            X_test = ds_test['input']
-            y_test = ds_test['class']
+            train_fs = []
+            test_fs = []
+            for i, k in enumerate(X_train):
+                features = {}
+                features['first'] = X_train[i][0]
+                features['second'] = X_train[i][1]
+                features['third'] = X_train[i][2]
+                train_fs.append((features, y_train[i][0]))
 
-            train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
-            test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
 
-            self.classifier.train(train_fs)
+            for i, k in enumerate(X_test):
+                features = {}
+                features['first'] = X_test[i][0]
+                features['second'] = X_test[i][1]
+                features['third'] = X_test[i][2]
+                test_fs.append((features, y_test[i][0]))
+
+            self.classifier = nltk.NaiveBayesClassifier.train(train_fs)
 
             tstresult = nltk.classify.accuracy(self.classifier, test_fs)
 
-            errors[i] = tstresult
+            errors[q] = tstresult
 
-            i += 1
+            q += 1
 
         print "Naive Bayes Classifier cross-validation test errors: " % errors
         return np.average(errors)
@@ -429,9 +447,16 @@ class NaiveBayesClassifier(AI):
         return ProblemTypeEnum.Classification, AIEnum.NaiveBayesClassifier
 
     def fill_with_predicted_data(self, ds, data):
-        # TODO: Implement filling data (list of dictionaries)
-        # with predicted values on ds dataset
-        pass
+        out = []
+        for rec in ds:
+            out.append(self.classifier.classify(rec))
+
+        i = 0
+        assert(len(ds) == len(data))
+        for record in data:
+            record['sentiment'] = ds['target'][i]
+            record['predicted_sentiment'] = out[i]
+            i += 1
 
 class MaxEntropyClassifier(AI):
     def __init__(self):
@@ -472,26 +497,40 @@ class MaxEntropyClassifier(AI):
         return tstresult
 
     def run_with_crossvalidation(self, ds, iterations=5):
+        x = ds['input']
+        y = ds['target']
         n = len(ds)
         cv = cross_validation.KFold(n, iterations, shuffle=True)
         errors = np.zeros(iterations)
 
-        i = 0
+        q = 0
         for train_index, test_index in cv:
-            ds_train = ds[train_index, :]
-            ds_test = ds[test_index, :]
-            X_train = ds_train['input']
-            y_train = ds_train['class']
-            X_test = ds_test['input']
-            y_test = ds_test['class']
+            X_train = x[train_index, :]
+            y_train = y[train_index, :]
+            X_test = x[test_index, :]
+            y_test = y[test_index, :]
 
-            train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
-            test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+            train_fs = []
+            test_fs = []
+            for i, k in enumerate(X_train):
+                features = {}
+                features['first'] = X_train[i][0]
+                features['second'] = X_train[i][1]
+                features['third'] = X_train[i][2]
+                train_fs.append((features, y_train[i][0]))
 
-            self.classifier.train(train_fs)
+
+            for i, k in enumerate(X_test):
+                features = {}
+                features['first'] = X_test[i][0]
+                features['second'] = X_test[i][1]
+                features['third'] = X_test[i][2]
+                test_fs.append((features, y_test[i][0]))
+
+            self.classifier = nltk.MaxentClassifier.train(train_fs)
             tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-            errors[i] = tstresult
-            i += 1
+            errors[q] = tstresult
+            q += 1
 
         print "Max Entropy Classifier cross-validation test errors: " % errors
         return np.average(errors)
@@ -513,9 +552,16 @@ class MaxEntropyClassifier(AI):
         return ProblemTypeEnum.Classification, AIEnum.MaxEntropyClassifier
 
     def fill_with_predicted_data(self, ds, data):
-        # TODO: Implement filling data (list of dictionaries)
-        # with predicted values on ds dataset
-        pass
+        out = []
+        for rec in ds:
+            out.append(self.classifier.classify(rec))
+
+        i = 0
+        assert(len(ds) == len(data))
+        for record in data:
+            record['sentiment'] = ds['target'][i]
+            record['predicted_sentiment'] = out[i]
+            i += 1
 
 class LinearRegression(AI):
     def __init__(self):
@@ -537,19 +583,19 @@ class LinearRegression(AI):
         return tstresult
 
     def run_with_crossvalidation(self, ds, iterations = 5):
+        x = ds['input']
+        y = ds['target']
         n = len(ds)
         cv = cross_validation.KFold(n, iterations, shuffle=True)
         errors = np.zeros(iterations)
 
         i = 0
         for train_index, test_index in cv:
-            ds_train = ds[train_index, :]
-            ds_test = ds[test_index, :]
+            X_train = x[train_index, :]
+            y_train = y[train_index, :]
+            X_test = x[test_index, :]
+            y_test = y[test_index, :]
 
-            X_train = ds_train['input']
-            y_train = ds_train['class']
-            X_test = ds_test['input']
-            y_test = ds_test['class']
             self.regression.fit(X_train, y_train)
             errors[i] = self.regression.score(X_test, y_test)
             i += 1
@@ -572,6 +618,10 @@ class LinearRegression(AI):
         return ProblemTypeEnum.Regression, AIEnum.LinearRegression
 
     def fill_with_predicted_data(self, ds, data):
-        # TODO: Implement filling data (list of dictionaries)
-        # with predicted values on ds dataset
-        pass
+        out = self.regression.predict(ds)[0]
+        i = 0
+        assert(len(ds) == len(data))
+        for record in data:
+            record['retweets'] = ds['target'][i]
+            record['predicted_retweets'] = out[i]
+            i += 1
