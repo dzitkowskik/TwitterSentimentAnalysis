@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% load tweet_extras %}
 {% load chartit %}
-{{ chart|load_charts:"container" }}
-{% block content %}
 
+{% block chart_loader %}
+    {{ chart_list|load_charts:"c1" }}
+{% endblock %}
+
+{% block content %}
     <div class="inner row">
         <h1>{{ header }}</h1>
     </div>
-    <div id="container"></div>
-
+    <div id="c1"></div>
 {% endblock %}

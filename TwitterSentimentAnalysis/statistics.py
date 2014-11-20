@@ -6,8 +6,7 @@ __author__ = 'Karol Dzitkowski'
 import inject
 from config import Config
 from pymongo import MongoClient
-from chartit import DataPool
-from TwitterSentimentAnalysis.datasets import DatasetFactory, ProblemTypeEnum
+from django_chartit_1_7 import DataPool, Chart
 
 
 class TweetStatistics(object):
@@ -16,9 +15,30 @@ class TweetStatistics(object):
         self.cfg = config
         self.db = db_client[config.db_database_name]
 
-    @staticmethod
-    def get_sample_stat():
-        pass
 
-    def create_statistic(self):
-        pass
+    @staticmethod
+    def get_sample_chart(data, statistic=None):
+
+        data = DataPool(
+            series=[{
+                'options': {
+                    'source': data},
+                'terms': ['retweet_count_actual', 'followers_count']}])
+
+        cht = Chart(
+            datasource=data,
+            series_options=[{
+                'options': {
+                    'type': 'column',
+                    'stacking': True},
+                'terms': {
+                    'followers_count': [
+                        'retweet_count_actual']}}],
+            chart_options={
+                'title': {
+                    'text': 'Retweet count vs Sentiment'},
+                'xAxis': {
+                    'title': {
+                        'text': 'Retweet count'}}})
+
+        return cht
