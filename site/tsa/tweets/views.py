@@ -3,7 +3,6 @@
 # 10-10-2014
 __author__ = 'Karol Dzitkowski'
 
-import os
 from django.shortcuts import render
 from django.views.generic import View
 import inject
@@ -161,7 +160,7 @@ class AnalysisView(View):
         return ai, result
 
     def get_data(self, form, ai):
-        problem_type = ai.get_type()
+        problem_type, _ = ai.get_type()
         factory = DatasetFactory.factory(problem_type)
         custom = form.cleaned_data['custom_tweet_set']
         if custom:

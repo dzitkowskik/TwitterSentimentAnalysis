@@ -18,14 +18,7 @@ class TweetStatistics(object):
 
     @staticmethod
     def get_sample_stat():
-        factory = DatasetFactory.factory(ProblemTypeEnum.Classification)
-        source = factory.get_data()
-        data = DataPool(
-            series=[{
-                'options': {
-                    'source': source},
-                'terms': ['retweet_count', 'sentiment']}])
-        return data
+        pass
 
     def create_statistic(self):
         pass
