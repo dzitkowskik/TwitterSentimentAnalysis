@@ -261,7 +261,7 @@ class SimpleRegressionNeuralNetwork(AI):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        NNregression.saveNetwork(self.network, path)
+        NetworkWriter.writeToFile(self.network, path)
 
     def load(self, path):
         self.network = NetworkReader.readFrom(path)

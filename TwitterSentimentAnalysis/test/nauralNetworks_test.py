@@ -25,7 +25,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.test_db.drop_collection(self.test_table_name)
-    @unittest.skip("demonstrating skipping")
+    @unittest.skip("already passed")
     def test_multi_class_classification_neural_network(self):
         neural_network = ai.MultiClassClassificationNeuralNetwork(3, 9)
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -37,7 +37,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected = ds_test['class']
         expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
         self.assertEqual(result/100, expected_error)
-    @unittest.skip("demonstrating skipping")
+    @unittest.skip("already passed")
     def test_simple_regression_neural_network(self):
         neural_network = ai.SimpleRegressionNeuralNetwork()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -56,7 +56,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected_error = float(tot)/float(len(expected))
 
         self.assertEqual(100-result[0], expected_error)
-    @unittest.skip("demonstrating skipping")
+    @unittest.skip("already passed")
     def test_simple_classification_neural_network(self):
         neural_network = ai.SimpleClassificationNeuralNetwork()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -73,7 +73,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
 
         self.assertEqual(result[0]/100, expected_error)
-    @unittest.skip("demonstrating skipping")
+    @unittest.skip("already passed")
     def test_naive_bayes_classifier(self):
         classifier = ai.NaiveBayesClassifier()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -111,7 +111,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected_error = float(tot)/float(len(target))
 
         self.assertEqual(result, expected_error)
-    @unittest.skip("demonstrating skipping")
+    @unittest.skip("already passed")
     def test_max_ent_classifier(self):
         classifier = ai.MaxEntropyClassifier()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -149,7 +149,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected_error = float(tot)/float(len(target))
 
         self.assertEqual(result, expected_error)
-    @unittest.skip("demonstrating skipping")
+    @unittest.skip("already passed")
     def test_linear_regression(self):
         model = ai.LinearRegression()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -166,7 +166,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected_error = 1-((expected - actual) ** 2).sum()/((expected - expected.mean()) ** 2).sum()
 
         self.assertEqual(result, expected_error)
-
+    @unittest.skip("already passed")
     def test_save_multiclassclassification(self):
         network_before = ai.MultiClassClassificationNeuralNetwork()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -188,6 +188,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         self.assertEqual(res_before, res_after)
 
         os.remove(file_path)
+
 
     def test_save_simpleregression(self):
         network_before = ai.SimpleRegressionNeuralNetwork()
@@ -213,3 +214,41 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         self.assertEqual(res_before, res_after)
 
         os.remove(file_path)
+
+    def test_save_simpleclassification(self):
+        network_before = ai.SimpleClassificationNeuralNetwork()
+        self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
+        ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
+        ds_train, ds_test = ds.splitWithProportion(0.75)
+        res_before = network_before.run(ds_train, ds_test)
+
+        base_dir = os.path.dirname(__file__)
+        network_name = 'network'+uuid.uuid4().hex+'_test'
+        file_path = os.path.join(base_dir, network_name)
+        network_before.save(file_path)
+
+        network_after = ai.SimpleClassificationNeuralNetwork()
+
+        network_after.load(network_name)
+
+        res_after = network_after.run(ds_train, ds_test)
+
+        print res_after
+        print res_before
+
+        self.assertEqual(res_before, res_after)
+
+        os.remove(file_path)
+
+    def test_save_naivebayes(self):
+        classifier_before = ai.NaiveBayesClassifier()
+        self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
+        ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
+        ds_train, ds_test = ds.splitWithProportion(0.75)
+        res_before = classifier_before.run(ds_train, ds_test)
+
+        base_dir = os.path.dirname(__file__)
+        network_name = 'network'+uuid.uuid4().hex+'_test'
+        file_path = os.path.join(base_dir, network_name)
+        classifier_before.save(file_path)
+
