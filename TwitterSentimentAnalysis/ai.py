@@ -368,8 +368,6 @@ class NaiveBayesClassifier(AI):
 
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
 
-        print tstresult
-
         return tstresult
 
     def test(self, ds_test):

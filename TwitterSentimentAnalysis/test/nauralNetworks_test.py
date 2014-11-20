@@ -73,6 +73,6 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
             if x == res[i]:
                 tot = tot + 1
 
-        expected_error = tot/len(target)
+        expected_error = float(tot)/float(len(target))
 
         self.assertEqual(result, expected_error)
