@@ -261,10 +261,15 @@ class SimpleRegressionNeuralNetwork(AI):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        NetworkWriter.writeToFile(self.network, path)
+        fileObject = open(path, 'w')
+
+        pickle.dump(self.network, fileObject)
+
+        fileObject.close()
 
     def load(self, path):
-        self.network = NetworkReader.readFrom(path)
+        fileObject = open(path,'r')
+        self.network = pickle.load(fileObject)
 
     def get_type(self):
         return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
@@ -332,10 +337,15 @@ class SimpleClassificationNeuralNetwork(AI):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        NNclassifier.saveNetwork(self.network, path)
+        fileObject = open(path, 'w')
+
+        pickle.dump(self.network, fileObject)
+
+        fileObject.close()
 
     def load(self, path):
-        self.network = NetworkReader.readFrom(path)
+        fileObject = open(path,'r')
+        self.network = pickle.load(fileObject)
 
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.SimpleClassificationNeuralNetwork
@@ -387,7 +397,13 @@ class NaiveBayesClassifier(AI):
     def test(self, ds_test):
         X_test = ds_test['input']
         y_test = ds_test['target']
-        test_fs = [(X_test[i], y_test[i]) for i, k in enumerate(X_test)]
+        test_fs = []
+        for i, k in enumerate(X_test):
+            features = {}
+            features['first'] = X_test[i][0]
+            features['second'] = X_test[i][1]
+            features['third'] = X_test[i][2]
+            test_fs.append((features, y_test[i][0]))
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
@@ -495,8 +511,17 @@ class MaxEntropyClassifier(AI):
 
     def test(self, ds_test):
         X_test = ds_test['input']
-        y_test = ds_test['class']
-        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+        y_test = ds_test['target']
+
+        test_fs = []
+
+        for i, k in enumerate(X_test):
+            features = {}
+            features['first'] = X_test[i][0]
+            features['second'] = X_test[i][1]
+            features['third'] = X_test[i][2]
+            test_fs.append((features, y_test[i][0]))
+
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
@@ -543,14 +568,15 @@ class MaxEntropyClassifier(AI):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        f = open(path, 'wb')
-        pickle.dump(self.classifier, f)
-        f.close()
+        fileObject = open(path, 'w')
+
+        pickle.dump(self.classifier, fileObject)
+
+        fileObject.close()
 
     def load(self, path):
-        f = open(path)
-        self.classifier = pickle.load(f)
-        f.close()
+        fileObject = open(path,'r')
+        self.classifier = pickle.load(fileObject)
 
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.MaxEntropyClassifier
@@ -583,7 +609,7 @@ class LinearRegression(AI):
 
     def test(self, ds_test):
         X_test = ds_test['input']
-        y_test = ds_test['class']
+        y_test = ds_test['target']
         tstresult = self.regression.score(X_test, y_test)
         return tstresult
 
