@@ -211,7 +211,6 @@ class MultiClassClassificationNeuralNetwork(AI):
             record['predicted_sentiment'] = results[i]
             i += 1
 
-
 class SimpleRegressionNeuralNetwork(AI):
     def __init__(self, hid_cnt=10, convergence=0.01):
         self.hidden = hid_cnt
@@ -220,13 +219,14 @@ class SimpleRegressionNeuralNetwork(AI):
 
     def run(self, ds_train, ds_test):
         self.network = NNregression(ds_train)
+        self.network.setupNN(hidden = self.hidden)
         self.network.runTraining(self.convergence)
         tstresult = self.test(ds_test)
         return tstresult
 
     def test(self, ds_test):
-        result = self.network.activateOnDataset(ds_test)
-        error = percentError(result, ds_test['class'])
+        result = self.network.Trainer.module.activateOnDataset(ds_test)
+        error = percentError(result, ds_test['target'])
         return error, result
 
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -268,10 +268,16 @@ class SimpleRegressionNeuralNetwork(AI):
         return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
 
     def fill_with_predicted_data(self, ds, data):
-        # TODO: Implement filling data (list of dictionaries)
-        # with predicted values on ds dataset
-        pass
-
+        out = self.network.Trainer.activateOnDataset(ds)
+        results = np.ravel(np.argmax(out, 1))
+        print out
+        print results
+        i = 0
+        assert(len(ds) == len(data))
+        for record in data:
+            record['retweets'] = ds['target'][i]
+            record['predicted_retweets'] = results[i]
+            i += 1
 
 class SimpleClassificationNeuralNetwork(AI):
     def __init__(self, hid_cnt=10, convergence=0.01):
@@ -281,13 +287,14 @@ class SimpleClassificationNeuralNetwork(AI):
 
     def run(self, ds_train, ds_test):
         self.network = NNclassifier(ds_train)
+        self.network.setupNN(hidden = self.hidden)
         self.network.runTraining(self.convergence)
         tstresult = self.test(ds_test)
         return tstresult
 
     def test(self, ds_test):
-        result = self.network.activateOnDataset(ds_test)
-        error = percentError(result, ds_test['class'])
+        result = self.network.Trainer.module.activateOnDataset(ds_test)
+        error = percentError(np.argmax(result, 1), ds_test['target'])
         return error, result
 
     # noinspection PyProtectedMember
@@ -335,7 +342,6 @@ class SimpleClassificationNeuralNetwork(AI):
         # TODO: Implement filling data (list of dictionaries)
         # with predicted values on ds dataset
         pass
-
 
 class NaiveBayesClassifier(AI):
     def __init__(self):
@@ -427,21 +433,34 @@ class NaiveBayesClassifier(AI):
         # with predicted values on ds dataset
         pass
 
-
 class MaxEntropyClassifier(AI):
     def __init__(self):
-        self.classifier = nltk.MaxentClassifier()
+        self.classifier = None
 
     def run(self, ds_train, ds_test):
         X_train = ds_train['input']
-        y_train = ds_train['class']
+        y_train = ds_train['target']
         X_test = ds_test['input']
-        y_test = ds_test['class']
+        y_test = ds_test['target']
 
-        train_fs = [(X_train[i], y_train[i]) for i in enumerate(X_train)]
-        test_fs = [(X_test[i], y_test[i]) for i in enumerate(X_test)]
+        train_fs = []
+        test_fs = []
+        for i, k in enumerate(X_train):
+            features = {}
+            features['first'] = X_train[i][0]
+            features['second'] = X_train[i][1]
+            features['third'] = X_train[i][2]
+            train_fs.append((features, y_train[i][0]))
 
-        self.classifier.train(train_fs)
+
+        for i, k in enumerate(X_test):
+            features = {}
+            features['first'] = X_test[i][0]
+            features['second'] = X_test[i][1]
+            features['third'] = X_test[i][2]
+            test_fs.append((features, y_test[i][0]))
+
+        self.classifier = nltk.MaxentClassifier.train(train_fs)
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
@@ -498,16 +517,15 @@ class MaxEntropyClassifier(AI):
         # with predicted values on ds dataset
         pass
 
-
 class LinearRegression(AI):
     def __init__(self):
         self.regression = lm.LinearRegression()
 
     def run(self, ds_train, ds_test):
         X_train = ds_train['input']
-        y_train = ds_train['class']
+        y_train = ds_train['target']
         X_test = ds_test['input']
-        y_test = ds_test['class']
+        y_test = ds_test['target']
         self.regression.fit(X_train, y_train)
         tstresult = self.regression.score(X_test, y_test)
         return tstresult
