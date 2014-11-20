@@ -50,7 +50,10 @@ class TweetSearchView(View):
 
         header = 'Error occurred'
         pages = []
-        return render(request, self.template_name, {'form': form, 'header': header, 'pages': pages})
+        return render(
+            request,
+            self.template_name,
+            {'form': form, 'header': header, 'pages': pages})
 
     def search(self, request, form):
         query = form.cleaned_data['query']
@@ -229,6 +232,7 @@ class AnalysisView(View):
 
 class StatisticsView(View):
     template_name = "statistics.html"
+    default_header = "Twitter sentiment statistics"
 
     @inject.params(config=Config, db_client=MongoClient)
     def __init__(self, config, db_client):
@@ -236,8 +240,6 @@ class StatisticsView(View):
         self.db = db_client[config.db_database_name]
 
     def get(self, request):
-        header = "Twitter sentiment statistics"
-
         cht = TweetStatistics.get_chart(
             StatisticEnum.sample,
             Tweet.objects.all(),
@@ -245,14 +247,30 @@ class StatisticsView(View):
 
         form = StatisticsForm()
 
-        context = {'header': header, 'chart_list': cht, 'form': form}
+        context = {
+            'header': self.default_header,
+            'chart_list': cht,
+            'form': form}
+
         return render(request, self.template_name, context)
 
     def post(self, request):
-        # form = StatisticsForm(request.POST)
-        # if form.is_valid():
-        pass
-
+        form = StatisticsForm(request.POST)
+        if form.is_valid():
+            ai = form.cleaned_data['tweet_sets']
+            data = Tweet.objects.filter(ai=ai)
+            stat = StatisticEnum[form.cleaned_data['statistic_types']]
+            cht = TweetStatistics.get_chart(stat, data, ai)
+            context = {
+                'header': self.default_header,
+                'chart_list': cht,
+                'form': form}
+        else:
+            cht = None
+            form = StatisticsForm()
+            header = 'Error occured'
+            context = {'header': header, 'chart_list': cht, 'form': form}
+        return render(request, self.template_name, context)
 
 
 def contact(request):
