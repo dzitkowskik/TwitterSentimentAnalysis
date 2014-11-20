@@ -4,11 +4,22 @@
 __author__ = 'Karol Dzitkowski'
 
 import enum
+import inspect
+
 from django_chartit_1_7 import DataPool, Chart
 
 
 class StatisticEnum(enum.Enum):
     sample = 'sample'
+
+    @classmethod
+    def choices(cls):
+        # get all members of the class
+        members = inspect.getmembers(cls, lambda memb: not(inspect.isroutine(memb)))
+        # filter down to just properties
+        props = [m for m in members if not(m[0][:2] == '__')]
+        # format into django choice tuple
+        return tuple([(p[0], p[1].value) for p in props])
 
 
 # TODO: Implement more statistics similar to sample one

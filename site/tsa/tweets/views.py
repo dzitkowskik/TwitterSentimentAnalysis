@@ -11,10 +11,11 @@ from TwitterSentimentAnalysis import core
 from config import Config
 from TwitterSentimentAnalysis.datasets import DatasetFactory
 from TwitterSentimentAnalysis.ai import AIEnum, AI
-from forms import QueryForm, AnalysisForm, ActionEnum
+from forms import QueryForm, AnalysisForm, ActionEnum, StatisticsForm
 from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
-from TwitterSentimentAnalysis.statistics import TweetStatistics, StatisticEnum
+from TwitterSentimentAnalysis.statistics import TweetStatistics
+from TwitterSentimentAnalysis.statistics import StatisticEnum
 from models import ArtificialIntelligence, Tweet
 
 
@@ -193,7 +194,7 @@ class AnalysisView(View):
             ai_model = ArtificialIntelligence(
                 name=name,
                 path=save_path,
-                ai_type=ai_type,
+                ai_type=ai_type.value,
                 problem_type=problem_type.value)
             ai_model.save()
         else:
@@ -240,8 +241,16 @@ class StatisticsView(View):
             Tweet.objects.all(),
             ArtificialIntelligence.objects.all()[:1].get())
 
-        context = {'header': header, 'chart_list': cht}
+        form = StatisticsForm()
+
+        context = {'header': header, 'chart_list': cht, 'form': form}
         return render(request, self.template_name, context)
+
+    def post(self, request):
+        # form = StatisticsForm(request.POST)
+        # if form.is_valid():
+        pass
+
 
 
 def contact(request):
