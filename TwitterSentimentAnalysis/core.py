@@ -14,7 +14,6 @@ from tweepy import models
 
 
 reload(sys)
-
 sys.setdefaultencoding('utf-8')
 base_dir = os.path.dirname(__file__)
 configuration_file_path = os.path.join(base_dir, 'configuration.cfg')
