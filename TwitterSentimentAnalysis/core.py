@@ -77,5 +77,5 @@ def terminate():
 
 
 def convert_rel_to_absolute(rel):
-    return os.path.join(base_dir, rel)
+    return os.path.normpath(os.path.join(base_dir, rel))
 
