@@ -1,5 +1,6 @@
-simplejson
-inject
+nltk=3.0.0
+simplejson=3.6.5
+inject=3.3.0
 django=1.7.1
 Cheetah==2.4.4
 CherryPy==3.5.0
@@ -23,7 +24,6 @@ matplotlib==1.1.1
 mercurial==2.8-20131101
 modulegraph==0.10.1
 neurolab==0.3.4
-nltk==2.0.4
 nose==1.3.4
 numpy==1.8.2
 pathos==0.1a1

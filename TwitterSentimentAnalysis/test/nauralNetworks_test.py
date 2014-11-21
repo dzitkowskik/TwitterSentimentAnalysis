@@ -19,13 +19,13 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
     def setUp(self):
         self.tweet_downloader = downloaders.TweetDownloader()
         self.tweetclassificationdataset = datasets.TweetClassificationDatasetFactory()
-        self.tweetregressiondataset = datasets.TweetRegressionDatasetFactory()
+        self.tweet_regression_dataset = datasets.TweetRegressionDatasetFactory()
         self.test_db = self.tweet_downloader.db
         self.test_table_name = "tweet_download_" + uuid.uuid4().hex + "_test"
 
     def tearDown(self):
         self.test_db.drop_collection(self.test_table_name)
-    @unittest.skip("already passed")
+
     def test_multi_class_classification_neural_network(self):
         neural_network = ai.MultiClassClassificationNeuralNetwork(3, 9)
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
@@ -37,10 +37,11 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         expected = ds_test['class']
         expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
         self.assertEqual(result/100, expected_error)
+
     def test_simple_regression_neural_network(self):
         neural_network = ai.SimpleRegressionNeuralNetwork()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
-        ds = self.tweetregressiondataset.get_dataset(self.test_table_name)
+        ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         result = neural_network.run(ds_train, ds_test)
 
@@ -152,7 +153,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
     def test_linear_regression(self):
         model = ai.LinearRegression()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
-        ds = self.tweetregressiondataset.get_dataset(self.test_table_name)
+        ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         result = model.run(ds_train, ds_test)
 
@@ -191,7 +192,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
     def test_save_simpleregression(self):
         network_before = ai.SimpleRegressionNeuralNetwork()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
-        ds = self.tweetregressiondataset.get_dataset(self.test_table_name)
+        ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = network_before.run(ds_train, ds_test)
 
@@ -279,7 +280,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
     def test_save_linearregression(self):
         regression_before = ai.LinearRegression()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
-        ds = self.tweetregressiondataset.get_dataset(self.test_table_name)
+        ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
 
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = regression_before.run(ds_train, ds_test)

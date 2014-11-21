@@ -3,23 +3,23 @@
 # 10-10-2014
 __author__ = 'Karol Dzitkowski'
 
+import enum
+import nltk
+import pickle
+import inspect
+import numpy as np
+import sklearn.linear_model as lm
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.utilities import percentError
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain import FeedForwardNetwork, LinearLayer, SigmoidLayer, FullConnection, SoftmaxLayer
 from abc import ABCMeta, abstractmethod
 from sklearn import cross_validation
-import numpy as np
 from TwitterSentimentAnalysis.datasets import TweetClassificationDatasetFactory, ProblemTypeEnum
 from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.tools.neuralnets import NNregression
 from pybrain.tools.neuralnets import NNclassifier
-import enum
-import nltk
-import pickle
-import sklearn.linear_model as lm
-import inspect
 
 
 @enum.unique

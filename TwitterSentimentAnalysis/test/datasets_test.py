@@ -18,7 +18,7 @@ class DataSetTest(unittest.TestCase):
 
     def setUp(self):
         self.tweetclassificationdataset = datasets.TweetClassificationDatasetFactory()
-        self.tweetregressiondataset = datasets.TweetRegressionDatasetFactory()
+        self.tweet_regression_dataset = datasets.TweetRegressionDatasetFactory()
         self.tweet_downloader = downloaders.TweetDownloader()
         self.test_db = self.tweet_downloader.db
         self.test_table_name = "tweet_download_" + uuid.uuid4().hex + "_test"
@@ -36,7 +36,7 @@ class DataSetTest(unittest.TestCase):
     def test_get_dataset_regression(self):
         expected = 100
         self.tweet_downloader.download_tweets_using_query("#erasmus", expected, self.test_table_name, tag="erasmus")
-        ds = self.tweetregressiondataset.get_dataset(self.test_table_name)
+        ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
         table = self.test_db[self.test_table_name]
         self.assertEqual(ds['input'][0][0], table.find_one()["data"]["favorite_count"])
         self.assertEqual(ds['input'][0][1], table.find_one()["data"]['user']['followers_count'])
