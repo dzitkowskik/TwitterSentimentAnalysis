@@ -17,6 +17,7 @@ from TwitterSentimentAnalysis.downloaders import TweetDownloader
 from TwitterSentimentAnalysis.statistics import TweetStatistics
 from TwitterSentimentAnalysis.statistics import StatisticEnum
 from models import ArtificialIntelligence, Tweet
+from datetime import datetime
 
 
 class TweetSearchView(View):
@@ -35,8 +36,9 @@ class TweetSearchView(View):
     def get(self, request):
         records = self.api.home_timeline(count=self.tweets_per_page)
         header = 'Home timeline'
-        pages = self.__get_pages_range()
-        context = {'tweets': records, 'form': QueryForm(), 'header': header, 'pages': pages}
+        form = QueryForm()
+        pages, page = self.__get_pages_range(form)
+        context = {'tweets': records, 'form': form, 'header': header, 'pages': pages}
 
         return render(request, self.template_name, context)
 
@@ -57,8 +59,7 @@ class TweetSearchView(View):
 
     def search(self, request, form):
         query = form.cleaned_data['query']
-        page = form.cleaned_data['page']
-        pages = self.__get_pages_range(page)
+        pages, page = self.__get_pages_range(form)
 
         if not query:
             header = 'Home timeline'
@@ -84,12 +85,15 @@ class TweetSearchView(View):
         limit = form.cleaned_data['limit']
         self.td.download_tweets_using_query(query, limit, self.cfg.test_tweets_table, tag=name)
 
-    def __get_pages_range(self, actual=1):
-        if actual is None:
-            actual = 1
-        start = max(1, actual - (self.pages_shown_count / 2))
+    def __get_pages_range(self, form):
+        page = None
+        if 'cleaned_data' in form and 'page' in form.cleaned_data:
+            page = form.cleaned_data['page']
+        if page is None:
+            page = 1
+        start = max(1, page - (self.pages_shown_count / 2))
         end = start + self.pages_shown_count
-        return range(start, end + 1)
+        return range(start, end + 1), page
 
 
 class AnalysisView(View):
@@ -214,9 +218,11 @@ class AnalysisView(View):
                     if 'predicted_retweet_count' in record else None
                 sentiment = record['sentiment'] if 'sentiment' in record \
                     else record['word_sentiment']
+                date = datetime.strptime(record['data']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
                 new_tweet_save = Tweet(
                     number=record['_id'],
                     text=record['text'],
+                    date=date,
                     favourites_count=record['data']['favorite_count'],
                     followers_count=record['data']['user']['followers_count'],
                     retweet_count_actual=record['retweet_count'],

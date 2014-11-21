@@ -14,6 +14,7 @@ class ArtificialIntelligence(models.Model):
 class Tweet(models.Model):
     number = models.CharField(max_length=30)
     text = models.TextField()
+    date = models.DateTimeField(null=True)
     favourites_count = models.IntegerField()
     followers_count = models.IntegerField()
     retweet_count_actual = models.IntegerField()

@@ -275,7 +275,7 @@ class SimpleRegressionNeuralNetwork(AI):
         return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
 
     def fill_with_predicted_data(self, ds, data):
-        out = self.network.Trainer.activateOnDataset(ds)
+        out = self.network.Trainer.module.activateOnDataset(ds)
         results = np.ravel(np.argmax(out, 1))
         i = 0
         assert(len(ds) == len(data))
@@ -351,7 +351,7 @@ class SimpleClassificationNeuralNetwork(AI):
         return ProblemTypeEnum.Classification, AIEnum.SimpleClassificationNeuralNetwork
 
     def fill_with_predicted_data(self, ds, data):
-        out = self.network.Trainer.activateOnDataset(ds)
+        out = self.network.Trainer.module.activateOnDataset(ds)
         results = np.ravel(np.argmax(out, 1))
         i = 0
         assert(len(ds) == len(data))
