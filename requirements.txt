@@ -74,7 +74,7 @@ pytest==2.6.2
 python-dateutil==1.5
 pytz==2012d
 pyzmq==14.3.1
-scikit-learn==0.15.1
+scikit-learn==0.15.2
 scipy==0.11.0
 tox==1.8.1
 tweepy==2.3.0
