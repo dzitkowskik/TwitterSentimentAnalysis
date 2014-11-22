@@ -51,7 +51,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         tot = 0
         for i, x in enumerate(expected):
             if x == actual[i]:
-                tot = tot + 1
+                tot += 1
 
         expected_error = float(tot)/float(len(expected))
 
@@ -106,7 +106,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         tot = 0
         for i, x in enumerate(target):
             if x == res[i]:
-                tot = tot + 1
+                tot += 1
 
         expected_error = float(tot)/float(len(target))
 
@@ -122,10 +122,10 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
 
         test_ds = []
         for i, k in enumerate(ds_test['input']):
-            features = {}
-            features['first'] = ds_test['input'][i][0]
-            features['second'] = ds_test['input'][i][1]
-            features['third'] = ds_test['input'][i][2]
+            features = {
+                'first': ds_test['input'][i][0],
+                'second': ds_test['input'][i][1],
+                'third': ds_test['input'][i][2]}
             test_ds.append(features)
 
         res = []
@@ -144,7 +144,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         tot = 0
         for i, x in enumerate(target):
             if x == res[i]:
-                tot = tot + 1
+                tot += 1
 
         expected_error = float(tot)/float(len(target))
 
@@ -156,15 +156,10 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         result = model.run(ds_train, ds_test)
-
-        X_test = ds_test['input']
-        y_test = ds_test['target']
-
-        actual = model.regression.predict(X_test) # y_pred
-        expected = ds_test['target'] # y_true
-
+        x_test = ds_test['input']
+        actual = model.regression.predict(x_test)  # y_pred
+        expected = ds_test['target']  # y_true
         expected_error = 1-((expected - actual) ** 2).sum()/((expected - expected.mean()) ** 2).sum()
-
         self.assertEqual(result, expected_error)
 
     def test_save_multiclassclassification(self):
@@ -173,20 +168,14 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = network_before.run(ds_train, ds_test)
-
         base_dir = os.path.dirname(__file__)
-        network_name = 'network'+uuid.uuid4().hex+'_test'
+        network_name = 'network' + uuid.uuid4().hex + '_test'
         file_path = os.path.join(base_dir, network_name)
         network_before.save(file_path)
-
         network_after = ai.MultiClassClassificationNeuralNetwork()
-
         network_after.load(network_name)
-
         res_after = network_after.run(ds_train, ds_test)
-
         self.assertEqual(res_before, res_after)
-
         os.remove(file_path)
 
     def test_save_simpleregression(self):
@@ -195,20 +184,14 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = network_before.run(ds_train, ds_test)
-
         base_dir = os.path.dirname(__file__)
         network_name = 'network'+uuid.uuid4().hex+'_test'
         file_path = os.path.join(base_dir, network_name)
         network_before.save(file_path)
-
         network_after = ai.SimpleRegressionNeuralNetwork()
-
         network_after.load(network_name)
-
         res_after = network_after.test(ds_test)
-
         self.assertEqual(res_before[0], res_after[0])
-
         os.remove(file_path)
 
     def test_save_simpleclassification(self):
@@ -217,20 +200,14 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = network_before.run(ds_train, ds_test)
-
         base_dir = os.path.dirname(__file__)
         network_name = 'network'+uuid.uuid4().hex+'_test'
         file_path = os.path.join(base_dir, network_name)
         network_before.save(file_path)
-
         network_after = ai.SimpleClassificationNeuralNetwork()
-
         network_after.load(network_name)
-
         res_after = network_after.test(ds_test)
-
         self.assertEqual(res_before[0], res_after[0])
-
         os.remove(file_path)
 
     def test_save_naivebayes(self):
@@ -239,20 +216,14 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = classifier_before.run(ds_train, ds_test)
-
         base_dir = os.path.dirname(__file__)
         network_name = 'network'+uuid.uuid4().hex+'_test'
         file_path = os.path.join(base_dir, network_name)
         classifier_before.save(file_path)
-
         classifier_after = ai.NaiveBayesClassifier()
-
         classifier_after.load(network_name)
-
         res_after = classifier_after.test(ds_test)
-
         self.assertEqual(res_before, res_after)
-
         os.remove(file_path)
 
     def test_save_maxentropy(self):
@@ -261,41 +232,28 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = classifier_before.run(ds_train, ds_test)
-
         base_dir = os.path.dirname(__file__)
         classifier_name = 'network'+uuid.uuid4().hex+'_test'
         file_path = os.path.join(base_dir, classifier_name)
         classifier_before.save(file_path)
-
         classifier_after = ai.MaxEntropyClassifier()
-
         classifier_after.load(classifier_name)
-
         res_after = classifier_after.test(ds_test)
-
         self.assertEqual(res_before, res_after)
-
         os.remove(file_path)
 
     def test_save_linearregression(self):
         regression_before = ai.LinearRegression()
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
         ds = self.tweet_regression_dataset.get_dataset(self.test_table_name)
-
         ds_train, ds_test = ds.splitWithProportion(0.75)
         res_before = regression_before.run(ds_train, ds_test)
-
         base_dir = os.path.dirname(__file__)
         regression_name = 'network'+uuid.uuid4().hex+'_test'
         file_path = os.path.join(base_dir, regression_name)
         regression_before.save(file_path)
-
         regression_after = ai.LinearRegression()
-
         regression_after.load(regression_name)
-
         res_after = regression_after.test(ds_test)
-
         self.assertEqual(res_before, res_after)
-
         os.remove(file_path)

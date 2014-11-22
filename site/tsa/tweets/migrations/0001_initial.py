@@ -29,6 +29,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('number', models.CharField(max_length=30)),
                 ('text', models.TextField()),
+                ('date', models.DateTimeField(null=True)),
                 ('favourites_count', models.IntegerField()),
                 ('followers_count', models.IntegerField()),
                 ('retweet_count_actual', models.IntegerField()),
