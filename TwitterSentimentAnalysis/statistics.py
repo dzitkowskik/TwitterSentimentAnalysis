@@ -38,6 +38,8 @@ class TweetStatistics(object):
     def get_chart(stat_type, data, ai_model):
         if stat_type == StatisticEnum.sample:
             return TweetStatistics.get_sample_chart(data, ai_model)
+        if stat_type == StatisticEnum.predicted_sent_vs_real_sent:
+            return TweetStatistics.get_predicted_sent_vs_real_sent(data, ai_model)
 
     @staticmethod
     def get_sample_chart(data, ai_model):
@@ -71,5 +73,41 @@ class TweetStatistics(object):
                 'yAxis': {
                     'title': {
                         'text': 'Followers count'}}})
+
+        return cht
+
+    @staticmethod
+    def get_predicted_sent_vs_real_sent(data, ai_model):
+        if ai_model.problem_type == 1:
+            terms = ['sentiment_actual', 'sentiment_estimated']
+            terms_dict = {'sentiment_actual': ['sentiment_estimated']}
+            title = 'Actual sentiment vs predicted sentiment'
+        else:
+            terms = ['sentiment_actual', 'retweet_count_actual']
+            terms_dict = {'sentiment_actual': ['retweet_count_actual']}
+            title = 'Actual sentiment vs actual retweet count'
+
+        # Create data structure for charts
+        data = DataPool(
+            series=[{
+                'options': {
+                    'source': data},
+                'terms': terms}])
+
+
+        # Create chart
+        cht = Chart(
+            datasource=data,
+            series_options=[{
+                'options': {
+                    'type': 'line',
+                    'stacking': True},
+                'terms': terms_dict}],
+            chart_options={
+                'title': {
+                    'text': title},
+                'yAxis': {
+                    'title': {
+                        'text': 'Actual sentiment'}}})
 
         return cht
