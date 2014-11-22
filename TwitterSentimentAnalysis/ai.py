@@ -280,8 +280,8 @@ class SimpleRegressionNeuralNetwork(AI):
         i = 0
         assert(len(ds) == len(data))
         for record in data:
-            record['retweets'] = ds['target'][i]
-            record['predicted_retweets'] = results[i]
+            record['retweet_count'] = ds['target'][i]
+            record['predicted_retweet_count'] = results[i]
             i += 1
 
 
@@ -403,7 +403,7 @@ class NaiveBayesClassifier(AI):
             features['first'] = X_test[i][0]
             features['second'] = X_test[i][1]
             features['third'] = X_test[i][2]
-            test_fs.append((features, y_test[i][0]))
+            test_fs.append(features)
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
@@ -466,8 +466,19 @@ class NaiveBayesClassifier(AI):
         return ProblemTypeEnum.Classification, AIEnum.NaiveBayesClassifier
 
     def fill_with_predicted_data(self, ds, data):
+        X_test = ds['input']
+        y_test = ds['target']
+        test_fs = []
+        for i, k in enumerate(X_test):
+            features = {}
+            features['first'] = X_test[i][0]
+            features['second'] = X_test[i][1]
+            features['third'] = X_test[i][2]
+            test_fs.append(features)
+
+
         out = []
-        for rec in ds:
+        for rec in test_fs:
             out.append(self.classifier.classify(rec))
 
         i = 0
@@ -520,10 +531,12 @@ class MaxEntropyClassifier(AI):
             features['first'] = X_test[i][0]
             features['second'] = X_test[i][1]
             features['third'] = X_test[i][2]
-            test_fs.append((features, y_test[i][0]))
+            test_fs.append(features, y_test[i][0])
+
+        result = self.classifier.classify_many(test_fs)
 
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-        return tstresult
+        return tstresult, result
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -554,7 +567,7 @@ class MaxEntropyClassifier(AI):
                 features['first'] = X_test[i][0]
                 features['second'] = X_test[i][1]
                 features['third'] = X_test[i][2]
-                test_fs.append((features, y_test[i][0]))
+                train_fs.append(features, y_test[i][0])
 
             self.classifier = nltk.MaxentClassifier.train(train_fs)
             tstresult = nltk.classify.accuracy(self.classifier, test_fs)
@@ -582,8 +595,23 @@ class MaxEntropyClassifier(AI):
         return ProblemTypeEnum.Classification, AIEnum.MaxEntropyClassifier
 
     def fill_with_predicted_data(self, ds, data):
+        X_test = ds['input']
+        y_test = ds['target']
+
+        test_fs = []
+
+        for i, k in enumerate(X_test):
+            features = {}
+            features['first'] = X_test[i][0]
+            features['second'] = X_test[i][1]
+            features['third'] = X_test[i][2]
+            test_fs.append(features)
+
         out = []
-        for rec in ds:
+        for rec in test_fs:
+            print self.classifier
+            print test_fs
+            print self.classifier.classify(rec)
             out.append(self.classifier.classify(rec))
 
         i = 0
@@ -611,7 +639,8 @@ class LinearRegression(AI):
         X_test = ds_test['input']
         y_test = ds_test['target']
         tstresult = self.regression.score(X_test, y_test)
-        return tstresult
+        result = self.regression.predict(X_test)
+        return tstresult, result
 
     def run_with_crossvalidation(self, ds, iterations = 5):
         x = ds['input']
@@ -649,10 +678,12 @@ class LinearRegression(AI):
         return ProblemTypeEnum.Regression, AIEnum.LinearRegression
 
     def fill_with_predicted_data(self, ds, data):
-        out = self.regression.predict(ds)[0]
+        X_test = ds['input']
+        y_test = ds['target']
+        out = self.regression.predict(X_test)
         i = 0
         assert(len(ds) == len(data))
         for record in data:
-            record['retweets'] = ds['target'][i]
-            record['predicted_retweets'] = out[i]
+            record['retweet_count'] = ds['target'][i]
+            record['predicted_retweet_count'] = out[i]
             i += 1

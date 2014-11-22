@@ -11,6 +11,8 @@ from django_chartit_1_7 import DataPool, Chart
 
 class StatisticEnum(enum.Enum):
     sample = 'sample'
+    predicted_sent_vs_real_sent = 'Predicted sentiment vs real sentiment'
+    predicted_retweets_vs_real_retweets = 'Predicted retweets vs real retweets'
 
     @classmethod
     def choices(cls):
@@ -40,6 +42,9 @@ class TweetStatistics(object):
             return TweetStatistics.get_sample_chart(data, ai_model)
         if stat_type == StatisticEnum.predicted_sent_vs_real_sent:
             return TweetStatistics.get_predicted_sent_vs_real_sent(data, ai_model)
+        if stat_type == StatisticEnum.predicted_retweets_vs_real_retweets:
+            return TweetStatistics.get_predicted_retweets_vs_real_retweets(data, ai_model)
+
 
     @staticmethod
     def get_sample_chart(data, ai_model):
@@ -82,10 +87,14 @@ class TweetStatistics(object):
             terms = ['sentiment_actual', 'sentiment_estimated']
             terms_dict = {'sentiment_actual': ['sentiment_estimated']}
             title = 'Actual sentiment vs predicted sentiment'
+            x_axis = "Actual sentiment"
+            y_axis = "Estimated sentiment"
         else:
             terms = ['sentiment_actual', 'retweet_count_actual']
             terms_dict = {'sentiment_actual': ['retweet_count_actual']}
             title = 'Actual sentiment vs actual retweet count'
+            x_axis = "Actual sentiment"
+            y_axis = "Actual retweet count"
 
         # Create data structure for charts
         data = DataPool(
@@ -106,8 +115,52 @@ class TweetStatistics(object):
             chart_options={
                 'title': {
                     'text': title},
+                'xAxis': {
+                    'title': {
+                        'text': x_axis}},
                 'yAxis': {
                     'title': {
-                        'text': 'Actual sentiment'}}})
+                        'text': y_axis}}})
 
         return cht
+
+    @staticmethod
+    def get_predicted_retweets_vs_real_retweets(data, ai_model):
+        if ai_model.problem_type == 1:  # classification
+            terms = ['retweet_count_actual', 'sentiment_estimated']
+            terms_dict = {'retweet_count_actual': ['sentiment_estimated']}
+            title = 'Actual retweet count vs estimated sentiment'
+            x_axis = "Actual retweet count"
+            y_axis = "Estimated sentiment"
+        else:  # regression
+            terms = ['retweet_count_estimated', 'retweet_count_actual']
+            terms_dict = {'retweet_count_estimated': ['retweet_count_actual']}
+            title = 'Estimated retweet count vs actual retweet count'
+            x_axis = "Estimated retweet count"
+            y_axis = "Actual retweet count"
+
+        # Create data structure for charts
+        data = DataPool(
+            series=[{
+                'options': {
+                    'source': data},
+                'terms': terms}])
+
+        # Create chart
+        cht = Chart(
+            datasource=data,
+            series_options=[{
+                'options': {
+                    'type': 'line',
+                    'stacking': True},
+                'terms': terms_dict}],
+            chart_options={
+                'title': {
+                    'text': title},
+                'xAxis': {
+                    'title': {
+                        'text': x_axis}},
+                'yAxis': {
+                    'title': {
+                        'text': y_axis}}})
+
