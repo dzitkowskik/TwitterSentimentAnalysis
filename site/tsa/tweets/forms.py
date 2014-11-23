@@ -40,7 +40,8 @@ class AnalysisForm(forms.Form):
     ai_types = forms.TypedChoiceField(
         choices=AIEnum.choices(),
         coerce=str,
-        initial=AIEnum.MultiClassClassificationNeuralNetwork.name)
+        initial=AIEnum.MultiClassClassificationNeuralNetwork.name,
+        required=False)
     action = forms.ChoiceField(
         choices=ActionEnum.choices(),
         widget=forms.RadioSelect(),

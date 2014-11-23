@@ -169,7 +169,7 @@ class AnalysisView(View):
             result = False
             saved_ai_name = form.cleaned_data['saved_ais']
             ai_model = ArtificialIntelligence.objects.get(name=saved_ai_name)
-            ai = AI.factory(ai_model.ai_type)
+            ai = AI.factory(AIEnum(ai_model.ai_type))
             ai.load(ai_model.path)
         return ai, result
 
