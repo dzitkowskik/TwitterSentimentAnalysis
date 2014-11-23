@@ -5,7 +5,6 @@ __author__ = 'Karol Dzitkowski'
 
 import enum
 import inspect
-
 from django_chartit_1_7 import DataPool, Chart
 
 

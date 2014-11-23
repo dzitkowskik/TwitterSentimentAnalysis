@@ -62,7 +62,7 @@ class TweetClassificationDatasetFactory(DatasetFactory):
 
     @staticmethod
     def __create_classification_dataset():
-        return ClassificationDataSet(3, 1, 9, class_labels=TweetClassificationDatasetFactory.labels)
+        return ClassificationDataSet(4, 1, 9, class_labels=TweetClassificationDatasetFactory.labels)
 
     @staticmethod
     def convert_to_ds(x, y):
@@ -76,7 +76,9 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         favorite_count = record['data']['favorite_count']
         followers_count = record['data']['user']['followers_count']
         retweet_count = record['data']['retweet_count']
-        return favorite_count, followers_count, retweet_count
+        age_of_tweet = (datetime.now() - datetime.strptime(record['data']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
+
+        return favorite_count, followers_count, retweet_count, age_of_tweet
 
     @staticmethod
     def __get_output_from_record(record):
