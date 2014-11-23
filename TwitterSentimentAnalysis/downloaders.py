@@ -12,6 +12,7 @@ from config import Config
 import inject
 from pymongo import MongoClient
 from wordSentiment import WordSentimentAnalyzer
+from random import random
 
 
 class TweetDownloader(object):
@@ -46,11 +47,22 @@ class TweetDownloader(object):
         return '%dh %dm %ds' % (str_hr, str_min, str_sec)
 
     @staticmethod
-    def _save_tweet(table, status, active, analyzer, tag, item=None):
+    def undersample(sentiment, manual_grade, threshold=0.25):
+        if abs(sentiment) < threshold and manual_grade is None:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def _save_tweet(table, status, active, analyzer, tag, item=None, undersample=False):
         if status is not None:
             word_sentiment = analyzer.get_word_sentiment(status.text)
             topic = "" if item is None else item[0]
             manual_grade = None if item is None else item[1]
+
+            if TweetDownloader.undersample(word_sentiment, manual_grade):
+                return
+
             record = [{
                 '_id': status.id_str,
                 'isActive': active,
@@ -118,7 +130,8 @@ class TweetDownloader(object):
             limit=100,
             table_name='data',
             analyzer=None,
-            tag=None):
+            tag=None,
+            undersample=False):
 
         table = self.db[table_name]
 
@@ -137,13 +150,13 @@ class TweetDownloader(object):
         if query is None or query == "":
             for tweet in tweepy.Cursor(self.tweeter_api.user_timeline, count=limit).items(limit):
                 try:
-                    self._save_tweet(table, tweet, True, analyzer, tag)
+                    self._save_tweet(table, tweet, True, analyzer, tag, undersample=undersample)
                 except tweepy.error.TweepError, e:
                     print "Error downloading tweet from timeline" + e.message[0]
         else:
             for tweet in tweepy.Cursor(self.tweeter_api.search, count=limit, q=query, lang='en').items(limit):
                 try:
-                    self._save_tweet(table, tweet, True, analyzer, tag)
+                    self._save_tweet(table, tweet, True, analyzer, tag, undersample=undersample)
                 except tweepy.error.TweepError, e:
                     print "Error downloading tweet from timeline" + e.message[0]
 

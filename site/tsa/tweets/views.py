@@ -83,7 +83,13 @@ class TweetSearchView(View):
         query = form.cleaned_data['query']
         name = form.cleaned_data['name']
         limit = form.cleaned_data['limit']
-        self.td.download_tweets_using_query(query, limit, self.cfg.test_tweets_table, tag=name)
+        undersample = form.cleaned_data['undersample']
+        self.td.download_tweets_using_query(
+            query,
+            limit,
+            self.cfg.test_tweets_table,
+            tag=name,
+            undersample=undersample)
 
     def __get_pages_range(self, form):
         page = None
