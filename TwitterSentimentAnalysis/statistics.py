@@ -44,24 +44,32 @@ class TweetStatistics(object):
             return TweetStatistics.get_predicted_sent_vs_real_sent(data, ai_model)
         if stat_type == StatisticEnum.predicted_retweets_vs_real_retweets:
             return TweetStatistics.get_predicted_retweets_vs_real_retweets(data, ai_model)
+        if stat_type == StatisticEnum.sentiment_hourly:
+            return TweetStatistics.get_sentiment_hourly(data, ai_model)
+        if stat_type == StatisticEnum.retweet_hourly:
+            return TweetStatistics.get_retweets_hourly(data, ai_model)
 
 
     @staticmethod
     def get_sample_chart(data, ai_model):
         if ai_model.problem_type == 1:  # classification
-            terms = ['followers_count', 'sentiment_estimated']
-            terms_dict = {'sentiment_estimated': ['followers_count']}
+            terms = ['followers_count', 'sentiment_estimated', 'sentiment_actual']
+            terms_dict = {'followers_count': ['sentiment_estimated', 'sentiment_actual']}
             title = 'Estimated sentiment vs followers count'
+            x_axis = "Followers count"
+            y_axis = "Estimated sentiment"
         else:  # regression
-            terms = ['followers_count', 'retweet_count_estimated']
-            terms_dict = {'retweet_count_estimated': ['followers_count']}
+            terms = ['followers_count', 'retweet_count_estimated', 'retweet_count_actual']
+            terms_dict = {'followers_count': ['retweet_count_estimated', 'retweet_count_actual']}
             title = 'Estimated retweet count vs followers count'
+            x_axis = "Followers count"
+            y_axis = "Estimated retweet count"
 
         # Create data structure for charts
         data = DataPool(
             series=[{
                 'options': {
-                    'source': data},
+                    'source': data.order_by('followers_count')},
                 'terms': terms}])
 
         # Create chart
@@ -75,21 +83,24 @@ class TweetStatistics(object):
             chart_options={
                 'title': {
                     'text': title},
+                'xAxis': {
+                    'title': {
+                        'text': x_axis}},
                 'yAxis': {
                     'title': {
-                        'text': 'Followers count'}}})
+                        'text': y_axis}}})
 
         return cht
 
     @staticmethod
     def get_predicted_sent_vs_real_sent(data, ai_model):
-        if ai_model.problem_type == 1:
+        if ai_model.problem_type == 1: # classification
             terms = ['sentiment_actual', 'sentiment_estimated']
             terms_dict = {'sentiment_actual': ['sentiment_estimated']}
             title = 'Actual sentiment vs predicted sentiment'
             x_axis = "Actual sentiment"
             y_axis = "Estimated sentiment"
-        else:
+        else: # regression
             terms = ['sentiment_actual', 'retweet_count_actual']
             terms_dict = {'sentiment_actual': ['retweet_count_actual']}
             title = 'Actual sentiment vs actual retweet count'
@@ -163,4 +174,12 @@ class TweetStatistics(object):
                 'yAxis': {
                     'title': {
                         'text': y_axis}}})
+
+    @staticmethod
+    def get_sentiment_hourly(data, ai_model):
+        pass
+
+    @staticmethod
+    def get_retweets_hourly(data, ai_model):
+        pass
 
