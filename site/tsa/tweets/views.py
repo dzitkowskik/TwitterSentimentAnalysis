@@ -123,7 +123,7 @@ class AnalysisView(View):
         form = self.get_form(request.POST)
         if form.is_valid():
             ai, create = self.get_ai(form)
-            ds, data = self.get_data(form, ai)
+            ds, data, tag = self.get_data(form, ai, create)
             ds_train, ds_test = ds.splitWithProportion(0.5)
 
             if create:
@@ -135,7 +135,7 @@ class AnalysisView(View):
 
             if form.cleaned_data['save_results']:
                 name = form.cleaned_data['name']
-                self.save_trained_ai(ai, name)
+                self.save_trained_ai(ai, name, tag)
                 self.save_data_for_statistics(data, name)
 
             context = {
@@ -162,22 +162,23 @@ class AnalysisView(View):
     def get_ai(self, form):
         action = int(form.cleaned_data['action'])
         if action == ActionEnum.Create.value:
-            result = True
+            result = False
             ai_type = AIEnum[form.cleaned_data['ai_types']]
             ai = AI.factory(ai_type)
         else:
-            result = False
+            result = True
             saved_ai_name = form.cleaned_data['saved_ais']
             ai_model = ArtificialIntelligence.objects.get(name=saved_ai_name)
             ai = AI.factory(AIEnum(ai_model.ai_type))
             ai.load(ai_model.path)
+            form.cleaned_data['tweet_sets'] = ai_model.tag
         return ai, result
 
-    def get_data(self, form, ai):
+    def get_data(self, form, ai, load_mode=False):
         problem_type, _ = ai.get_type()
         factory = DatasetFactory.factory(problem_type)
         custom = form.cleaned_data['custom_tweet_set']
-        if custom:
+        if custom or load_mode:
             tag = form.cleaned_data['tweet_sets']
             ds = factory.get_dataset(
                 table_name=self.cfg.test_tweets_table,
@@ -186,9 +187,10 @@ class AnalysisView(View):
                 table_name=self.cfg.test_tweets_table,
                 search_params={"isActive": True, "tag": tag}))
         else:
+            tag = ""
             ds = factory.get_dataset()
             data = list(factory.get_data())
-        return ds, data
+        return ds, data, tag
 
     def get_tweet_sets(self):
         table = self.db[self.cfg.test_tweets_table]
@@ -198,13 +200,14 @@ class AnalysisView(View):
             result.append((tag, tag))
         return result
 
-    def save_trained_ai(self, ai, name):
+    def save_trained_ai(self, ai, name, tag):
         if name != "" and name is not None:
             save_path = core.convert_rel_to_absolute(
                 self.cfg.ai_save_dir + name + ".ai")
             ai.save(save_path)
             problem_type, ai_type = ai.get_type()
             ai_model = ArtificialIntelligence(
+                tag=tag,
                 name=name,
                 path=save_path,
                 ai_type=ai_type.value,

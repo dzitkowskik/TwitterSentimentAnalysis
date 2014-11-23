@@ -126,7 +126,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         result = self.network.activateOnDataset(ds_test)
         error = percentError(result, ds_test['class'])
         print "Multi class neural network test error: %5.2f%%" % error
-        return error, result
+        return error
 
     def __build_default_network(self):
         return buildNetwork(self.inp_cnt, self.hid_cnt, self.out_cnt, outclass=SoftmaxLayer, bias=True)
@@ -293,7 +293,7 @@ class SimpleClassificationNeuralNetwork(AI):
 
     def run(self, ds_train, ds_test):
         self.network = NNclassifier(ds_train)
-        self.network.setupNN(hidden = self.hidden)
+        self.network.setupNN(hidden=self.hidden)
         self.network.runTraining(self.convergence)
         tstresult = self.test(ds_test)
         return tstresult
@@ -324,7 +324,7 @@ class SimpleClassificationNeuralNetwork(AI):
             ds_test._convertToOneOfMany()
 
             self.network = NNclassifier(ds_train)
-            self.network.setupNN(hidden = self.hidden)
+            self.network.setupNN(hidden=self.hidden)
             self.network.runTraining(self.convergence)
             tstresult = self.test(ds_test)
             errors[i] = tstresult[0]
@@ -337,15 +337,13 @@ class SimpleClassificationNeuralNetwork(AI):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        fileObject = open(path, 'w')
-
-        pickle.dump(self.network, fileObject)
-
-        fileObject.close()
+        file_object = open(path, 'w')
+        pickle.dump(self.network, file_object)
+        file_object.close()
 
     def load(self, path):
-        fileObject = open(path,'r')
-        self.network = pickle.load(fileObject)
+        file_object = open(path,'r')
+        self.network = pickle.load(file_object)
 
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.SimpleClassificationNeuralNetwork
@@ -366,26 +364,28 @@ class NaiveBayesClassifier(AI):
         self.classifier = None
 
     def run(self, ds_train, ds_test):
-        X_train = ds_train['input']
+        x_train = ds_train['input']
         y_train = ds_train['target']
-        X_test = ds_test['input']
+        x_test = ds_test['input']
         y_test = ds_test['target']
 
         train_fs = []
         test_fs = []
-        for i, k in enumerate(X_train):
-            features = {}
-            features['first'] = X_train[i][0]
-            features['second'] = X_train[i][1]
-            features['third'] = X_train[i][2]
+        for i, k in enumerate(x_train):
+            features = {
+                'first': x_train[i][0],
+                'second': x_train[i][1],
+                'third': x_train[i][2],
+                'fourth': x_train[i][3]}
             train_fs.append((features, y_train[i][0]))
 
+        for i, k in enumerate(x_test):
+            features = {
+                'first': x_test[i][0],
+                'second': x_test[i][1],
+                'third': x_test[i][2],
+                'fourth': x_test[i][3]}
 
-        for i, k in enumerate(X_test):
-            features = {}
-            features['first'] = X_test[i][0]
-            features['second'] = X_test[i][1]
-            features['third'] = X_test[i][2]
             test_fs.append((features, y_test[i][0]))
 
         self.classifier = nltk.NaiveBayesClassifier.train(train_fs)
@@ -395,15 +395,16 @@ class NaiveBayesClassifier(AI):
         return tstresult
 
     def test(self, ds_test):
-        X_test = ds_test['input']
+        x_test = ds_test['input']
         y_test = ds_test['target']
         test_fs = []
-        for i, k in enumerate(X_test):
-            features = {}
-            features['first'] = X_test[i][0]
-            features['second'] = X_test[i][1]
-            features['third'] = X_test[i][2]
-            test_fs.append(features)
+        for i, k in enumerate(x_test):
+            features = {
+                'first': x_test[i][0],
+                'second': x_test[i][1],
+                'third': x_test[i][2],
+                'fourth': x_test[i][3]}
+            test_fs.append((features, y_test[i][0]))
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
         return tstresult
 
@@ -416,26 +417,27 @@ class NaiveBayesClassifier(AI):
 
         q = 0
         for train_index, test_index in cv:
-            X_train = x[train_index, :]
+            x_train = x[train_index, :]
             y_train = y[train_index, :]
-            X_test = x[test_index, :]
+            x_test = x[test_index, :]
             y_test = y[test_index, :]
 
             train_fs = []
             test_fs = []
-            for i, k in enumerate(X_train):
-                features = {}
-                features['first'] = X_train[i][0]
-                features['second'] = X_train[i][1]
-                features['third'] = X_train[i][2]
+            for i, k in enumerate(x_train):
+                features = {
+                    'first': x_train[i][0],
+                    'second': x_train[i][1],
+                    'third': x_train[i][2],
+                    'fourth': x_train[i][3]}
                 train_fs.append((features, y_train[i][0]))
 
-
-            for i, k in enumerate(X_test):
-                features = {}
-                features['first'] = X_test[i][0]
-                features['second'] = X_test[i][1]
-                features['third'] = X_test[i][2]
+            for i, k in enumerate(x_test):
+                features = {
+                    'first': x_test[i][0],
+                    'second': x_test[i][1],
+                    'third': x_test[i][2],
+                    'fourth': x_test[i][3]}
                 test_fs.append((features, y_test[i][0]))
 
             self.classifier = nltk.NaiveBayesClassifier.train(train_fs)
@@ -466,16 +468,16 @@ class NaiveBayesClassifier(AI):
         return ProblemTypeEnum.Classification, AIEnum.NaiveBayesClassifier
 
     def fill_with_predicted_data(self, ds, data):
-        X_test = ds['input']
+        x_test = ds['input']
         y_test = ds['target']
         test_fs = []
-        for i, k in enumerate(X_test):
-            features = {}
-            features['first'] = X_test[i][0]
-            features['second'] = X_test[i][1]
-            features['third'] = X_test[i][2]
-            test_fs.append(features)
-
+        for i, k in enumerate(x_test):
+            features = {
+                'first': x_test[i][0],
+                'second': x_test[i][1],
+                'third': x_test[i][2],
+                'fourth': x_test[i][3]}
+            test_fs.append((features, y_test[i][0]))
 
         out = []
         for rec in test_fs:
@@ -494,26 +496,27 @@ class MaxEntropyClassifier(AI):
         self.classifier = None
 
     def run(self, ds_train, ds_test):
-        X_train = ds_train['input']
+        x_train = ds_train['input']
         y_train = ds_train['target']
-        X_test = ds_test['input']
+        x_test = ds_test['input']
         y_test = ds_test['target']
 
         train_fs = []
         test_fs = []
-        for i, k in enumerate(X_train):
-            features = {}
-            features['first'] = X_train[i][0]
-            features['second'] = X_train[i][1]
-            features['third'] = X_train[i][2]
+        for i, k in enumerate(x_train):
+            features = {
+                'first': x_train[i][0],
+                'second': x_train[i][1],
+                'third': x_train[i][2],
+                'fourth': x_train[i][3]}
             train_fs.append((features, y_train[i][0]))
 
-
-        for i, k in enumerate(X_test):
-            features = {}
-            features['first'] = X_test[i][0]
-            features['second'] = X_test[i][1]
-            features['third'] = X_test[i][2]
+        for i, k in enumerate(x_test):
+            features = {
+                'first': x_test[i][0],
+                'second': x_test[i][1],
+                'third': x_test[i][2],
+                'fourth': x_test[i][3]}
             test_fs.append((features, y_test[i][0]))
 
         self.classifier = nltk.MaxentClassifier.train(train_fs)
@@ -521,22 +524,21 @@ class MaxEntropyClassifier(AI):
         return tstresult
 
     def test(self, ds_test):
-        X_test = ds_test['input']
+        x_test = ds_test['input']
         y_test = ds_test['target']
 
         test_fs = []
 
-        for i, k in enumerate(X_test):
-            features = {}
-            features['first'] = X_test[i][0]
-            features['second'] = X_test[i][1]
-            features['third'] = X_test[i][2]
-            test_fs.append(features, y_test[i][0])
-
-        result = self.classifier.classify_many(test_fs)
+        for i, k in enumerate(x_test):
+            features = {
+                'first': x_test[i][0],
+                'second': x_test[i][1],
+                'third': x_test[i][2],
+                'fourth': x_test[i][3]}
+            test_fs.append((features, y_test[i][0]))
 
         tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-        return tstresult, result
+        return tstresult
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -547,26 +549,27 @@ class MaxEntropyClassifier(AI):
 
         q = 0
         for train_index, test_index in cv:
-            X_train = x[train_index, :]
+            x_train = x[train_index, :]
             y_train = y[train_index, :]
-            X_test = x[test_index, :]
+            x_test = x[test_index, :]
             y_test = y[test_index, :]
 
             train_fs = []
             test_fs = []
-            for i, k in enumerate(X_train):
-                features = {}
-                features['first'] = X_train[i][0]
-                features['second'] = X_train[i][1]
-                features['third'] = X_train[i][2]
+            for i, k in enumerate(x_train):
+                features = {
+                    'first': x_train[i][0],
+                    'second': x_train[i][1],
+                    'third': x_train[i][2],
+                    'fourth': x_train[i][3]}
                 train_fs.append((features, y_train[i][0]))
 
-
-            for i, k in enumerate(X_test):
-                features = {}
-                features['first'] = X_test[i][0]
-                features['second'] = X_test[i][1]
-                features['third'] = X_test[i][2]
+            for i, k in enumerate(x_test):
+                features = {
+                    'first': x_test[i][0],
+                    'second': x_test[i][1],
+                    'third': x_test[i][2],
+                    'fourth': x_test[i][3]}
                 train_fs.append(features, y_test[i][0])
 
             self.classifier = nltk.MaxentClassifier.train(train_fs)
@@ -581,31 +584,30 @@ class MaxEntropyClassifier(AI):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        fileObject = open(path, 'w')
-
-        pickle.dump(self.classifier, fileObject)
-
-        fileObject.close()
+        file_object = open(path, 'w')
+        pickle.dump(self.classifier, file_object)
+        file_object.close()
 
     def load(self, path):
-        fileObject = open(path,'r')
-        self.classifier = pickle.load(fileObject)
+        file_object = open(path, 'r')
+        self.classifier = pickle.load(file_object)
 
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.MaxEntropyClassifier
 
     def fill_with_predicted_data(self, ds, data):
-        X_test = ds['input']
+        x_test = ds['input']
         y_test = ds['target']
 
         test_fs = []
 
-        for i, k in enumerate(X_test):
-            features = {}
-            features['first'] = X_test[i][0]
-            features['second'] = X_test[i][1]
-            features['third'] = X_test[i][2]
-            test_fs.append(features)
+        for i, k in enumerate(x_test):
+            features = {
+                'first': x_test[i][0],
+                'second': x_test[i][1],
+                'third': x_test[i][2],
+                'fourth': x_test[i][3]}
+            test_fs.append((features, y_test[i][0]))
 
         out = []
         for rec in test_fs:

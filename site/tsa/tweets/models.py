@@ -3,6 +3,7 @@ from django.db import models
 
 class ArtificialIntelligence(models.Model):
     name = models.CharField(max_length=50)
+    tag = models.CharField(max_length=50)
     path = models.CharField(max_length=250)
     ai_type = models.CharField(max_length=100)
     problem_type = models.IntegerField()

@@ -60,10 +60,11 @@ class TweetDownloader(object):
             topic = "" if item is None else item[0]
             manual_grade = None if item is None else item[1]
 
-            if TweetDownloader.undersample(word_sentiment, manual_grade):
-                return
+            if undersample:
+                if TweetDownloader.undersample(word_sentiment, manual_grade):
+                    return
 
-            record = [{
+            record = {
                 '_id': status.id_str,
                 'isActive': active,
                 'tag': tag,
@@ -72,11 +73,11 @@ class TweetDownloader(object):
                 'word_sentiment': word_sentiment,
                 'text': status.text,
                 'retweet_count': status.retweet_count,
-                'data': json.loads(status.json)}]
-            table.insert(record)
+                'data': json.loads(status.json)}
+            table.save(record)
         elif item is not None:
-            record = [{'_id': item[2], 'isActive': False}]
-            table.insert(record)
+            record = {'_id': item[2], 'isActive': False}
+            table.save(record)
 
     def _wait_between_requests(self, idx, length, download_pause_sec):
         # stay in Twitter API rate limits
