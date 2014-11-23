@@ -6,11 +6,12 @@ __author__ = 'Karol Dzitkowski'
 import enum
 import inspect
 from django_chartit_1_7 import DataPool, Chart
+from django.db.models import Avg
 
 
 class StatisticEnum(enum.Enum):
     sample = 'sample'
-    predicted_sent_vs_real_sent = 'Predicted sentiment vs real sentiment'
+    followers_vs_sent_retw = 'Followers vs sentiment/retweet count'
     predicted_retweets_vs_real_retweets = 'Predicted retweets vs real retweets'
 
     @classmethod
@@ -39,14 +40,9 @@ class TweetStatistics(object):
     def get_chart(stat_type, data, ai_model):
         if stat_type == StatisticEnum.sample:
             return TweetStatistics.get_sample_chart(data, ai_model)
-        if stat_type == StatisticEnum.predicted_sent_vs_real_sent:
-            return TweetStatistics.get_predicted_sent_vs_real_sent(data, ai_model)
-        if stat_type == StatisticEnum.predicted_retweets_vs_real_retweets:
-            return TweetStatistics.get_predicted_retweets_vs_real_retweets(data, ai_model)
-        if stat_type == StatisticEnum.sentiment_hourly:
-            return TweetStatistics.get_sentiment_hourly(data, ai_model)
-        if stat_type == StatisticEnum.retweet_hourly:
-            return TweetStatistics.get_retweets_hourly(data, ai_model)
+        if stat_type == StatisticEnum.followers_vs_sent_retw:
+            return TweetStatistics.get_followers_vs_x(data, ai_model)
+
 
 
     @staticmethod
@@ -56,13 +52,13 @@ class TweetStatistics(object):
             terms_dict = {'followers_count': ['sentiment_estimated', 'sentiment_actual']}
             title = 'Estimated sentiment vs followers count'
             x_axis = "Followers count"
-            y_axis = "Estimated sentiment"
+            y_axis = "Sentiment"
         else:  # regression
             terms = ['followers_count', 'retweet_count_estimated', 'retweet_count_actual']
             terms_dict = {'followers_count': ['retweet_count_estimated', 'retweet_count_actual']}
             title = 'Estimated retweet count vs followers count'
             x_axis = "Followers count"
-            y_axis = "Estimated retweet count"
+            y_axis = "Retweet count"
 
         # Create data structure for charts
         data = DataPool(
@@ -82,7 +78,12 @@ class TweetStatistics(object):
             chart_options={
                 'title': {
                     'text': title},
+
                 'xAxis': {
+                    'labels':{
+                        'step' : '10',
+                        'maxStaggerLines' : '1'
+                    },
                     'title': {
                         'text': x_axis}},
                 'yAxis': {
@@ -92,68 +93,25 @@ class TweetStatistics(object):
         return cht
 
     @staticmethod
-    def get_predicted_sent_vs_real_sent(data, ai_model):
-        if ai_model.problem_type == 1: # classification
-            terms = ['sentiment_actual', 'sentiment_estimated']
-            terms_dict = {'sentiment_actual': ['sentiment_estimated']}
-            title = 'Actual sentiment vs predicted sentiment'
-            x_axis = "Actual sentiment"
-            y_axis = "Estimated sentiment"
-        else: # regression
-            terms = ['sentiment_actual', 'retweet_count_actual']
-            terms_dict = {'sentiment_actual': ['retweet_count_actual']}
-            title = 'Actual sentiment vs actual retweet count'
-            x_axis = "Actual sentiment"
-            y_axis = "Actual retweet count"
-
-        # Create data structure for charts
-        data = DataPool(
-            series=[{
-                'options': {
-                    'source': data},
-                'terms': terms}])
-
-
-        # Create chart
-        cht = Chart(
-            datasource=data,
-            series_options=[{
-                'options': {
-                    'type': 'line',
-                    'stacking': True},
-                'terms': terms_dict}],
-            chart_options={
-                'title': {
-                    'text': title},
-                'xAxis': {
-                    'title': {
-                        'text': x_axis}},
-                'yAxis': {
-                    'title': {
-                        'text': y_axis}}})
-
-        return cht
-
-    @staticmethod
-    def get_predicted_retweets_vs_real_retweets(data, ai_model):
+    def get_followers_vs_x(data, ai_model):
         if ai_model.problem_type == 1:  # classification
-            terms = ['retweet_count_actual', 'sentiment_estimated']
-            terms_dict = {'retweet_count_actual': ['sentiment_estimated']}
-            title = 'Actual retweet count vs estimated sentiment'
-            x_axis = "Actual retweet count"
-            y_axis = "Estimated sentiment"
+            terms = ['followers_count', 'sentiment_estimated', 'sentiment_actual']
+            terms_dict = {'followers_count': ['sentiment_estimated', 'sentiment_actual']}
+            title = 'Estimated sentiment vs followers count'
+            x_axis = "Followers count"
+            y_axis = "Sentiment"
         else:  # regression
-            terms = ['retweet_count_estimated', 'retweet_count_actual']
-            terms_dict = {'retweet_count_estimated': ['retweet_count_actual']}
-            title = 'Estimated retweet count vs actual retweet count'
-            x_axis = "Estimated retweet count"
-            y_axis = "Actual retweet count"
+            terms = ['followers_count', 'retweet_count_estimated', 'retweet_count_actual']
+            terms_dict = {'followers_count': ['retweet_count_estimated', 'retweet_count_actual']}
+            title = 'Estimated retweet count vs followers count'
+            x_axis = "Followers count"
+            y_axis = "Retweet count"
 
         # Create data structure for charts
         data = DataPool(
             series=[{
                 'options': {
-                    'source': data},
+                    'source': data.order_by('followers_count')},
                 'terms': terms}])
 
         # Create chart
@@ -167,18 +125,16 @@ class TweetStatistics(object):
             chart_options={
                 'title': {
                     'text': title},
+
                 'xAxis': {
+                    'labels':{
+                        'step' : '10',
+                        'maxStaggerLines' : '1'
+                    },
                     'title': {
                         'text': x_axis}},
                 'yAxis': {
                     'title': {
                         'text': y_axis}}})
 
-    @staticmethod
-    def get_sentiment_hourly(data, ai_model):
-        pass
-
-    @staticmethod
-    def get_retweets_hourly(data, ai_model):
-        pass
-
+        return cht
