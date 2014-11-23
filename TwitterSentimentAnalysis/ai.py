@@ -90,7 +90,7 @@ class AI(object):
 
 
 class MultiClassClassificationNeuralNetwork(AI):
-    def __init__(self, inp_cnt=3, out_cnt=9, hid_cnt=10, epochs=100):
+    def __init__(self, inp_cnt=4, out_cnt=9, hid_cnt=10, epochs=100):
         self.hid_cnt = hid_cnt
         self.out_cnt = out_cnt
         self.inp_cnt = inp_cnt

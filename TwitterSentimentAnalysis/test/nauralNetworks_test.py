@@ -27,7 +27,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         self.test_db.drop_collection(self.test_table_name)
 
     def test_multi_class_classification_neural_network(self):
-        neural_network = ai.MultiClassClassificationNeuralNetwork(3, 9)
+        neural_network = ai.MultiClassClassificationNeuralNetwork(4, 9)
         self.tweet_downloader.download_tweets_using_query("erasmus", 100, self.test_table_name, tag="erasmus")
         ds = self.tweetclassificationdataset.get_dataset(self.test_table_name)
         self.assertIsNotNone(neural_network.network)
