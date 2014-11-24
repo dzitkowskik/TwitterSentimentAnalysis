@@ -3,21 +3,23 @@
 # 10-10-2014
 __author__ = 'Karol Dzitkowski'
 
+from datetime import datetime
+
 from django.shortcuts import render
 from django.views.generic import View
 import inject
 from pymongo import MongoClient
-from TwitterSentimentAnalysis import core
 from config import Config
+from tweepy import Cursor
+
+from TwitterSentimentAnalysis import core
 from TwitterSentimentAnalysis.datasets import DatasetFactory
 from TwitterSentimentAnalysis.ai import AIEnum, AI
 from forms import QueryForm, AnalysisForm, ActionEnum, StatisticsForm
-from tweepy import Cursor
 from TwitterSentimentAnalysis.downloaders import TweetDownloader
-from TwitterSentimentAnalysis.statistics import TweetStatistics
-from TwitterSentimentAnalysis.statistics import StatisticEnum
+from statistics import TweetStatistics
+from statistics import StatisticEnum
 from models import ArtificialIntelligence, Tweet
-from datetime import datetime
 
 
 class TweetSearchView(View):
@@ -130,7 +132,7 @@ class AnalysisView(View):
             if form.cleaned_data['save_results']:
                 name = form.cleaned_data['name']
                 self.save_trained_ai(ai, name)
-                self.save_data_for_statistics(data, name)
+                TweetStatistics.save_data_for_statistics(data, name)
 
             context = {
                 'header': self.default_header,
@@ -206,35 +208,6 @@ class AnalysisView(View):
             ai_model.save()
         else:
             raise NameError('Name cannot be blank')
-
-    # noinspection PyMethodMayBeStatic
-    def save_data_for_statistics(self, data, ai_name):
-        if ai_name != "" and ai_name is not None:
-            ai = ArtificialIntelligence.objects.get(name=ai_name)
-            for record in data:
-                sentiment_estimated = record['predicted_sentiment'] \
-                    if 'predicted_sentiment' in record else None
-                retweet_count_estimated = record['predicted_retweet_count'] \
-                    if 'predicted_retweet_count' in record else None
-                sentiment = record['sentiment'] if 'sentiment' in record \
-                    else record['word_sentiment']
-                date = datetime.strptime(record['data']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-                new_tweet_save = Tweet(
-                    number=record['_id'],
-                    text=record['text'],
-                    date=date,
-                    favourites_count=record['data']['favorite_count'],
-                    followers_count=record['data']['user']['followers_count'],
-                    retweet_count_actual=record['retweet_count'],
-                    retweet_count_estimated=retweet_count_estimated,
-                    sentiment_actual=sentiment,
-                    sentiment_estimated=sentiment_estimated,
-                    ai=ai
-                )
-                new_tweet_save.save()
-        else:
-            raise NameError('ai_name cannot be blank')
-
 
 class StatisticsView(View):
     template_name = "statistics.html"
