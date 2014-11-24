@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class ArtificialIntelligence(models.Model):
     name = models.CharField(max_length=50)
     tag = models.CharField(max_length=50)
@@ -37,7 +36,7 @@ class HourSentiment(models.Model):
 class HourRetweet(models.Model):
     retweet_actual_avg = models.FloatField()
     retweet_predicted_avg = models.FloatField()
-    day_of_week = models.IntegerField()
+    hour = models.IntegerField()
     ai = models.ForeignKey(ArtificialIntelligence)
 
 
@@ -51,7 +50,8 @@ class DayofweekSentiment(models.Model):
 class DayofweekRetweet(models.Model):
     retweet_actual_avg = models.FloatField()
     retweet_predicted_avg = models.FloatField()
-    hour = models.IntegerField()
+    day_of_week = models.IntegerField()
+    ai = models.ForeignKey(ArtificialIntelligence)
 
     def __unicode__(self):
         return self.number

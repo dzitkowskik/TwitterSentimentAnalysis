@@ -1,8 +1,10 @@
 import inspect
+
 from django import forms
 import enum
+
 from TwitterSentimentAnalysis.ai import AIEnum
-from TwitterSentimentAnalysis.statistics import StatisticEnum
+from statistics import StatisticEnum
 from models import ArtificialIntelligence
 
 

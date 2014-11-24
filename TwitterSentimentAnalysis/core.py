@@ -12,7 +12,6 @@ import json
 import sys
 from tweepy import models
 
-
 reload(sys)
 sys.setdefaultencoding('utf-8')
 base_dir = os.path.dirname(__file__)
