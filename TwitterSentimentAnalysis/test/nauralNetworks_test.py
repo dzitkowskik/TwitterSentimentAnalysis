@@ -255,5 +255,5 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         regression_after = ai.LinearRegression()
         regression_after.load(regression_name)
         res_after = regression_after.test(ds_test)
-        self.assertEqual(res_before, res_after)
+        self.assertEqual(res_before, res_after[0])
         os.remove(file_path)

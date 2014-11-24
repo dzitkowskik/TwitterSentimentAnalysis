@@ -21,7 +21,10 @@ class QueryForm(forms.Form):
     query = forms.CharField(label='Search', max_length=100, required=False)
     limit = forms.IntegerField(label='Limit', required=False)
     name = forms.CharField(label='Name', max_length=100, required=False)
-    page = forms.IntegerField(widget=forms.HiddenInput(), initial=1, required=False)
+    page = forms.IntegerField(
+        widget=forms.HiddenInput(), initial=1, required=False)
+    undersample = forms.BooleanField(
+        label="Undersample", initial=False, required=False)
 
 
 class AnalysisForm(forms.Form):
@@ -37,7 +40,8 @@ class AnalysisForm(forms.Form):
     ai_types = forms.TypedChoiceField(
         choices=AIEnum.choices(),
         coerce=str,
-        initial=AIEnum.MultiClassClassificationNeuralNetwork.name)
+        initial=AIEnum.MultiClassClassificationNeuralNetwork.name,
+        required=False)
     action = forms.ChoiceField(
         choices=ActionEnum.choices(),
         widget=forms.RadioSelect(),
