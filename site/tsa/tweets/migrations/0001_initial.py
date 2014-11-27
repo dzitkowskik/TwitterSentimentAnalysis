@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name='ArtificialIntelligence',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=50)),
+                ('name', models.CharField(unique=True, max_length=50)),
                 ('tag', models.CharField(max_length=50)),
                 ('path', models.CharField(max_length=250)),
                 ('ai_type', models.CharField(max_length=100)),
@@ -29,8 +29,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('retweet_actual_avg', models.FloatField()),
-                ('retweet_predicted_avg', models.FloatField()),
-                ('hour', models.IntegerField()),
+                ('retweet_predicted_avg', models.FloatField(null=True)),
+                ('day_of_week', models.IntegerField()),
+                ('ai', models.ForeignKey(to='tweets.ArtificialIntelligence')),
             ],
             options={
             },
@@ -41,7 +42,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('sentiment_actual_avg', models.IntegerField()),
-                ('sentiment_predicted_avg', models.IntegerField()),
+                ('sentiment_predicted_avg', models.IntegerField(null=True)),
                 ('day_of_week', models.IntegerField()),
                 ('ai', models.ForeignKey(to='tweets.ArtificialIntelligence')),
             ],
@@ -54,8 +55,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('retweet_actual_avg', models.FloatField()),
-                ('retweet_predicted_avg', models.FloatField()),
-                ('day_of_week', models.IntegerField()),
+                ('retweet_predicted_avg', models.FloatField(null=True)),
+                ('hour', models.IntegerField()),
                 ('ai', models.ForeignKey(to='tweets.ArtificialIntelligence')),
             ],
             options={
@@ -67,7 +68,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('sentiment_actual_avg', models.IntegerField()),
-                ('sentiment_predicted_avg', models.IntegerField()),
+                ('sentiment_predicted_avg', models.IntegerField(null=True)),
                 ('hour', models.IntegerField()),
                 ('ai', models.ForeignKey(to='tweets.ArtificialIntelligence')),
             ],

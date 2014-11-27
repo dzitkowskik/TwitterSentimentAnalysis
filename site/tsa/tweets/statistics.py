@@ -80,7 +80,8 @@ class TweetStatistics(object):
                 )
                 new_tweet_save.save()
 
-            hour_vs_retweet_count = Tweet.objects.filter(ai=ai).values('hour').annotate(Avg('retweet_count_actual'), Avg('retweet_count_estimated'))
+            hour_vs_retweet_count = Tweet.objects.filter(ai=ai).values('hour')\
+                .annotate(Avg('retweet_count_actual'), Avg('retweet_count_estimated'))
             for record in hour_vs_retweet_count:
                 HourRetweet(
                     hour=record['hour'],
@@ -89,7 +90,8 @@ class TweetStatistics(object):
                     ai=ai
                 ).save()
 
-            hour_vs_sentiment = Tweet.objects.filter(ai=ai).values('hour').annotate(Avg('sentiment_actual'), Avg('sentiment_estimated'))
+            hour_vs_sentiment = Tweet.objects.filter(ai=ai).values('hour')\
+                .annotate(Avg('sentiment_actual'), Avg('sentiment_estimated'))
             for record in hour_vs_sentiment:
                 HourSentiment(
                     hour=record['hour'],
@@ -98,7 +100,8 @@ class TweetStatistics(object):
                     ai=ai
                 ).save()
 
-            dayofweek_retweet_count = Tweet.objects.filter(ai=ai).values('day_of_week').annotate(Avg('retweet_count_actual'), Avg('retweet_count_estimated'))
+            dayofweek_retweet_count = Tweet.objects.filter(ai=ai).values('day_of_week')\
+                .annotate(Avg('retweet_count_actual'), Avg('retweet_count_estimated'))
             for record in dayofweek_retweet_count:
                 DayofweekRetweet(
                     retweet_actual_avg=record['retweet_count_actual__avg'],
@@ -107,7 +110,8 @@ class TweetStatistics(object):
                     ai=ai
                 ).save()
 
-            dayofweek_vs_sentiment = Tweet.objects.filter(ai=ai).values('day_of_week').annotate(Avg('sentiment_actual'), Avg('sentiment_estimated'))
+            dayofweek_vs_sentiment = Tweet.objects.filter(ai=ai).values('day_of_week')\
+                .annotate(Avg('sentiment_actual'), Avg('sentiment_estimated'))
             for record in dayofweek_vs_sentiment:
                 DayofweekSentiment(
                     sentiment_actual_avg=record['sentiment_actual__avg'],

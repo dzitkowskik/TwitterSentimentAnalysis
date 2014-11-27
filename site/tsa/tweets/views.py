@@ -218,6 +218,7 @@ class AnalysisView(View):
         else:
             raise NameError('Name cannot be blank')
 
+
 class StatisticsView(View):
     template_name = "statistics.html"
     default_header = "Twitter sentiment statistics"

@@ -29,31 +29,31 @@ class QueryForm(forms.Form):
         label="Undersample", initial=False, required=False)
 
 
-class AnalysisForm(forms.Form):
+class AnalysisForm(forms.ModelForm):
     def __init__(self, tweet_sets, saved_ais, *args, **kwargs):
         super(AnalysisForm, self).__init__(*args, **kwargs)
         self.fields['tweet_sets'] = forms.ChoiceField(
-            choices=tweet_sets,
-            required=False)
+            choices=tweet_sets)
         self.fields['saved_ais'] = forms.ChoiceField(
-            choices=saved_ais,
-            required=False)
+            choices=saved_ais)
+        for key in self.fields:
+            self.fields[key].required = False
 
     ai_types = forms.TypedChoiceField(
         choices=AIEnum.choices(),
         coerce=str,
-        initial=AIEnum.MultiClassClassificationNeuralNetwork.name,
-        required=False)
+        initial=AIEnum.MultiClassClassificationNeuralNetwork.name)
     action = forms.ChoiceField(
         choices=ActionEnum.choices(),
         widget=forms.RadioSelect(),
         initial=ActionEnum.Create.value)
     custom_tweet_set = forms.BooleanField(
-        label="Custom tweet set", initial=True, required=False)
-    save_results = forms.BooleanField(
-        label="Save", initial=True, required=False)
-    name = forms.CharField(
-        label='Name', max_length=40, required=False)
+        label="Custom tweet set", initial=True)
+    save_results = forms.BooleanField(label="Save", initial=True)
+
+    class Meta:
+        model = ArtificialIntelligence
+        fields = ('name',)
 
 
 class StatisticsForm(forms.Form):

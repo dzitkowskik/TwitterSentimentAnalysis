@@ -1,7 +1,8 @@
 from django.db import models
 
+
 class ArtificialIntelligence(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     tag = models.CharField(max_length=50)
     path = models.CharField(max_length=250)
     ai_type = models.CharField(max_length=100)
@@ -28,28 +29,28 @@ class Tweet(models.Model):
 
 class HourSentiment(models.Model):
     sentiment_actual_avg = models.IntegerField()
-    sentiment_predicted_avg = models.IntegerField()
+    sentiment_predicted_avg = models.IntegerField(null=True)
     hour = models.IntegerField()
     ai = models.ForeignKey(ArtificialIntelligence)
 
 
 class HourRetweet(models.Model):
     retweet_actual_avg = models.FloatField()
-    retweet_predicted_avg = models.FloatField()
+    retweet_predicted_avg = models.FloatField(null=True)
     hour = models.IntegerField()
     ai = models.ForeignKey(ArtificialIntelligence)
 
 
 class DayofweekSentiment(models.Model):
     sentiment_actual_avg = models.IntegerField()
-    sentiment_predicted_avg = models.IntegerField()
+    sentiment_predicted_avg = models.IntegerField(null=True)
     day_of_week = models.IntegerField()
     ai = models.ForeignKey(ArtificialIntelligence)
 
 
 class DayofweekRetweet(models.Model):
     retweet_actual_avg = models.FloatField()
-    retweet_predicted_avg = models.FloatField()
+    retweet_predicted_avg = models.FloatField(null=True)
     day_of_week = models.IntegerField()
     ai = models.ForeignKey(ArtificialIntelligence)
 
