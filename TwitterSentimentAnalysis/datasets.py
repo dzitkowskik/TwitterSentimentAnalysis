@@ -45,15 +45,15 @@ class DatasetFactory(object):
 
 class TweetClassificationDatasetFactory(DatasetFactory):
     labels = [
-        'Negative (-4)',
-        'Negative (-3)',
-        'Negative (-2)',
-        'Negative (-1)',
+        'Highly negative (-4)',
+        'Fairly negative (-3)',
+        'Moderately negative (-2)',
+        'Lightly negative (-1)',
         'Neutral',
-        'Positive (+1)',
-        'Positive (+2)',
-        'Positive (+3)',
-        'Positive (+4)']
+        'Lightly positive (+1)',
+        'Moderately positive (+2)',
+        'Fairly positive (+3)',
+        'Highly positive (+4)']
 
     @inject.params(config=Config, db_client=MongoClient)
     def __init__(self, config, db_client):
@@ -76,9 +76,11 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         favorite_count = record['data']['favorite_count']
         followers_count = record['data']['user']['followers_count']
         retweet_count = record['data']['retweet_count']
-        age_of_tweet = (datetime.now() - datetime.strptime(record['data']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
+        age_of_tweet = (datetime.now() - datetime.strptime(
+            record['data']['created_at'],
+            '%a %b %d %H:%M:%S +0000 %Y'))
 
-        return favorite_count, followers_count, retweet_count, age_of_tweet
+        return favorite_count, followers_count, retweet_count, age_of_tweet.seconds
 
     @staticmethod
     def __get_output_from_record(record):
@@ -93,12 +95,13 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         else:
             manual_grade = math.copysign(1.0, record['word_sentiment'])
 
-        return round(word_grade * manual_grade)
+        # sentiment is 0-3 for negative where 0 is highly negative
+        # 4 is neutral and values 5-8 are positive where 8 is highly positive
+        return round(word_grade * manual_grade) + 4.0
 
     def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
         ds = self.__create_classification_dataset()
         data = self.get_data(table_name, search_params)
-        i = 0
         for record in data:
             inp = self.__get_input_from_record(record)
             target = self.__get_output_from_record(record)
@@ -140,9 +143,11 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         favorite_count = record['data']['favorite_count']
         followers_count = record['data']['user']['followers_count']
         word_sentiment = record['word_sentiment']
-        age_of_tweet = (datetime.now() - datetime.strptime(record['data']['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
+        age_of_tweet = (datetime.now() - datetime.strptime(
+            record['data']['created_at'],
+            '%a %b %d %H:%M:%S +0000 %Y'))
 
-        return favorite_count, followers_count, word_sentiment, age_of_tweet
+        return favorite_count, followers_count, word_sentiment, age_of_tweet.seconds
 
     @staticmethod
     def __get_output_from_record(record):

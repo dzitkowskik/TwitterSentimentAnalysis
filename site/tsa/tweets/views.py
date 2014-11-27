@@ -164,11 +164,11 @@ class AnalysisView(View):
     def get_ai(self, form):
         action = int(form.cleaned_data['action'])
         if action == ActionEnum.Create.value:
-            result = False
+            result = True
             ai_type = AIEnum[form.cleaned_data['ai_types']]
             ai = AI.factory(ai_type)
         else:
-            result = True
+            result = False
             saved_ai_name = form.cleaned_data['saved_ais']
             ai_model = ArtificialIntelligence.objects.get(name=saved_ai_name)
             ai = AI.factory(AIEnum(ai_model.ai_type))
@@ -176,11 +176,11 @@ class AnalysisView(View):
             form.cleaned_data['tweet_sets'] = ai_model.tag
         return ai, result
 
-    def get_data(self, form, ai, load_mode=False):
+    def get_data(self, form, ai, create=True):
         problem_type, _ = ai.get_type()
         factory = DatasetFactory.factory(problem_type)
         custom = form.cleaned_data['custom_tweet_set']
-        if custom or load_mode:
+        if custom or not create:
             tag = form.cleaned_data['tweet_sets']
             ds = factory.get_dataset(
                 table_name=self.cfg.test_tweets_table,

@@ -123,9 +123,10 @@ class MultiClassClassificationNeuralNetwork(AI):
         return self
 
     def test(self, ds_test):
-        result = self.network.activateOnDataset(ds_test)
+        out = self.network.activateOnDataset(ds_test)
+        result = np.ravel(np.argmax(out, 1))
         error = percentError(result, ds_test['class'])
-        print "Multi class neural network test error: %5.2f%%" % error
+
         return error
 
     def __build_default_network(self):
@@ -144,12 +145,10 @@ class MultiClassClassificationNeuralNetwork(AI):
             weightdecay=0.01)
 
         trainer.trainEpochs(self.epochs)
-        tstresult = percentError(
-            trainer.testOnClassData(dataset=ds_test),
-            ds_test['class'])
+        result = trainer.testOnClassData(dataset=ds_test)
+        error = percentError(result, ds_test['class'])
 
-        print "Multi class neural network test error: %5.2f%%" % tstresult
-        return tstresult
+        return error
 
     # noinspection PyProtectedMember
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -204,11 +203,12 @@ class MultiClassClassificationNeuralNetwork(AI):
     def fill_with_predicted_data(self, ds, data):
         out = self.network.activateOnDataset(ds)
         results = np.ravel(np.argmax(out, 1))
+        middle = len(TweetClassificationDatasetFactory.labels) / 2
         i = 0
         assert(len(ds) == len(data))
         for record in data:
-            record['sentiment'] = ds['target'][i]
-            record['predicted_sentiment'] = results[i]
+            record['sentiment'] = ds['target'][i] - middle
+            record['predicted_sentiment'] = results[i] - middle
             i += 1
 
 
@@ -220,7 +220,7 @@ class SimpleRegressionNeuralNetwork(AI):
 
     def run(self, ds_train, ds_test):
         self.network = NNregression(ds_train)
-        self.network.setupNN(hidden = self.hidden)
+        self.network.setupNN(hidden=self.hidden)
         self.network.runTraining(self.convergence)
         tstresult = self.test(ds_test)
         return tstresult
@@ -611,9 +611,6 @@ class MaxEntropyClassifier(AI):
 
         out = []
         for rec in test_fs:
-            print self.classifier
-            print test_fs
-            print self.classifier.classify(rec)
             out.append(self.classifier.classify(rec))
 
         i = 0
@@ -629,22 +626,22 @@ class LinearRegression(AI):
         self.regression = lm.LinearRegression()
 
     def run(self, ds_train, ds_test):
-        X_train = ds_train['input']
+        x_train = ds_train['input']
         y_train = ds_train['target']
-        X_test = ds_test['input']
+        x_test = ds_test['input']
         y_test = ds_test['target']
-        self.regression.fit(X_train, y_train)
-        tstresult = self.regression.score(X_test, y_test)
+        self.regression.fit(x_train, y_train)
+        tstresult = self.regression.score(x_test, y_test)
         return tstresult
 
     def test(self, ds_test):
-        X_test = ds_test['input']
+        x_test = ds_test['input']
         y_test = ds_test['target']
-        tstresult = self.regression.score(X_test, y_test)
-        result = self.regression.predict(X_test)
+        tstresult = self.regression.score(x_test, y_test)
+        result = self.regression.predict(x_test)
         return tstresult, result
 
-    def run_with_crossvalidation(self, ds, iterations = 5):
+    def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
         y = ds['target']
         n = len(ds)
@@ -653,13 +650,13 @@ class LinearRegression(AI):
 
         i = 0
         for train_index, test_index in cv:
-            X_train = x[train_index, :]
+            x_train = x[train_index, :]
             y_train = y[train_index, :]
-            X_test = x[test_index, :]
+            x_test = x[test_index, :]
             y_test = y[test_index, :]
 
-            self.regression.fit(X_train, y_train)
-            errors[i] = self.regression.score(X_test, y_test)
+            self.regression.fit(x_train, y_train)
+            errors[i] = self.regression.score(x_test, y_test)
             i += 1
         return np.average(errors)
 
@@ -680,9 +677,8 @@ class LinearRegression(AI):
         return ProblemTypeEnum.Regression, AIEnum.LinearRegression
 
     def fill_with_predicted_data(self, ds, data):
-        X_test = ds['input']
-        y_test = ds['target']
-        out = self.regression.predict(X_test)
+        x_test = ds['input']
+        out = self.regression.predict(x_test)
         i = 0
         assert(len(ds) == len(data))
         for record in data:
