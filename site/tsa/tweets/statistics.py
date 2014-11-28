@@ -193,7 +193,7 @@ class TweetStatistics(object):
         data = DataPool(
             series=[{
                 'options': {
-                    'source': data.order_by('hour')},
+                    'source': data.order_by('day_of_week')},
                 'terms': terms}])
 
         # Create chart
