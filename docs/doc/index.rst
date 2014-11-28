@@ -9,9 +9,9 @@ Welcome to Twitter Sentiment Analysis's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-
-
+   :maxdepth: 4
+   TwitterSentimentAnalysis
+   tweets
 
 Indices and tables
 ==================
@@ -19,4 +19,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

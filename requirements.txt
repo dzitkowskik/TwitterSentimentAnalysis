@@ -9,7 +9,7 @@ Markdown==2.4.1
 PyBrain==0.3
 PyRSS2Gen==1.0.0
 PyYAML==3.11
-Pygments==1.6
+Pygments==2.0.1
 SQLObject==1.6.0
 Twisted==12.2.0
 altgraph==0.10.1

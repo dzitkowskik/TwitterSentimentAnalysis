@@ -9,7 +9,6 @@ import config
 import pymongo
 import tweepy
 import json
-import sys
 from tweepy import models
 
 base_dir = os.path.dirname(__file__)
@@ -54,6 +53,11 @@ def __tweepy_parse_json():
 
 
 def initialize(conf_file_name=None):
+    """
+    Main initialization function
+    :param conf_file_name:
+    :return:
+    """
     global __core_initialized
     if __core_initialized:
         return
