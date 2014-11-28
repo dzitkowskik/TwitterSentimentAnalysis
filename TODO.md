@@ -5,8 +5,6 @@
     while the data actually contains different values.
          
 # TODO
-* AI classifiers and regression algorithms should be changed to train until convergence with maximal epoch 
-    count equal to 100 or better 50.
     
     
     
