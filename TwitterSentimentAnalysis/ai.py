@@ -117,11 +117,12 @@ class AI(object):
 
 
 class MultiClassClassificationNeuralNetwork(AI):
-    def __init__(self, inp_cnt=4, out_cnt=9, hid_cnt=5, epochs=20):
+    def __init__(self, inp_cnt=4, out_cnt=9, hid_cnt=5, max_epochs=50, con_epochs=4):
         self.hid_cnt = hid_cnt
         self.out_cnt = out_cnt
         self.inp_cnt = inp_cnt
-        self.epochs = epochs
+        self.max_epochs = max_epochs
+        self.con_epochs = con_epochs
         self.network = self.__build_default_network()
 
     def apply_custom_network(self, hidden_counts):
@@ -171,7 +172,10 @@ class MultiClassClassificationNeuralNetwork(AI):
             verbose=True,
             weightdecay=0.01)
 
-        trainer.trainEpochs(self.epochs)
+        trainer.trainUntilConvergence(
+            dataset=ds_train,
+            maxEpochs=self.max_epochs,
+            continueEpochs=self.con_epochs)
         result = trainer.testOnClassData(dataset=ds_test)
         error = percentError(result, ds_test['class'])
 
@@ -240,7 +244,7 @@ class MultiClassClassificationNeuralNetwork(AI):
 
 
 class SimpleClassificationNeuralNetwork(AI):
-    def __init__(self, hid_cnt=10, max_epochs=100, con_epochs=4):
+    def __init__(self, hid_cnt=10, max_epochs=50, con_epochs=4):
         self.hidden = hid_cnt
         self.network = None
         self.con_epochs = con_epochs
@@ -475,7 +479,7 @@ class MaxEntropyClassifier(AI):
 
 
 class SimpleRegressionNeuralNetwork(AI):
-    def __init__(self, hid_cnt=10, max_epochs=100, con_epochs=4):
+    def __init__(self, hid_cnt=10, max_epochs=50, con_epochs=4):
         self.hidden = hid_cnt
         self.network = None
         self.con_epochs = con_epochs
@@ -515,7 +519,10 @@ class SimpleRegressionNeuralNetwork(AI):
 
             self.network = NNregression(ds_train)
             self.network.setupNN(hidden=self.hidden)
-            self.network.runTraining(self.convergence)
+            self.network.Trainer.trainUntilConvergence(
+                dataset=ds_train,
+                maxEpochs=self.max_epochs,
+                continueEpochs=self.con_epochs)
             tstresult = self.test(ds_test)
             errors[i] = tstresult[0]
             i += 1
