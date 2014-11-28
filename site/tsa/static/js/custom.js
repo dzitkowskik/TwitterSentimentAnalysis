@@ -32,16 +32,16 @@ function createAction(){
 
 function customTweetSetShow()
 {
-    $("label[for='id_tweet_sets']").show();
-    $("#id_tweet_sets").show();
-    $("#id_tweet_sets").prop('disabled', false);
+    $("#analysis_form label[for='id_tweet_sets']").show();
+    $("#analysis_form #id_tweet_sets").show();
+    $("#analysis_form #id_tweet_sets").prop('disabled', false);
 }
 
 function customTweetSetHide()
 {
-    $("label[for='id_tweet_sets']").hide();
-    $("#id_tweet_sets").hide();
-    $("#id_tweet_sets").prop('disabled', true);
+    $("#analysis_form label[for='id_tweet_sets']").hide();
+    $("#analysis_form #id_tweet_sets").hide();
+    $("#analysis_form #id_tweet_sets").prop('disabled', true);
 }
 
 function saveResultsShow()
