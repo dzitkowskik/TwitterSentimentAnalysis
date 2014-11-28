@@ -68,6 +68,9 @@
 </div>
 
 {% if data %}
+{% if error %}
+    <p>Error = {{ error }}</p>
+{% endif %}
 <div id="tweet_table" class="row paginator_content">
   <table class="table table-condensed">
       <tr>
@@ -95,10 +98,6 @@
           </tr>
         {% endfor %}
   </table>
-
-    {% if error %}
-        <p>Error = {{ error }}</p>
-    {% endif %}
 </div>
 {% endif %}
 {% endblock %}

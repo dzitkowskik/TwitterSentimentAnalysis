@@ -20,6 +20,7 @@ from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.tools.neuralnets import NNregression
 from pybrain.tools.neuralnets import NNclassifier
+from sklearn.metrics import mean_squared_error
 
 
 @enum.unique
@@ -47,7 +48,9 @@ class AI(object):
     @staticmethod
     def factory(ai_type):
         if ai_type == AIEnum.MultiClassClassificationNeuralNetwork:
-            return MultiClassClassificationNeuralNetwork()
+            nn = MultiClassClassificationNeuralNetwork()
+            nn.apply_custom_network([4, 9])
+            return nn
         elif ai_type == AIEnum.SimpleClassificationNeuralNetwork:
             return SimpleClassificationNeuralNetwork()
         elif ai_type == AIEnum.SimpleRegressionNeuralNetwork:
@@ -59,6 +62,14 @@ class AI(object):
         elif ai_type == AIEnum.LinearRegression:
             return LinearRegression()
         assert 0, "Bad enum given: " + str(ai_type)
+
+    @staticmethod
+    def to_feature_set(inpt, target):
+        result = []
+        for i, k in enumerate(inpt):
+            features = {'first': k[0], 'second': k[1], 'third': k[2], 'fourth': k[3]}
+            result.append((features, target[i][0]))
+        return result
 
     @abstractmethod
     def run(self, ds_train, ds_test):
@@ -90,7 +101,7 @@ class AI(object):
 
 
 class MultiClassClassificationNeuralNetwork(AI):
-    def __init__(self, inp_cnt=4, out_cnt=9, hid_cnt=10, epochs=100):
+    def __init__(self, inp_cnt=4, out_cnt=9, hid_cnt=5, epochs=20):
         self.hid_cnt = hid_cnt
         self.out_cnt = out_cnt
         self.inp_cnt = inp_cnt
@@ -213,22 +224,26 @@ class MultiClassClassificationNeuralNetwork(AI):
 
 
 class SimpleRegressionNeuralNetwork(AI):
-    def __init__(self, hid_cnt=10, convergence=0.01):
+    def __init__(self, hid_cnt=10, max_epochs=100, con_epochs=4):
         self.hidden = hid_cnt
         self.network = None
-        self.convergence = convergence
+        self.con_epochs = con_epochs
+        self.max_epochs = max_epochs
 
     def run(self, ds_train, ds_test):
         self.network = NNregression(ds_train)
-        self.network.setupNN(hidden=self.hidden)
-        self.network.runTraining(self.convergence)
-        tstresult = self.test(ds_test)
-        return tstresult
+        self.network.setupNN(hidden=self.hidden, verbose=True)
+        self.network.Trainer.trainUntilConvergence(
+            dataset=ds_train,
+            maxEpochs=self.max_epochs,
+            continueEpochs=self.con_epochs)
+        error = self.test(ds_test)
+        return error
 
     def test(self, ds_test):
         result = self.network.Trainer.module.activateOnDataset(ds_test)
-        error = percentError(result, ds_test['target'])
-        return error, result
+        error = mean_squared_error(ds_test['target'], result)
+        return error
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -286,22 +301,27 @@ class SimpleRegressionNeuralNetwork(AI):
 
 
 class SimpleClassificationNeuralNetwork(AI):
-    def __init__(self, hid_cnt=10, convergence=0.01):
+    def __init__(self, hid_cnt=10, max_epochs=100, con_epochs=4):
         self.hidden = hid_cnt
         self.network = None
-        self.convergence = convergence
+        self.con_epochs = con_epochs
+        self.max_epochs = max_epochs
 
     def run(self, ds_train, ds_test):
         self.network = NNclassifier(ds_train)
-        self.network.setupNN(hidden=self.hidden)
-        self.network.runTraining(self.convergence)
-        tstresult = self.test(ds_test)
-        return tstresult
+        self.network.setupNN(hidden=self.hidden, verbose=True)
+        self.network.Trainer.trainUntilConvergence(
+            dataset=ds_train,
+            maxEpochs=self.max_epochs,
+            continueEpochs=self.con_epochs)
+        error = self.test(ds_test)
+        return error
 
     def test(self, ds_test):
-        result = self.network.Trainer.module.activateOnDataset(ds_test)
-        error = percentError(np.argmax(result, 1), ds_test['target'])
-        return error, result
+        out = self.network.Trainer.module.activateOnDataset(ds_test)
+        result = np.ravel(np.argmax(out, 1))
+        error = percentError(result, ds_test['target'])
+        return error
 
     # noinspection PyProtectedMember
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -351,11 +371,12 @@ class SimpleClassificationNeuralNetwork(AI):
     def fill_with_predicted_data(self, ds, data):
         out = self.network.Trainer.module.activateOnDataset(ds)
         results = np.ravel(np.argmax(out, 1))
+        middle = len(TweetClassificationDatasetFactory.labels) / 2
         i = 0
         assert(len(ds) == len(data))
         for record in data:
-            record['sentiment'] = ds['target'][i]
-            record['predicted_sentiment'] = results[i]
+            record['sentiment'] = ds['target'][i] - middle
+            record['predicted_sentiment'] = results[i] - middle
             i += 1
 
 
@@ -366,47 +387,18 @@ class NaiveBayesClassifier(AI):
     def run(self, ds_train, ds_test):
         x_train = ds_train['input']
         y_train = ds_train['target']
-        x_test = ds_test['input']
-        y_test = ds_test['target']
-
-        train_fs = []
-        test_fs = []
-        for i, k in enumerate(x_train):
-            features = {
-                'first': x_train[i][0],
-                'second': x_train[i][1],
-                'third': x_train[i][2],
-                'fourth': x_train[i][3]}
-            train_fs.append((features, y_train[i][0]))
-
-        for i, k in enumerate(x_test):
-            features = {
-                'first': x_test[i][0],
-                'second': x_test[i][1],
-                'third': x_test[i][2],
-                'fourth': x_test[i][3]}
-
-            test_fs.append((features, y_test[i][0]))
-
+        train_fs = self.to_feature_set(x_train, y_train)
         self.classifier = nltk.NaiveBayesClassifier.train(train_fs)
-
-        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-
-        return tstresult
+        error = self.test(ds_test)
+        return error
 
     def test(self, ds_test):
         x_test = ds_test['input']
         y_test = ds_test['target']
-        test_fs = []
-        for i, k in enumerate(x_test):
-            features = {
-                'first': x_test[i][0],
-                'second': x_test[i][1],
-                'third': x_test[i][2],
-                'fourth': x_test[i][3]}
-            test_fs.append((features, y_test[i][0]))
-        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-        return tstresult
+        test_fs = self.to_feature_set(x_test, y_test)
+        result = self.classifier.classify(test_fs)
+        error = percentError(result, y_test)
+        return error
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -422,30 +414,13 @@ class NaiveBayesClassifier(AI):
             x_test = x[test_index, :]
             y_test = y[test_index, :]
 
-            train_fs = []
-            test_fs = []
-            for i, k in enumerate(x_train):
-                features = {
-                    'first': x_train[i][0],
-                    'second': x_train[i][1],
-                    'third': x_train[i][2],
-                    'fourth': x_train[i][3]}
-                train_fs.append((features, y_train[i][0]))
-
-            for i, k in enumerate(x_test):
-                features = {
-                    'first': x_test[i][0],
-                    'second': x_test[i][1],
-                    'third': x_test[i][2],
-                    'fourth': x_test[i][3]}
-                test_fs.append((features, y_test[i][0]))
-
+            train_fs = self.to_feature_set(x_train, y_train)
             self.classifier = nltk.NaiveBayesClassifier.train(train_fs)
 
-            tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-
-            errors[q] = tstresult
-
+            test_fs = self.to_feature_set(x_test, y_test)
+            result = self.classifier.classify(test_fs)
+            error = percentError(result, y_test)
+            errors[q] = error
             q += 1
 
         print "Naive Bayes Classifier cross-validation test errors: " % errors
@@ -470,24 +445,14 @@ class NaiveBayesClassifier(AI):
     def fill_with_predicted_data(self, ds, data):
         x_test = ds['input']
         y_test = ds['target']
-        test_fs = []
-        for i, k in enumerate(x_test):
-            features = {
-                'first': x_test[i][0],
-                'second': x_test[i][1],
-                'third': x_test[i][2],
-                'fourth': x_test[i][3]}
-            test_fs.append((features, y_test[i][0]))
-
-        out = []
-        for rec in test_fs:
-            out.append(self.classifier.classify(rec))
-
+        test_fs = self.to_feature_set(x_test, y_test)
+        result = self.classifier.classify(test_fs)
+        middle = len(TweetClassificationDatasetFactory.labels) / 2
         i = 0
         assert(len(ds) == len(data))
         for record in data:
-            record['sentiment'] = ds['target'][i]
-            record['predicted_sentiment'] = out[i]
+            record['sentiment'] = ds['target'][i] - middle
+            record['predicted_sentiment'] = result[i] - middle
             i += 1
 
 
@@ -498,47 +463,18 @@ class MaxEntropyClassifier(AI):
     def run(self, ds_train, ds_test):
         x_train = ds_train['input']
         y_train = ds_train['target']
-        x_test = ds_test['input']
-        y_test = ds_test['target']
-
-        train_fs = []
-        test_fs = []
-        for i, k in enumerate(x_train):
-            features = {
-                'first': x_train[i][0],
-                'second': x_train[i][1],
-                'third': x_train[i][2],
-                'fourth': x_train[i][3]}
-            train_fs.append((features, y_train[i][0]))
-
-        for i, k in enumerate(x_test):
-            features = {
-                'first': x_test[i][0],
-                'second': x_test[i][1],
-                'third': x_test[i][2],
-                'fourth': x_test[i][3]}
-            test_fs.append((features, y_test[i][0]))
-
+        train_fs = self.to_feature_set(x_train, y_train)
         self.classifier = nltk.MaxentClassifier.train(train_fs)
-        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-        return tstresult
+        error = self.test(ds_test)
+        return error
 
     def test(self, ds_test):
         x_test = ds_test['input']
         y_test = ds_test['target']
-
-        test_fs = []
-
-        for i, k in enumerate(x_test):
-            features = {
-                'first': x_test[i][0],
-                'second': x_test[i][1],
-                'third': x_test[i][2],
-                'fourth': x_test[i][3]}
-            test_fs.append((features, y_test[i][0]))
-
-        tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-        return tstresult
+        test_fs = self.to_feature_set(x_test, y_test)
+        result = self.classifier.classify(test_fs)
+        error = percentError(result, y_test)
+        return error
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -554,27 +490,13 @@ class MaxEntropyClassifier(AI):
             x_test = x[test_index, :]
             y_test = y[test_index, :]
 
-            train_fs = []
-            test_fs = []
-            for i, k in enumerate(x_train):
-                features = {
-                    'first': x_train[i][0],
-                    'second': x_train[i][1],
-                    'third': x_train[i][2],
-                    'fourth': x_train[i][3]}
-                train_fs.append((features, y_train[i][0]))
-
-            for i, k in enumerate(x_test):
-                features = {
-                    'first': x_test[i][0],
-                    'second': x_test[i][1],
-                    'third': x_test[i][2],
-                    'fourth': x_test[i][3]}
-                train_fs.append((features, y_test[i][0]))
-
+            train_fs = self.to_feature_set(x_train, y_train)
             self.classifier = nltk.MaxentClassifier.train(train_fs)
-            tstresult = nltk.classify.accuracy(self.classifier, test_fs)
-            errors[q] = tstresult
+
+            test_fs = self.to_feature_set(x_test, y_test)
+            result = self.classifier.classify(test_fs)
+            error = percentError(result, y_test)
+            errors[q] = error
             q += 1
 
         print "Max Entropy Classifier cross-validation test errors: " % errors
@@ -598,26 +520,13 @@ class MaxEntropyClassifier(AI):
     def fill_with_predicted_data(self, ds, data):
         x_test = ds['input']
         y_test = ds['target']
-
-        test_fs = []
-
-        for i, k in enumerate(x_test):
-            features = {
-                'first': x_test[i][0],
-                'second': x_test[i][1],
-                'third': x_test[i][2],
-                'fourth': x_test[i][3]}
-            test_fs.append((features, y_test[i][0]))
-
-        out = []
-        for rec in test_fs:
-            out.append(self.classifier.classify(rec))
-
+        test_fs = self.to_feature_set(x_test, y_test)
+        result = self.classifier.classify(test_fs)
         i = 0
         assert(len(ds) == len(data))
         for record in data:
             record['sentiment'] = ds['target'][i]
-            record['predicted_sentiment'] = out[i]
+            record['predicted_sentiment'] = result[i]
             i += 1
 
 
@@ -628,18 +537,15 @@ class LinearRegression(AI):
     def run(self, ds_train, ds_test):
         x_train = ds_train['input']
         y_train = ds_train['target']
-        x_test = ds_test['input']
-        y_test = ds_test['target']
         self.regression.fit(x_train, y_train)
-        tstresult = self.regression.score(x_test, y_test)
-        return tstresult
+
+        error = self.test(ds_test)
+        return error
 
     def test(self, ds_test):
-        x_test = ds_test['input']
-        y_test = ds_test['target']
-        tstresult = self.regression.score(x_test, y_test)
-        result = self.regression.predict(x_test)
-        return tstresult, result
+        result = self.regression.predict(ds_test['input'])
+        error = mean_squared_error(ds_test['target'], result)
+        return error
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
