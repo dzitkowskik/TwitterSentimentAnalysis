@@ -335,7 +335,7 @@ class NaiveBayesClassifier(AI):
         x_test = ds_test['input']
         y_test = ds_test['target']
         test_fs = self.to_feature_set(x_test, y_test)
-        result = self.classifier.classify(test_fs)
+        result = self.classifier.classify_many([rec[0] for rec in test_fs])
         error = percentError(result, y_test)
         return error
 
@@ -357,7 +357,7 @@ class NaiveBayesClassifier(AI):
             self.classifier = nltk.NaiveBayesClassifier.train(train_fs)
 
             test_fs = self.to_feature_set(x_test, y_test)
-            result = self.classifier.classify(test_fs)
+            result = self.classifier.classify_many([rec[0] for rec in test_fs])
             error = percentError(result, y_test)
             errors[q] = error
             q += 1
@@ -411,7 +411,7 @@ class MaxEntropyClassifier(AI):
         x_test = ds_test['input']
         y_test = ds_test['target']
         test_fs = self.to_feature_set(x_test, y_test)
-        result = self.classifier.classify(test_fs)
+        result = self.classifier.classify_many([rec[0] for rec in test_fs])
         error = percentError(result, y_test)
         return error
 
@@ -433,7 +433,7 @@ class MaxEntropyClassifier(AI):
             self.classifier = nltk.MaxentClassifier.train(train_fs)
 
             test_fs = self.to_feature_set(x_test, y_test)
-            result = self.classifier.classify(test_fs)
+            result = self.classifier.classify_many([rec[0] for rec in test_fs])
             error = percentError(result, y_test)
             errors[q] = error
             q += 1

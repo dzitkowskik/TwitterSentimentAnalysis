@@ -39,6 +39,10 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         actual = neural_network.network.activateOnDataset(ds_test)
         expected = ds_test['class']
         expected_error = np.mean((np.argmax(actual, 1) != expected.T), dtype=float)
+
+        print result
+        print expected_error
+
         self.assertEqual(result/100, expected_error)
 
     def test_simple_regression_neural_network(self):
@@ -70,12 +74,9 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         actual = neural_network.network.Trainer.module.activateOnDataset(ds_test)
         expected = ds_test['target']
 
-        print actual
-        print expected
-
         expected_error = np.mean((np.argmax(actual, 1) != expected.T), dtype=float)
 
-        self.assertEqual(result[0]/100, expected_error)
+        self.assertEqual(result/100, expected_error)
 
     def test_naive_bayes_classifier(self):
         classifier = ai.NaiveBayesClassifier()
@@ -98,23 +99,14 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         for i, test_rec in enumerate(test_ds):
             res.append(classifier.classifier.classify(test_rec))
 
-        target = []
-        for x in ds_test['target']:
-            if x[0] > 0:
-                target.append(1)
-            elif x[0] == 0:
-                target.append(0)
-            else:
-                target.append(-1)
-
         tot = 0
-        for i, x in enumerate(target):
+        for i, x in enumerate(ds_test['target']):
             if x == res[i]:
                 tot += 1
 
-        expected_error = float(tot)/float(len(target))
+        expected_error = 1-float(tot)/float(len(ds_test['target']))
 
-        self.assertEqual(result, expected_error)
+        self.assertAlmostEqual(result/100, expected_error)
 
     def test_max_ent_classifier(self):
         classifier = ai.MaxEntropyClassifier()
@@ -137,23 +129,16 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         for i, test_rec in enumerate(test_ds):
             res.append(classifier.classifier.classify(test_rec))
 
-        target = []
-        for x in ds_test['target']:
-            if x[0] > 0:
-                target.append(1)
-            elif x[0] == 0:
-                target.append(0)
-            else:
-                target.append(-1)
+        print ds_test['target']
 
         tot = 0
-        for i, x in enumerate(target):
+        for i, x in enumerate(ds_test['target']):
             if x == res[i]:
                 tot += 1
 
-        expected_error = float(tot)/float(len(target))
+        expected_error = 1-float(tot)/float(len(ds_test['target']))
 
-        self.assertEqual(result, expected_error)
+        self.assertAlmostEqual(result/100, expected_error)
 
     def test_linear_regression(self):
         model = ai.LinearRegression()
@@ -195,7 +180,9 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         network_after = ai.SimpleRegressionNeuralNetwork()
         network_after.load(network_name)
         res_after = network_after.test(ds_test)
-        self.assertEqual(res_before[0], res_after[0])
+        print res_after
+        print res_before
+        self.assertEqual(res_before, res_after)
 
     def test_save_simpleclassification(self):
         network_before = ai.SimpleClassificationNeuralNetwork()
@@ -210,7 +197,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         network_after = ai.SimpleClassificationNeuralNetwork()
         network_after.load(network_name)
         res_after = network_after.test(ds_test)
-        self.assertEqual(res_before[0], res_after[0])
+        self.assertEqual(res_before, res_after)
 
     def test_save_naivebayes(self):
         classifier_before = ai.NaiveBayesClassifier()
@@ -255,4 +242,4 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         regression_after = ai.LinearRegression()
         regression_after.load(regression_name)
         res_after = regression_after.test(ds_test)
-        self.assertEqual(res_before, res_after[0])
+        self.assertEqual(res_before, res_after)
