@@ -12,7 +12,6 @@ from config import Config
 import inject
 from pymongo import MongoClient
 from wordSentiment import WordSentimentAnalyzer
-from random import random
 
 
 class TweetDownloader(object):

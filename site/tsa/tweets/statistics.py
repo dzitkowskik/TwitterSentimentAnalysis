@@ -10,6 +10,7 @@ from models import *
 from django.db.models import Avg
 import datetime
 
+
 class StatisticEnum(enum.Enum):
     sample = 'sample'
     followers_vs_x = 'Followers vs sentiment (classifier)/retweet count (regression)'
@@ -159,9 +160,9 @@ class TweetStatistics(object):
                     'text': title},
 
                 'xAxis': {
-                    'labels':{
-                        'step' : '10',
-                        'maxStaggerLines' : '1'
+                    'labels': {
+                        'step': '10',
+                        'maxStaggerLines': '1'
                     },
                     'title': {
                         'text': x_axis}},
@@ -208,9 +209,9 @@ class TweetStatistics(object):
                     'text': title},
 
                 'xAxis': {
-                    'labels':{
-                        'step' : '10',
-                        'maxStaggerLines' : '1'
+                    'labels': {
+                        'step': '10',
+                        'maxStaggerLines': '1'
                     },
                     'title': {
                         'text': x_axis}},
@@ -257,9 +258,9 @@ class TweetStatistics(object):
                     'text': title},
 
                 'xAxis': {
-                    'labels':{
-                        'step' : '10',
-                        'maxStaggerLines' : '1'
+                    'labels': {
+                        'step': '10',
+                        'maxStaggerLines': '1'
                     },
                     'title': {
                         'text': x_axis}},
@@ -304,9 +305,9 @@ class TweetStatistics(object):
                     'text': title},
 
                 'xAxis': {
-                    'labels':{
-                        'step' : '10',
-                        'maxStaggerLines' : '1'
+                    'labels': {
+                        'step': '10',
+                        'maxStaggerLines': '1'
                     },
                     'title': {
                         'text': x_axis}},
@@ -351,9 +352,9 @@ class TweetStatistics(object):
                     'text': title},
 
                 'xAxis': {
-                    'labels':{
-                        'step' : '10',
-                        'maxStaggerLines' : '1'
+                    'labels': {
+                        'step': '10',
+                        'maxStaggerLines': '1'
                     },
                     'title': {
                         'text': x_axis}},

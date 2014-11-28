@@ -46,7 +46,7 @@ class AnalysisForm(forms.ModelForm):
     action = forms.ChoiceField(
         choices=ActionEnum.choices(),
         widget=forms.RadioSelect(),
-        initial=ActionEnum.Create.value)
+        initial=ActionEnum.Create)
     custom_tweet_set = forms.BooleanField(
         label="Custom tweet set", initial=True)
     save_results = forms.BooleanField(label="Save", initial=True)

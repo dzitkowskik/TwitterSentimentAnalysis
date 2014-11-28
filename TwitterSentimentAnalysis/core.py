@@ -12,8 +12,6 @@ import json
 import sys
 from tweepy import models
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
 base_dir = os.path.dirname(__file__)
 configuration_file_path = os.path.join(base_dir, 'configuration.cfg')
 __core_initialized = False
@@ -42,11 +40,10 @@ def __main_config(binder):
     binder.bind(tweepy.API, tweepy_api)
 
 
-# settings for tweepy api
-# downloading also whole tweet and parsing as json
-# noinspection PyDecorator
 def __tweepy_parse_json():
-
+    # settings for tweepy api
+    # downloading also whole tweet and parsing as json
+    # noinspection PyDecorator
     @classmethod
     def json_parse(cls, api, raw):
         status = cls.first_parse(api, raw)

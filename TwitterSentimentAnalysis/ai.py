@@ -248,7 +248,7 @@ class SimpleRegressionNeuralNetwork(AI):
             ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
 
             self.network = NNregression(ds_train)
-            self.network.setupNN(hidden = self.hidden)
+            self.network.setupNN(hidden=self.hidden)
             self.network.runTraining(self.convergence)
             tstresult = self.test(ds_test)
             errors[i] = tstresult[0]
@@ -261,15 +261,15 @@ class SimpleRegressionNeuralNetwork(AI):
         return self.run(ds_train, ds_test)
 
     def save(self, path):
-        fileObject = open(path, 'w')
+        file_object = open(path, 'w')
 
-        pickle.dump(self.network, fileObject)
+        pickle.dump(self.network, file_object)
 
-        fileObject.close()
+        file_object.close()
 
     def load(self, path):
-        fileObject = open(path,'r')
-        self.network = pickle.load(fileObject)
+        file_object = open(path, 'r')
+        self.network = pickle.load(file_object)
 
     def get_type(self):
         return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
@@ -342,7 +342,7 @@ class SimpleClassificationNeuralNetwork(AI):
         file_object.close()
 
     def load(self, path):
-        file_object = open(path,'r')
+        file_object = open(path, 'r')
         self.network = pickle.load(file_object)
 
     def get_type(self):
@@ -570,7 +570,7 @@ class MaxEntropyClassifier(AI):
                     'second': x_test[i][1],
                     'third': x_test[i][2],
                     'fourth': x_test[i][3]}
-                train_fs.append(features, y_test[i][0])
+                train_fs.append((features, y_test[i][0]))
 
             self.classifier = nltk.MaxentClassifier.train(train_fs)
             tstresult = nltk.classify.accuracy(self.classifier, test_fs)

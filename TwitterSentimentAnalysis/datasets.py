@@ -99,7 +99,8 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         # 4 is neutral and values 5-8 are positive where 8 is highly positive
         return round(word_grade * manual_grade) + 4.0
 
-    def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
+    def get_dataset(self, table_name='train_data', search_params=None):
+        search_params = search_params or {"isActive": True}
         ds = self.__create_classification_dataset()
         data = self.get_data(table_name, search_params)
         for record in data:
@@ -108,12 +109,14 @@ class TweetClassificationDatasetFactory(DatasetFactory):
             ds.addSample(inp, target)
         return ds
 
-    def get_dataset_class(self, table_name='train_data', search_params={"isActive": True}):
+    def get_dataset_class(self, table_name='train_data', search_params=None):
+        search_params = search_params or {"isActive": True}
         data = self.db[table_name].find(search_params)
         featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
         return featureset
 
-    def get_data(self, table_name='train_data', search_params={"isActive": True}):
+    def get_data(self, table_name='train_data', search_params=None):
+        search_params = search_params or {"isActive": True}
         return self.db[table_name].find(search_params)
 
 
@@ -154,17 +157,20 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         retweet_count = record['data']['retweet_count']
         return retweet_count
 
-    def get_dataset(self, table_name='train_data', search_params={"isActive": True}):
+    def get_dataset(self, table_name='train_data', search_params=None):
+        search_params = search_params or {"isActive": True}
         ds = self.__create_regression_dataset()
         data = self.get_data(table_name, search_params)
         for record in data:
             ds.addSample(self.__get_input_from_record(record), self.__get_output_from_record(record))
         return ds
 
-    def get_dataset_class(self, table_name='train_data', search_params={"isActive": True}):
+    def get_dataset_class(self, table_name='train_data', search_params=None):
+        search_params = search_params or {"isActive": True}
         data = self.db[table_name].find(search_params)
         featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
         return featureset
 
-    def get_data(self, table_name='train_data', search_params={"isActive": True}):
+    def get_data(self, table_name='train_data', search_params=None):
+        search_params = search_params or {"isActive": True}
         return self.db[table_name].find(search_params)

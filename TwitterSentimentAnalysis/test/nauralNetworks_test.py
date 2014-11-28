@@ -38,7 +38,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         result = neural_network.run(ds_train, ds_test)
         actual = neural_network.network.activateOnDataset(ds_test)
         expected = ds_test['class']
-        expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
+        expected_error = np.mean((np.argmax(actual, 1) != expected.T), dtype=float)
         self.assertEqual(result/100, expected_error)
 
     def test_simple_regression_neural_network(self):
@@ -73,7 +73,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         print actual
         print expected
 
-        expected_error = (np.argmax(actual, 1) != expected.T).mean(dtype=float)
+        expected_error = np.mean((np.argmax(actual, 1) != expected.T), dtype=float)
 
         self.assertEqual(result[0]/100, expected_error)
 
@@ -87,10 +87,11 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
 
         test_ds = []
         for i, k in enumerate(ds_test['input']):
-            features = {}
-            features['first'] = ds_test['input'][i][0]
-            features['second'] = ds_test['input'][i][1]
-            features['third'] = ds_test['input'][i][2]
+            features = {
+                'first': ds_test['input'][i][0],
+                'second': ds_test['input'][i][1],
+                'third': ds_test['input'][i][2],
+                'fourth': ds_test['input'][i][3]}
             test_ds.append(features)
 
         res = []
@@ -128,7 +129,8 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
             features = {
                 'first': ds_test['input'][i][0],
                 'second': ds_test['input'][i][1],
-                'third': ds_test['input'][i][2]}
+                'third': ds_test['input'][i][2],
+                'fourth': ds_test['input'][i][3]}
             test_ds.append(features)
 
         res = []
@@ -160,7 +162,7 @@ class NeuralNetworksTweetsTestCase(unittest.TestCase):
         ds_train, ds_test = ds.splitWithProportion(0.75)
         result = model.run(ds_train, ds_test)
         x_test = ds_test['input']
-        actual = model.regression.predict(x_test)  # y_pred
+        actual = model.regression.predict(X=x_test)  # y_pred
         expected = ds_test['target']  # y_true
         expected_error = 1-((expected - actual) ** 2).sum()/((expected - expected.mean()) ** 2).sum()
         self.assertEqual(result, expected_error)

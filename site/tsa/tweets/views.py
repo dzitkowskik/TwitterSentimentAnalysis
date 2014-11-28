@@ -3,8 +3,6 @@
 # 10-10-2014
 __author__ = 'Karol Dzitkowski'
 
-from datetime import datetime
-
 from django.shortcuts import render
 from django.views.generic import View
 import inject
@@ -30,7 +28,8 @@ class TweetSearchView(View):
     max_pages = 1000
 
     @inject.params(config=Config)
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
+        super(TweetSearchView, self).__init__(**kwargs)
         self.cfg = config
         self.api = core.get_tweepy_api(self.cfg)
         self.td = TweetDownloader()
@@ -112,7 +111,8 @@ class AnalysisView(View):
     max_pages = 1000
 
     @inject.params(config=Config, db_client=MongoClient)
-    def __init__(self, config, db_client):
+    def __init__(self, config, db_client, **kwargs):
+        super(AnalysisView, self).__init__(**kwargs)
         self.cfg = config
         self.db = db_client[config.db_database_name]
 
@@ -224,7 +224,8 @@ class StatisticsView(View):
     default_header = "Twitter sentiment statistics"
 
     @inject.params(config=Config, db_client=MongoClient)
-    def __init__(self, config, db_client):
+    def __init__(self, config, db_client, **kwargs):
+        super(StatisticsView, self).__init__(**kwargs)
         self.cfg = config
         self.db = db_client[config.db_database_name]
 
