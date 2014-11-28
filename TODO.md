@@ -15,16 +15,7 @@
     AssertionError: 0.56 != 0.0```
         
         
-# BUGS 
-* For different AI there are different error units, for some there is accuracy, for some error rate in
-    percents, and some have error rate as float from 0 to 1 or -1 do 1. For example: Error = -0.0252838173686
-    * FOR CLASSIFICATION: IT SHOULD BE ALWAYS AN ERROR RATE AS % FROM 0 TO 100 WHERE 0% IS EQUAL CLASSIFICATION
-    * FOR REGRESSION: IT SHOULD BE "Mean squared error regression loss" USING FOR EXAMPLE
-            ```sklearn.metrics.mean_squared_error``` FUNCTION
-            
-* Predicted retweet count is sometimes lower than 0 and is a float, but it should not. It must be casted to integer
-    and rounded to the nearest positive value. [-16.04641704] should be 0 and [ 21.64036913] should be 22.   
-    
+# BUGS     
 * Plots also have a bugs which are begging for fixing! Lost values etc. Sentiment actual is sometimes always 0
     while the data actually contains different values.
          

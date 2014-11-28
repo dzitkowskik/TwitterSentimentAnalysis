@@ -71,6 +71,17 @@ class AI(object):
             result.append((features, target[i][0]))
         return result
 
+    @staticmethod
+    def fill_data_regression(target, results, data):
+        i = 0
+        assert(len(results) == len(data))
+        for record in data:
+            rc = round(target[i])
+            prc = round(results[i])
+            record['retweet_count'] = rc if rc > 0 else 0
+            record['predicted_retweet_count'] = prc if prc > 0 else 0
+            i += 1
+
     @abstractmethod
     def run(self, ds_train, ds_test):
         pass
@@ -98,6 +109,11 @@ class AI(object):
     @abstractmethod
     def fill_with_predicted_data(self, ds, data):
         pass
+
+
+##################
+# CLASSIFICATION #
+##################
 
 
 class MultiClassClassificationNeuralNetwork(AI):
@@ -220,83 +236,6 @@ class MultiClassClassificationNeuralNetwork(AI):
         for record in data:
             record['sentiment'] = ds['target'][i] - middle
             record['predicted_sentiment'] = results[i] - middle
-            i += 1
-
-
-class SimpleRegressionNeuralNetwork(AI):
-    def __init__(self, hid_cnt=10, max_epochs=100, con_epochs=4):
-        self.hidden = hid_cnt
-        self.network = None
-        self.con_epochs = con_epochs
-        self.max_epochs = max_epochs
-
-    def run(self, ds_train, ds_test):
-        self.network = NNregression(ds_train)
-        self.network.setupNN(hidden=self.hidden, verbose=True)
-        self.network.Trainer.trainUntilConvergence(
-            dataset=ds_train,
-            maxEpochs=self.max_epochs,
-            continueEpochs=self.con_epochs)
-        error = self.test(ds_test)
-        return error
-
-    def test(self, ds_test):
-        result = self.network.Trainer.module.activateOnDataset(ds_test)
-        error = mean_squared_error(ds_test['target'], result)
-        return error
-
-    def run_with_crossvalidation(self, ds, iterations=5):
-        x = ds['input']
-        y = ds['target']
-        n, m = x.shape
-        errors = np.zeros(iterations)
-        cv = cross_validation.KFold(n, iterations, shuffle=True)
-
-        i = 0
-        for train_index, test_index in cv:
-            x_train = x[train_index, :]
-            y_train = y[train_index, :]
-            x_test = x[test_index, :]
-            y_test = y[test_index, :]
-
-            ds_train = TweetClassificationDatasetFactory.convert_to_ds(x_train, y_train)
-            ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
-
-            self.network = NNregression(ds_train)
-            self.network.setupNN(hidden=self.hidden)
-            self.network.runTraining(self.convergence)
-            tstresult = self.test(ds_test)
-            errors[i] = tstresult[0]
-            i += 1
-
-        print "Simple Regression Neural Network cross-validation test errors: " % errors
-        return np.average(errors)
-
-    def __call__(self, ds_train, ds_test):
-        return self.run(ds_train, ds_test)
-
-    def save(self, path):
-        file_object = open(path, 'w')
-
-        pickle.dump(self.network, file_object)
-
-        file_object.close()
-
-    def load(self, path):
-        file_object = open(path, 'r')
-        self.network = pickle.load(file_object)
-
-    def get_type(self):
-        return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
-
-    def fill_with_predicted_data(self, ds, data):
-        out = self.network.Trainer.module.activateOnDataset(ds)
-        results = np.ravel(np.argmax(out, 1))
-        i = 0
-        assert(len(ds) == len(data))
-        for record in data:
-            record['retweet_count'] = ds['target'][i]
-            record['predicted_retweet_count'] = results[i]
             i += 1
 
 
@@ -530,6 +469,84 @@ class MaxEntropyClassifier(AI):
             i += 1
 
 
+##############
+# REGRESSION #
+##############
+
+
+class SimpleRegressionNeuralNetwork(AI):
+    def __init__(self, hid_cnt=10, max_epochs=100, con_epochs=4):
+        self.hidden = hid_cnt
+        self.network = None
+        self.con_epochs = con_epochs
+        self.max_epochs = max_epochs
+
+    def run(self, ds_train, ds_test):
+        self.network = NNregression(ds_train)
+        self.network.setupNN(hidden=self.hidden, verbose=True)
+        self.network.Trainer.trainUntilConvergence(
+            dataset=ds_train,
+            maxEpochs=self.max_epochs,
+            continueEpochs=self.con_epochs)
+        error = self.test(ds_test)
+        return error
+
+    def test(self, ds_test):
+        result = self.network.Trainer.module.activateOnDataset(ds_test)
+        error = mean_squared_error(ds_test['target'], result)
+        return error
+
+    def run_with_crossvalidation(self, ds, iterations=5):
+        x = ds['input']
+        y = ds['target']
+        n, m = x.shape
+        errors = np.zeros(iterations)
+        cv = cross_validation.KFold(n, iterations, shuffle=True)
+
+        i = 0
+        for train_index, test_index in cv:
+            x_train = x[train_index, :]
+            y_train = y[train_index, :]
+            x_test = x[test_index, :]
+            y_test = y[test_index, :]
+
+            ds_train = TweetClassificationDatasetFactory.convert_to_ds(x_train, y_train)
+            ds_test = TweetClassificationDatasetFactory.convert_to_ds(x_test, y_test)
+
+            self.network = NNregression(ds_train)
+            self.network.setupNN(hidden=self.hidden)
+            self.network.runTraining(self.convergence)
+            tstresult = self.test(ds_test)
+            errors[i] = tstresult[0]
+            i += 1
+
+        print "Simple Regression Neural Network cross-validation test errors: " % errors
+        return np.average(errors)
+
+    def __call__(self, ds_train, ds_test):
+        return self.run(ds_train, ds_test)
+
+    def save(self, path):
+        file_object = open(path, 'w')
+
+        pickle.dump(self.network, file_object)
+
+        file_object.close()
+
+    def load(self, path):
+        file_object = open(path, 'r')
+        self.network = pickle.load(file_object)
+
+    def get_type(self):
+        return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
+
+    def fill_with_predicted_data(self, ds, data):
+        target = ds['target']
+        out = self.network.Trainer.module.activateOnDataset(ds)
+        results = np.ravel(np.argmax(out, 1))
+        self.fill_data_regression(target, results, data)
+
+
 class LinearRegression(AI):
     def __init__(self):
         self.regression = lm.LinearRegression()
@@ -583,11 +600,6 @@ class LinearRegression(AI):
         return ProblemTypeEnum.Regression, AIEnum.LinearRegression
 
     def fill_with_predicted_data(self, ds, data):
-        x_test = ds['input']
-        out = self.regression.predict(x_test)
-        i = 0
-        assert(len(ds) == len(data))
-        for record in data:
-            record['retweet_count'] = ds['target'][i]
-            record['predicted_retweet_count'] = out[i]
-            i += 1
+        target = ds['target']
+        results = self.regression.predict(ds['input'])
+        self.fill_data_regression(target, results, data)
