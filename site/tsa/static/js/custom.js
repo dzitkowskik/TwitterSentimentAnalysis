@@ -86,9 +86,26 @@ $("#id_save_results").change(function(){
     }
 });
 
-$(document).ready(function () {
-        hideBackArrowIfInPageOne();
+function manageFields(){
+  if($("#id_action_0").is(':checked')) {
         createAction();
+  } else if($("#id_action_1").is(':checked')){
+        loadAction();
+  }
+  if($("#id_custom_tweet_set").is(':checked')) {
+        customTweetSetShow();
+  } else {
+        customTweetSetHide();
+  }
+  if($("#id_save_results").is(':checked')) {
+        saveResultsShow();
+  } else {
+        saveResultsHide();
+  }
+}
+
+$(document).ready(function () {
+        manageFields();
         var url = window.location;
         $('ul.nav a[href="'+ url +'"]').parent().addClass('active');
         $('ul.nav a').filter(function() {
