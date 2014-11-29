@@ -31,8 +31,10 @@ class InstallCustom(install):
 
                 core.initialize()
 
-        table = Config(core.configuration_file_path).train_tweets_table
-        downloaders.TweetDownloader().download_tweets_from_file(table_name=table)
+        cfg = Config(core.configuration_file_path)
+        table = cfg.train_tweets_table
+        limit = cfg.pred_tweet_limit
+        downloaders.TweetDownloader().download_tweets_from_file(table_name=table, limit=limit)
         core.terminate()
         return ret
 
