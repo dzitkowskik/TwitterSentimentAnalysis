@@ -126,6 +126,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         self.network = self.__build_default_network()
 
     '''
+    This function builds an Artificial Neural Network with a specified number of hidden layers.
     Args:
       hidden_counts (int): The number of units in the hidden layer.
 
@@ -159,9 +160,9 @@ class MultiClassClassificationNeuralNetwork(AI):
         return self
 
     '''
+    This function evaluates the ANN using a test set and has the error-rate as an output.
     Args:
       ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
-
     Returns:
       error (float): the percent error of the test dataset, tested on the neural network.
     '''
@@ -177,10 +178,10 @@ class MultiClassClassificationNeuralNetwork(AI):
         return buildNetwork(self.inp_cnt, self.hid_cnt, self.out_cnt, outclass=SoftmaxLayer, bias=True)
 
     '''
+    This function both trains the ANN and evaluates the ANN using a specified training and testing set
     Args:
       ds_train (TweetClassificationDatasetFactory): the training dataset the neural network is trained with.
       ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
-
     Returns:
       error (float): the percent error of the test dataset, tested on the neural network.
     '''
@@ -207,9 +208,10 @@ class MultiClassClassificationNeuralNetwork(AI):
         return error
 
     '''
+    This function estimates the performance of the neural network using crossvalidation using a specified dataset.
     Args:
       ds (TweetClassificationDatasetFactory): the dataset used to crossvalidate the neural network.
-
+      iterations (int, optional): number of iterations for the crossvalidation.
     Returns:
       error (float): the average percent error of the dataset, tested on the neural network using crossvalidation.
     '''
@@ -255,6 +257,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         return self.run(ds_train, ds_test)
 
     '''
+    This function saves the neural network.
     Args:
       path (String): the path where the neural network is going to be saved.
     '''
@@ -263,6 +266,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         NetworkWriter.writeToFile(self.network, path)
 
     '''
+    This function loads the neural network.
     Args:
       path (String): the path where the neural network is going to be loaded from.
     '''
@@ -271,6 +275,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         self.network = NetworkReader.readFrom(path)
 
     '''
+    This function returns the type of problem and type of artificial intelligence.
     Returns:
       ProblemTypeEnum.Classification (enum): the type of problem.
       AIEnum.MultiClassClassificationNeuralNetwork (enum): the type of artificial intelligence.
@@ -280,6 +285,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         return ProblemTypeEnum.Classification, AIEnum.MultiClassClassificationNeuralNetwork
 
     '''
+    This function fills a dataset with the real and predicted values using a specified database.
     Args:
       ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
       data (dictionary): dataset gets filled with the real and the predicted values.
@@ -304,6 +310,15 @@ class SimpleClassificationNeuralNetwork(AI):
         self.con_epochs = con_epochs
         self.max_epochs = max_epochs
 
+    '''
+    This function both trains the ANN and evaluates the ANN using a specified training and testing set
+    Args:
+      ds_train (TweetClassificationDatasetFactory): the training dataset the neural network is trained with.
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the neural network.
+    '''
+
     def run(self, ds_train, ds_test):
         self.network = NNclassifier(ds_train)
         self.network.setupNN(hidden=self.hidden, verbose=True)
@@ -314,11 +329,28 @@ class SimpleClassificationNeuralNetwork(AI):
         error = self.test(ds_test)
         return error
 
+    '''
+    This function evaluates the ANN using a test set and has the error-rate as an output.
+    Args:
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the neural network.
+    '''
+
     def test(self, ds_test):
         out = self.network.Trainer.module.activateOnDataset(ds_test)
         result = np.ravel(np.argmax(out, 1))
         error = percentError(result, ds_test['target'])
         return error
+
+    '''
+    This function estimates the performance of the neural network using crossvalidation using a specified dataset.
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to crossvalidate the neural network.
+      iterations (int, optional): number of iterations for the crossvalidation.
+    Returns:
+      error (float): the average percent error of the dataset, tested on the neural network using crossvalidation.
+    '''
 
     # noinspection PyProtectedMember
     def run_with_crossvalidation(self, ds, iterations=5):
@@ -353,17 +385,43 @@ class SimpleClassificationNeuralNetwork(AI):
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
+    '''
+    This function saves the neural network.
+    Args:
+      path (String): the path where the neural network is going to be saved.
+    '''
+
     def save(self, path):
         file_object = open(path, 'w')
         pickle.dump(self.network, file_object)
         file_object.close()
 
+    '''
+    This function loads the neural network.
+    Args:
+      path (String): the path where the neural network is going to be loaded from.
+    '''
+
     def load(self, path):
         file_object = open(path, 'r')
         self.network = pickle.load(file_object)
 
+    '''
+    This function returns the type of problem and type of artificial intelligence.
+    Returns:
+      ProblemTypeEnum.Classification (enum): the type of problem.
+      AIEnum.SimpleClassificationNeuralNetwork (enum): the type of artificial intelligence.
+    '''
+
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.SimpleClassificationNeuralNetwork
+
+    '''
+    This function fills a dataset with the real and predicted values using a specified database.
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      data (dictionary): dataset gets filled with the real and the predicted values.
+    '''
 
     def fill_with_predicted_data(self, ds, data):
         out = self.network.Trainer.module.activateOnDataset(ds)
@@ -381,6 +439,15 @@ class NaiveBayesClassifier(AI):
     def __init__(self):
         self.classifier = None
 
+    '''
+    This function evaluates the classifier using a test set and has the error-rate as an output.
+    Args:
+      ds_train (TweetClassificationDatasetFactory): the training dataset the classifier is trained with.
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the classifier.
+    '''
+
     def run(self, ds_train, ds_test):
         x_train = ds_train['input']
         y_train = ds_train['target']
@@ -389,6 +456,14 @@ class NaiveBayesClassifier(AI):
         error = self.test(ds_test)
         return error
 
+    '''
+    This function evaluates the classifier using a test set and has the error-rate as an output.
+    Args:
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the classifier.
+    '''
+
     def test(self, ds_test):
         x_test = ds_test['input']
         y_test = ds_test['target']
@@ -396,6 +471,16 @@ class NaiveBayesClassifier(AI):
         result = self.classifier.classify_many([rec[0] for rec in test_fs])
         error = percentError(result, y_test)
         return error
+
+
+    '''
+    This function estimates the performance of the classifier using crossvalidation using a specified dataset.
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to crossvalidate the classifier.
+      iterations (int, optional): number of iterations for the crossvalidation.
+    Returns:
+      error (float): the average percent error of the dataset, tested on the classifier using crossvalidation.
+    '''
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -426,18 +511,44 @@ class NaiveBayesClassifier(AI):
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
+    '''
+    This function saves the classifier.
+    Args:
+      path (String): the path where the classifier is going to be saved.
+    '''
+
     def save(self, path):
         f = open(path, 'wb')
         pickle.dump(self.classifier, f)
         f.close()
+
+    '''
+    This function loads the classifier.
+    Args:
+      path (String): the path where the classifier is going to be loaded from.
+    '''
 
     def load(self, path):
         f = open(path)
         self.classifier = pickle.load(f)
         f.close()
 
+    '''
+    This function returns the type of problem and type of classifier.
+    Returns:
+      ProblemTypeEnum.Classification (enum): the type of problem.
+      AIEnum.NaiveBayesClassifier (enum): the type of artificial intelligence.
+    '''
+
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.NaiveBayesClassifier
+
+    '''
+    This function fills a dataset with the real and predicted values using a specified database.
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      data (dictionary): dataset gets filled with the real and the predicted values.
+    '''
 
     def fill_with_predicted_data(self, ds, data):
         x_test = ds['input']
@@ -457,6 +568,15 @@ class MaxEntropyClassifier(AI):
     def __init__(self):
         self.classifier = None
 
+    '''
+    This function evaluates the classifier using a test set and has the error-rate as an output.
+    Args:
+      ds_train (TweetClassificationDatasetFactory): the training dataset the classifier is trained with.
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the classifier.
+    '''
+
     def run(self, ds_train, ds_test):
         x_train = ds_train['input']
         y_train = ds_train['target']
@@ -465,6 +585,14 @@ class MaxEntropyClassifier(AI):
         error = self.test(ds_test)
         return error
 
+    '''
+    This function evaluates the classifier using a test set and has the error-rate as an output.
+    Args:
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the classifier.
+    '''
+
     def test(self, ds_test):
         x_test = ds_test['input']
         y_test = ds_test['target']
@@ -472,6 +600,15 @@ class MaxEntropyClassifier(AI):
         result = self.classifier.classify_many([rec[0] for rec in test_fs])
         error = percentError(result, y_test)
         return error
+
+    '''
+    This function estimates the performance of the classifier using crossvalidation using a specified dataset.
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to crossvalidate the classifier.
+      iterations (int, optional): number of iterations for the crossvalidation.
+    Returns:
+      error (float): the average percent error of the dataset, tested on the classifier using crossvalidation.
+    '''
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -502,17 +639,44 @@ class MaxEntropyClassifier(AI):
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
+    '''
+    This function saves the classifier.
+    Args:
+      path (String): the path where the classifier is going to be saved.
+    '''
+
     def save(self, path):
         file_object = open(path, 'w')
         pickle.dump(self.classifier, file_object)
         file_object.close()
 
+    '''
+    This function loads the classifier.
+    Args:
+      path (String): the path where the classifier is going to be loaded from.
+    '''
+
     def load(self, path):
         file_object = open(path, 'r')
         self.classifier = pickle.load(file_object)
 
+    '''
+    This function returns the type of problem and type of classifier.
+    Returns:
+      ProblemTypeEnum.Classification (enum): the type of problem.
+      AIEnum.MaxEntropyClassifier (enum): the type of artificial intelligence.
+    '''
+
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.MaxEntropyClassifier
+
+
+    '''
+    This function fills a dataset with the real and predicted values using a specified database.
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      data (dictionary): dataset gets filled with the real and the predicted values.
+    '''
 
     def fill_with_predicted_data(self, ds, data):
         x_test = ds['input']
@@ -539,6 +703,15 @@ class SimpleRegressionNeuralNetwork(AI):
         self.con_epochs = con_epochs
         self.max_epochs = max_epochs
 
+    '''
+    This function evaluates the ANN using a test set and has the error-rate as an output.
+    Args:
+      ds_train (TweetClassificationDatasetFactory): the training dataset the neural network is trained with.
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the neural network.
+    '''
+
     def run(self, ds_train, ds_test):
         self.network = NNregression(ds_train)
         self.network.setupNN(hidden=self.hidden, verbose=True)
@@ -549,10 +722,27 @@ class SimpleRegressionNeuralNetwork(AI):
         error = self.test(ds_test)
         return error
 
+    '''
+    This function evaluates the ANN using a test set and has the error-rate as an output.
+    Args:
+      ds_test (TweetRegressionDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the network.
+    '''
+
     def test(self, ds_test):
         result = self.network.Trainer.module.activateOnDataset(ds_test)
         error = mean_squared_error(ds_test['target'], result)
         return error
+
+    '''
+    This function estimates the performance of the neural network using crossvalidation using a specified dataset.
+    Args:
+      ds (TweetRegressionDatasetFactory): the dataset used to crossvalidate the network.
+      iterations (int, optional): number of iterations for the crossvalidation.
+    Returns:
+      error (float): the average percent error of the dataset, tested on the network using crossvalidation.
+    '''
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -587,6 +777,12 @@ class SimpleRegressionNeuralNetwork(AI):
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
+    '''
+    This function saves the neural network.
+    Args:
+      path (String): the path where the network is going to be saved.
+    '''
+
     def save(self, path):
         file_object = open(path, 'w')
 
@@ -594,12 +790,32 @@ class SimpleRegressionNeuralNetwork(AI):
 
         file_object.close()
 
+    '''
+    This function loads the neural network.
+    Args:
+      path (String): the path where the neural network is going to be loaded from.
+    '''
+
     def load(self, path):
         file_object = open(path, 'r')
         self.network = pickle.load(file_object)
 
+    '''
+    This function returns the type of problem and type of neural network.
+    Returns:
+      ProblemTypeEnum.Regression (enum): the type of problem.
+      AIEnum.SimpleRegressionNeuralNetwork (enum): the type of artificial intelligence.
+    '''
+
     def get_type(self):
         return ProblemTypeEnum.Regression, AIEnum.SimpleRegressionNeuralNetwork
+
+    '''
+    This function fills a dataset with the real and predicted values using a specified database.
+    Args:
+      ds (TweetRegressionDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      data (dictionary): dataset gets filled with the real and the predicted values.
+    '''
 
     def fill_with_predicted_data(self, ds, data):
         target = ds['target']
@@ -612,6 +828,15 @@ class LinearRegression(AI):
     def __init__(self):
         self.regression = lm.LinearRegression()
 
+    '''
+    This function evaluates the model using a test set and has the error-rate as an output.
+    Args:
+      ds_train (TweetClassificationDatasetFactory): the training dataset the model is trained with.
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the model.
+    '''
+
     def run(self, ds_train, ds_test):
         x_train = ds_train['input']
         y_train = ds_train['target']
@@ -620,10 +845,27 @@ class LinearRegression(AI):
         error = self.test(ds_test)
         return error
 
+    '''
+    This function evaluates the model using a test set and has the error-rate as an output.
+    Args:
+      ds_test (TweetRegressionDatasetFactory): the test dataset evaluated.
+    Returns:
+      error (float): the percent error of the test dataset, tested on the model.
+    '''
+
     def test(self, ds_test):
         result = self.regression.predict(ds_test['input'])
         error = mean_squared_error(ds_test['target'], result)
         return error
+
+    '''
+    This function estimates the performance of the model using crossvalidation using a specified dataset.
+    Args:
+      ds (TweetRegressionDatasetFactory): the dataset used to crossvalidate the model.
+      iterations (int, optional): number of iterations for the crossvalidation.
+    Returns:
+      error (float): the average percent error of the dataset, tested on the classifier using crossvalidation.
+    '''
 
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -647,18 +889,44 @@ class LinearRegression(AI):
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
+    '''
+    This function saves the model.
+    Args:
+      path (String): the path where the network is going to be saved.
+    '''
+
     def save(self, path):
         f = open(path, 'wb')
         pickle.dump(self.regression, f)
         f.close()
+
+    '''
+    This function loads the model.
+    Args:
+      path (String): the path where the model is going to be loaded from.
+    '''
 
     def load(self, path):
         f = open(path)
         self.regression = pickle.load(f)
         f.close()
 
+    '''
+    This function returns the type of problem and type of model.
+    Returns:
+      ProblemTypeEnum.Regression (enum): the type of problem.
+      AIEnum.LinearRegression (enum): the type of artificial intelligence.
+    '''
+
     def get_type(self):
         return ProblemTypeEnum.Regression, AIEnum.LinearRegression
+
+    '''
+    This function fills a dataset with the real and predicted values using a specified database.
+    Args:
+      ds (TweetRegressionDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      data (dictionary): dataset gets filled with the real and the predicted values.
+    '''
 
     def fill_with_predicted_data(self, ds, data):
         target = ds['target']
