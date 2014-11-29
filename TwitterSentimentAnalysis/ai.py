@@ -125,6 +125,14 @@ class MultiClassClassificationNeuralNetwork(AI):
         self.con_epochs = con_epochs
         self.network = self.__build_default_network()
 
+    '''
+    Args:
+      hidden_counts (int): The number of units in the hidden layer.
+
+    Returns:
+      self (MultiClassClassificationNeuralNetwork): the function returns an instance of its class, with the neural network initialized.
+    '''
+
     def apply_custom_network(self, hidden_counts):
         network = FeedForwardNetwork()
         in_layer = LinearLayer(self.inp_cnt)
@@ -150,6 +158,14 @@ class MultiClassClassificationNeuralNetwork(AI):
         self.network = network
         return self
 
+    '''
+    Args:
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+
+    Returns:
+      error (float): the percent error of the test dataset, tested on the neural network.
+    '''
+
     def test(self, ds_test):
         out = self.network.activateOnDataset(ds_test)
         result = np.ravel(np.argmax(out, 1))
@@ -159,6 +175,15 @@ class MultiClassClassificationNeuralNetwork(AI):
 
     def __build_default_network(self):
         return buildNetwork(self.inp_cnt, self.hid_cnt, self.out_cnt, outclass=SoftmaxLayer, bias=True)
+
+    '''
+    Args:
+      ds_train (TweetClassificationDatasetFactory): the training dataset the neural network is trained with.
+      ds_test (TweetClassificationDatasetFactory): the test dataset evaluated.
+
+    Returns:
+      error (float): the percent error of the test dataset, tested on the neural network.
+    '''
 
     # noinspection PyProtectedMember
     def run(self, ds_train, ds_test):
@@ -181,6 +206,13 @@ class MultiClassClassificationNeuralNetwork(AI):
 
         return error
 
+    '''
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to crossvalidate the neural network.
+
+    Returns:
+      error (float): the average percent error of the dataset, tested on the neural network using crossvalidation.
+    '''
     # noinspection PyProtectedMember
     def run_with_crossvalidation(self, ds, iterations=5):
         x = ds['input']
@@ -222,14 +254,36 @@ class MultiClassClassificationNeuralNetwork(AI):
     def __call__(self, ds_train, ds_test):
         return self.run(ds_train, ds_test)
 
+    '''
+    Args:
+      path (String): the path where the neural network is going to be saved.
+    '''
+
     def save(self, path):
         NetworkWriter.writeToFile(self.network, path)
+
+    '''
+    Args:
+      path (String): the path where the neural network is going to be loaded from.
+    '''
 
     def load(self, path):
         self.network = NetworkReader.readFrom(path)
 
+    '''
+    Returns:
+      ProblemTypeEnum.Classification (enum): the type of problem.
+      AIEnum.MultiClassClassificationNeuralNetwork (enum): the type of artificial intelligence.
+    '''
+
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.MultiClassClassificationNeuralNetwork
+
+    '''
+    Args:
+      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      data (dictionary): dataset gets filled with the real and the predicted values.
+    '''
 
     def fill_with_predicted_data(self, ds, data):
         out = self.network.activateOnDataset(ds)
