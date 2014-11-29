@@ -17,7 +17,7 @@ site written in Django as a visual interface.
     
 Scipy, Numpy and can be installed using following instruction: 
     
-    $ [sudo] apt-get install python-numpy python-scipy pip
+    $ [sudo] apt-get install python-numpy python-scipy python-pip
 
 # INSTALLATION
 
