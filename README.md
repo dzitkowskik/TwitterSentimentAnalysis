@@ -31,7 +31,7 @@ Scipy, Numpy and can be installed using following instruction:
 3. Create virtual environment and activate it:
 
     ```bash
-    $ virtualenv env --no-site-packages
+    $ virtualenv env --system-site-packages
     $ source env/bin/activate
     ```
 4. Install required packages:
