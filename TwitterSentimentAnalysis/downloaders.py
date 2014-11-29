@@ -90,7 +90,8 @@ class TweetDownloader(object):
             file_name=None,
             table_name='data',
             analyzer=None,
-            tag=None):
+            tag=None,
+            limit=0):
 
         table = self.db[table_name]
 
@@ -106,6 +107,8 @@ class TweetDownloader(object):
             analyzer = WordSentimentAnalyzer()
 
         for idx in range(0, length):
+            if 0 < limit < idx:
+                return
             item = fetch_list[idx]
             if table.find({'_id': item[2]}).count() == 0:
                 try:
