@@ -53,6 +53,13 @@ class TweetStatistics(object):
         if stat_type == StatisticEnum.day_of_week:
             return TweetStatistics.get_day_of_week(ai_model)
 
+    '''
+    This function saves the data from the database to a model used to make the graphs.
+    Args:
+      data: the dataset used to fill the model with data.
+      ai_name (model): the saved artificial intelligence.
+    '''
+
     @staticmethod
     def save_data_for_statistics(data, ai_name):
         if ai_name != "" and ai_name is not None:
@@ -124,6 +131,15 @@ class TweetStatistics(object):
         else:
             raise NameError('ai_name cannot be blank')
 
+    '''
+    This function returns a sample chart.
+    Args:
+      data: the data used to build the chart.
+      ai_name (model): the problem type.
+    Returns:
+      cht (Chart): the resulting graph to be shown on the webpage.
+    '''
+
     @staticmethod
     def get_sample_chart(data, ai_model):
         if ai_model.problem_type == 1:  # classification
@@ -171,6 +187,15 @@ class TweetStatistics(object):
                         'text': y_axis}}})
 
         return cht
+
+    '''
+    This function returns the day of the week versus predicted and actual sentiment (classification) or the day of the week versus actual retweet count and predicted retweet count (regression).
+    Args:
+      data: the data used to build the chart.
+      ai_name (model): the problem type.
+    Returns:
+      cht (Chart): the resulting graph to be shown on the webpage.
+    '''
 
     @staticmethod
     def get_day_of_week(ai_model):
@@ -221,6 +246,15 @@ class TweetStatistics(object):
 
         return cht
 
+    '''
+    This function returns the hour versus predicted and actual sentiment (classification) or the hour versus actual retweet count and predicted retweet count (regression).
+    Args:
+      data: the data used to build the chart.
+      ai_name (model): the problem type.
+    Returns:
+      cht (Chart): the resulting graph to be shown on the webpage.
+    '''
+
     @staticmethod
     def get_hourly(ai_model):
         if ai_model.problem_type == 1:  # classification
@@ -270,6 +304,15 @@ class TweetStatistics(object):
 
         return cht
 
+    '''
+    This function returns the number of favorites versus predicted and actual sentiment (classification) or the number of favorites versus actual retweet count and predicted retweet count (regression).
+    Args:
+      data: the data used to build the chart.
+      ai_name (model): the problem type.
+    Returns:
+      cht (Chart): the resulting graph to be shown on the webpage.
+    '''
+
     @staticmethod
     def get_favorites_vs_x(data, ai_model):
         if ai_model.problem_type == 1:  # classification
@@ -316,6 +359,15 @@ class TweetStatistics(object):
                         'text': y_axis}}})
 
         return cht
+
+    '''
+    This function returns the follower count versus predicted and actual sentiment (classification) or the follower count versus actual retweet count and predicted retweet count (regression).
+    Args:
+      data: the data used to build the chart.
+      ai_name (model): the problem type.
+    Returns:
+      cht (Chart): the resulting graph to be shown on the webpage.
+    '''
 
     @staticmethod
     def get_followers_vs_x(data, ai_model):
