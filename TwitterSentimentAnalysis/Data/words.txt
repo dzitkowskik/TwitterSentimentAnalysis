@@ -1403,6 +1403,7 @@ kind	2
 kinder	2
 kiss	2
 kudos	3
+kurwa	-3
 lack	-2
 lackadaisical	-2
 lag	-1
