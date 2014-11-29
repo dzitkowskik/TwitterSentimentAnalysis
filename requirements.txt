@@ -1,7 +1,7 @@
-nltk=3.0.0
-simplejson=3.6.5
-inject=3.3.0
-django=1.7.1
+nltk==3.0.0
+simplejson==3.6.5
+inject==3.3.0
+django==1.7.1
 FormEncode==1.2.6
 Markdown==2.4.1
 PyBrain==0.3
