@@ -96,7 +96,7 @@ class TweetDownloader(object):
         table = self.db[table_name]
 
         if file_name is None:
-            file_name = core.convert_rel_to_absolute(self.cfg.corpus_file)
+            file_name = self.cfg.corpus_file
         fetch_list = self.__read_tweet_list(file_name)
         length = len(fetch_list)
 
