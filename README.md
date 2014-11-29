@@ -7,6 +7,13 @@ All the scripts from DTU course "Introduction to Data Mining using Python"
 
 * MongoDB - [Web page](http://www.mongodb.org)
 * Python 2.7 - [Web page](https://www.python.org/download/releases/2.7/)
+* Numpy version 1.8.2 or higher
+* Scipy version 0.11.0 or higher
+* Pip (for downloading packages - one can use also easy_install or sth else)
+    
+Scipy, Numpy and can be installed using following instruction: 
+    
+    $ [sudo] apt-get install python-numpy python-scipy pip
 
 # INSTALLATION
 
@@ -24,13 +31,13 @@ All the scripts from DTU course "Introduction to Data Mining using Python"
 3. Create virtual environment and activate it:
 
     ```bash
-    $ virtualenv <directory> --no-site-packages
-    $ ./<directory>/scripts/activate
+    $ virtualenv env --no-site-packages
+    $ source env/bin/activate
     ```
 4. Install required packages:
 
     ```bash
-    $ pip install -r <directory>/requirements.txt
+    $ pip install -r requirements.txt
     ```
 5. Prepare configuration (This script will create configuration files):
     1. run configure.sh:
