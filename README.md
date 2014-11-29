@@ -2,7 +2,8 @@ Introduction-to-Data-Mining-DTU
 ===============================
 
 This project is a result of work on Twitter Sentiment Diffusion 
-in the DTU course "Introduction to Data Mining using Python"
+in the DTU course "Introduction to Data Mining using Python".
+
 It contains TwitterSentimentAnalysis package as an API and a web
 site written in Django as a visual interface.
 
