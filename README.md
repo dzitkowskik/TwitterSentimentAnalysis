@@ -55,17 +55,17 @@ All the scripts from DTU course "Introduction to Data Mining using Python"
 
 1. Run mongo server and go to django web site package:
 
-```bash
-$ mongod &
-$ cd <directory>/site/tsa
-```
+    ```bash
+    $ mongod &
+    $ cd <directory>/site/tsa
+    ```
 2. Make migrations, migrate tables to db and start server:
 
-```bash
-$ python manage.py makemigrations
-$ python manage.py migrate
-$ python manage.py syncdb <one can set a password to django admin there>
-$ python manage.py runserver
-```
+    ```bash
+    $ python manage.py makemigrations
+    $ python manage.py migrate
+    $ python manage.py syncdb <one can set a password to django admin there>
+    $ python manage.py runserver
+    ```
 
     
