@@ -13,16 +13,24 @@ site written in Django as a visual interface.
 * Python 2.7 - [Web page](https://www.python.org/download/releases/2.7/)
 * Numpy version 1.8.2 or higher
 * Scipy version 0.11.0 or higher
+* Gtk2 (for matplotlib)
 * Pip (for downloading packages - one can use also easy_install or sth else)
     
 Scipy, Numpy and can be installed using following instruction: 
     
-    $ [sudo] apt-get install python-numpy python-scipy python-pip
-
+    ```bash
+    $ [sudo] apt-get install python-gtk2-dev python-numpy python-scipy python-pip
+    ```
+    
 # INSTALLATION
 
 All requirements must be satisfied before installation.
 
+0. Prepare for installing scipy in virtual environment
+
+    ```bash
+    $ sudo apt-get build-dep python-scipy
+    ```
 1. Install virtualenv (If you don't have it installed):
 
     ```bash 
@@ -37,10 +45,10 @@ All requirements must be satisfied before installation.
 3. Create virtual environment and activate it:
 
     ```bash
-    $ virtualenv env --system-site-packages
+    $ virtualenv env
     $ source env/bin/activate
     ```
-4. Install required packages:
+4. Install required packages (Do not use sudo here):
 
     ```bash
     $ pip install -r requirements.txt
@@ -61,9 +69,10 @@ All requirements must be satisfied before installation.
 6. Install an API - (it will also download predefined tweet set with manual sentiment grades):
 
     ```bash
-    $ [sudo] python setup.py install
+    $ python setup.py install
     ```
-
+    * If package TwitterSentimentAnalysis is still not listed by ```pip list``` try ```pip install -e .```
+    
 # RUNNING SERVER
 
 1. Run mongo server and go to django web site package:
