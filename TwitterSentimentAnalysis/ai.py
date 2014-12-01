@@ -816,7 +816,8 @@ class SimpleRegressionNeuralNetwork(AI):
         """
         This function fills a dataset with the real and predicted values using a specified database.
         Args:
-          ds (TweetRegressionDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+          ds (TweetRegressionDatasetFactory): the dataset used to
+            fill the dictionary with the real and predicted values.
           data (dictionary): dataset gets filled with the real and the predicted values.
         """
         target = ds['target']
@@ -920,7 +921,8 @@ class LinearRegression(AI):
         """
         This function fills a dataset with the real and predicted values using a specified database.
         Args:
-          ds (TweetRegressionDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+          ds (TweetRegressionDatasetFactory): the dataset used to fill
+            the dictionary with the real and predicted values.
           data (dictionary): dataset gets filled with the real and the predicted values.
         """
         target = ds['target']
