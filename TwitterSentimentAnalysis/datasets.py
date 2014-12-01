@@ -20,10 +20,20 @@ class ProblemTypeEnum(enum.Enum):
 
 
 class DatasetFactory(object):
+    """
+    This is an abstract class used as a base for all dataset factories classes in this project.
+    It contains abstract methods creating an interface for all dataset factories. This class
+    also provides a suitable interface for a dataset factory.
+    """
     __metaclass__ = ABCMeta
 
     @staticmethod
     def factory(problem_type):
+        """
+        This method creates a proper dataset factory for the problem type.
+        :param problem_type: type of a problem of class ProblemTypeEnum (regression or classification)
+        :return: a proper dataset factory object
+        """
         if problem_type == ProblemTypeEnum.Classification:
             return TweetClassificationDatasetFactory()
         elif problem_type == ProblemTypeEnum.Regression:
@@ -44,6 +54,9 @@ class DatasetFactory(object):
 
 
 class TweetClassificationDatasetFactory(DatasetFactory):
+    """
+    This class implements dataset factory interface, and produces data in suitable format for classification problems.
+    """
     labels = [
         'Highly negative (-4)',
         'Fairly negative (-3)',
@@ -66,6 +79,12 @@ class TweetClassificationDatasetFactory(DatasetFactory):
 
     @staticmethod
     def convert_to_ds(x, y):
+        """
+        This method converts a matrices x and y of input and target values to a classification dataset
+        :param x: input values as a matrix NxM where N is a number of records and M a number of features
+        :param y: a target values corresponding to true labels of the records
+        :return: an object of classification dataset containing passed data
+        """
         ds = TweetClassificationDatasetFactory.__create_classification_dataset()
         for i in range(0, len(y)):
             ds.addSample(x[i], y[i])
@@ -100,6 +119,13 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         return round(word_grade * manual_grade) + 4.0
 
     def get_dataset(self, table_name='train_data', search_params=None):
+        """
+        This method created a classification dataset from data queried from a database from specified table
+        with specified search params as a dictionary
+        :param table_name: a name of a table to fetch data from
+        :param search_params: a dictionary of filters like: {"isActive": True}
+        :return: a classification dataset containing data from db
+        """
         search_params = search_params or {"isActive": True}
         ds = self.__create_classification_dataset()
         data = self.get_data(table_name, search_params)
@@ -110,12 +136,18 @@ class TweetClassificationDatasetFactory(DatasetFactory):
         return ds
 
     def get_dataset_class(self, table_name='train_data', search_params=None):
+        """
+        The same as get_dataset method but returns a featureset
+        """
         search_params = search_params or {"isActive": True}
         data = self.db[table_name].find(search_params)
         featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
         return featureset
 
     def get_data(self, table_name='train_data', search_params=None):
+        """
+        The same as get_dataset method but returns only fetched data from db as pymongo Cursor.
+        """
         search_params = search_params or {"isActive": True}
         return self.db[table_name].find(search_params)
 
@@ -136,6 +168,12 @@ class TweetRegressionDatasetFactory(DatasetFactory):
 
     @staticmethod
     def convert_to_ds(x, y):
+        """
+        This method converts a matrices x and y of input and target values to a regression dataset
+        :param x: input values as a matrix NxM where N is a number of records and M a number of features
+        :param y: a target values corresponding to true labels of the records
+        :return: an object of regression dataset containing passed data
+        """
         ds = TweetRegressionDatasetFactory.__create_regression_dataset()
         for i in range(0, len(y)):
             ds.addSample(x[i], y[i])
@@ -158,6 +196,13 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         return retweet_count
 
     def get_dataset(self, table_name='train_data', search_params=None):
+        """
+        This method created a regression dataset from data queried from a database from specified table
+        with specified search params as a dictionary
+        :param table_name: a name of a table to fetch data from
+        :param search_params: a dictionary of filters like: {"isActive": True}
+        :return: a regression dataset containing data from db
+        """
         search_params = search_params or {"isActive": True}
         ds = self.__create_regression_dataset()
         data = self.get_data(table_name, search_params)
@@ -166,11 +211,17 @@ class TweetRegressionDatasetFactory(DatasetFactory):
         return ds
 
     def get_dataset_class(self, table_name='train_data', search_params=None):
+        """
+        The same as get_dataset method but returns a featureset
+        """
         search_params = search_params or {"isActive": True}
         data = self.db[table_name].find(search_params)
         featureset = [(self.__get_input_from_record(record), self.__get_output_from_record(record)) for record in data]
         return featureset
 
     def get_data(self, table_name='train_data', search_params=None):
+        """
+        The same as get_dataset method but returns only fetched data from db as pymongo Cursor.
+        """
         search_params = search_params or {"isActive": True}
         return self.db[table_name].find(search_params)
