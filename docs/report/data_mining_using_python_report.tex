@@ -97,13 +97,47 @@ All the models can be trained, evaluated (with or without using crossvalidation)
 
 \subsubsection{datasets.py}
 
+These classes take care of the data preprocessing for the regression and classification problems. 
+The sentiment of a Tweet gets calculated using the wordlist the following way: we search for every word in the Tweet if it is part of the wordlist and if it is, it is added to the total sum. This sum is divided by the number of words in the Tweet that are in the wordlist. This renders a result between -5 and 5. The result is then scaled to a value between 0 and 4. If there is a manual grade available (positive or negative, only for the Tweets in the downloaded file), the wordsentiment gets multiplied by 1 or -1, depending if the manual grade is positive or negative. Else, it just takes the sign it had in the beginning. This way we get 9 classes of sentiment, ranging from -4 (highly negative) to +4 (highly positive). 
+For the classification in the different word sentiment classes the following features of the Tweets are used:
+\begin{itemize}
+	\item Favorite count: the number of times a Tweet is favorited.
+	\item Followers count: the number of followers the user who tweeted has.
+	\item Retweet count: the number of times the Tweet has been retweeted.
+	\item Age of the tweet: how old the Tweet is.
+\end{itemize}
+
+For the regression of the retweet count the following features of the Tweets are used:
+\begin{itemize}
+	\item Favorite count: the number of times a Tweet is favorited.
+	\item Followers count: the number of followers the user who tweeted has.
+	\item Word sentiment: the word sentiment calculated as specified above.
+	\item Age of the tweet: how old the Tweet is.
+\end{itemize}
+
 \subsubsection{downloaders.py}
+
+This class takes care of downloading the Tweets using Tweepy \cite{tweepy}. It takes into account the rate limits of the Twitter API so our downloads do not get blocked. Tweets are saved to a specified MongoDB table using Pymongo \cite{pymongo}, using a tag as a label when we save. This class also implements the possibility to undersample the data: because the majority of the Tweets has a sentiment of 0, the Artificial Intelligence is trained in a wrong way (a classifier which predicts all tweets to be 0 will have a very low training error and maybe even test error, although we this classifier will be useless). The undersampling  will undersample data with a sentiment close to 0 (standard treshold is set to be 0.25). 
 
 \subsubsection{wordSentiment.py}
 
+In the WordSentimentAnalyzer class the sentiment gets calculated like stated above using the AFINN lexicon \cite{AFINN}. 
 
+\subsection{The website (site)}
 
-We included Django blabla en nie zelf geschreven dus niet met pep enzo maar wel nodig en aangepast enal
+\subsubsection{django_chartit_1_7}
+
+We included this Django package, because it had to be adapted in order to work together with package we wanted to use for our charts. This package is thus not completely written by ourselves, but adapted from INSERT REFERENCE.
+
+\subsubsection{static}
+\\TODO
+
+\subsubsection{tsa}
+\\TODO
+
+\subsubsection{tweets}
+
+The statistics.py file takes care of the generation of the charts based on Django models. 
 
 
 \section{Results}

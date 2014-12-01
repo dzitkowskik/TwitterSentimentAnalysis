@@ -32,4 +32,22 @@ D.~Zarrella, ``Science of retweets,'' 2009. [Online]. Available:
   \url{http://danzarrella.com/science-of-retweets.pdf}
 \BIBentrySTDinterwordspacing
 
+\bibitem{pybrain}
+\BIBentryALTinterwordspacing
+``Pybrain,'' 2010. [Online]. Available: \url{http://pybrain.org/}
+\BIBentrySTDinterwordspacing
+
+\bibitem{nltk}
+\BIBentryALTinterwordspacing
+E.~Loper, ``Natural language toolkit.'' [Online]. Available:
+  \url{http://www.nltk.org/_modules/nltk/classify/naivebayes.html}
+\BIBentrySTDinterwordspacing
+
+\bibitem{sklearn}
+\BIBentryALTinterwordspacing
+started~by David~Cournapeaul, ``Scikit-learn: Machine learning in python.''
+  [Online]. Available:
+  \url{http://scikit-learn.org/stable/modules/linear_model.html}
+\BIBentrySTDinterwordspacing
+
 \end{thebibliography}
