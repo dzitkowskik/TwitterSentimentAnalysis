@@ -9,7 +9,6 @@ import inject
 from pymongo import MongoClient
 from config import Config
 from tweepy import Cursor
-
 from TwitterSentimentAnalysis import core
 from TwitterSentimentAnalysis.datasets import DatasetFactory
 from TwitterSentimentAnalysis.ai import AIEnum, AI
@@ -21,6 +20,11 @@ from models import ArtificialIntelligence, Tweet
 
 
 class TweetSearchView(View):
+    """This view is used for querying the tweets from twitter
+
+    It provides an interface for searching and downloading sets of tweets, saving it in db with some tag
+    in order to perform some classification and regression analysis later
+    """
     template_name = "search.html"
     language = 'en'
     tweets_per_page = 10
@@ -35,15 +39,27 @@ class TweetSearchView(View):
         self.td = TweetDownloader()
 
     def get(self, request):
+        """A handler for a GET web request from search view
+
+        Provides a web page with unfilled query form and listed tweets from user timeline
+        :param request: HTTP web GET request
+        :return: a web page with a search interface
+        """
         records = self.api.home_timeline(count=self.tweets_per_page)
         header = 'Home timeline'
         form = QueryForm()
         pages, page = self.__get_pages_range(form)
         context = {'tweets': records, 'form': form, 'header': header, 'pages': pages}
-
         return render(request, self.template_name, context)
 
     def post(self, request):
+        """A handler for a POST web request from search view
+
+        Provides a web page with filled query form and listed queried tweets from twitter and/or
+        saved queried data in mongoDB database with a specified tag
+        :param request: HTTP web POST request
+        :return: a web page with a search interface
+        """
         form = QueryForm(request.POST)
         if form.is_valid():
             if 'form_save' in request.POST:
@@ -59,6 +75,7 @@ class TweetSearchView(View):
             {'form': form, 'header': header, 'pages': pages})
 
     def search(self, request, form):
+        """Provide search functionality for post handler"""
         query = form.cleaned_data['query']
         pages, page = self.__get_pages_range(form)
 
@@ -71,7 +88,6 @@ class TweetSearchView(View):
             records = None
             for records in p:
                 pass
-
         if records:
             context = {'tweets': records, 'form': form, 'header': header, 'pages': pages}
             return render(request, self.template_name, context)
@@ -81,6 +97,7 @@ class TweetSearchView(View):
             return render(request, self.template_name, {'form': form, 'header': header, 'pages': pages})
 
     def save(self, form):
+        """Provide save functionality for post handler"""
         query = form.cleaned_data['query']
         name = form.cleaned_data['name']
         limit = form.cleaned_data['limit']
@@ -104,6 +121,11 @@ class TweetSearchView(View):
 
 
 class AnalysisView(View):
+    """This view is used for analysis of the tweets downloaded twitter or predefined stored in db
+
+    It provides an interface for running an AI algorithms on tweet sets (regression and classification) and
+    displays results as well as calculated error rate. It can also be used to save the results of analysis in db.
+    """
     template_name = "analysis.html"
     default_header = "Data analysis"
     tweets_per_page = 10
@@ -117,11 +139,26 @@ class AnalysisView(View):
         self.db = db_client[config.db_database_name]
 
     def get(self, request):
+        """A handler for a GET web request from analysis view
+
+        Provides a web page with unfilled analysis form with a blank list of analyzed tweets
+        :param request: HTTP web GET request
+        :return: a web page with a analyze interface
+        """
         form = self.get_form()
         context = {'header': self.default_header, 'form': form}
         return render(request, self.template_name, context)
 
     def post(self, request):
+        """A handler for a POST web request from analysis view
+
+        Provides a web page with filled analysis form and listed tweets with actual and predicted values
+        of attributes using some AI, and shows an error rate of classification or regression. It provides
+        also a functionality to save these results with some custom name. Analysis can be performed or on
+        custom data or predefined stored in table train_data in mongoDB
+        :param request: HTTP web POST request
+        :return: a web page with a search interface
+        """
         form = self.get_form(request.POST)
         if form.is_valid():
             ai, create = self.get_ai(form)
@@ -153,6 +190,7 @@ class AnalysisView(View):
         return render(request, self.template_name, context)
 
     def get_form(self, post=None):
+        """Returns a analysis form with filled dropdown choices"""
         sets = self.get_tweet_sets()
         ais = map(lambda ai: (ai.name, ai.name), ArtificialIntelligence.objects.all())
         if post is None:
@@ -162,6 +200,11 @@ class AnalysisView(View):
 
     # noinspection PyMethodMayBeStatic
     def get_ai(self, form):
+        """Returns a AI object which was choosed using web interface
+
+        :param form: a valid analysis form
+        :return: tuple of AI object and boolean (true if create action, false if load)
+        """
         action = int(form.cleaned_data['action'])
         if action == ActionEnum.Create.value:
             result = True
@@ -177,6 +220,13 @@ class AnalysisView(View):
         return ai, result
 
     def get_data(self, form, ai, create=True):
+        """Provides a data stored in db choosed using web interface
+
+        :param form: a valid analysis form
+        :param ai: choosed AI object
+        :param create: to create or to load AI model
+        :return: tuple of dataset, data and a tag
+        """
         problem_type, _ = ai.get_type()
         factory = DatasetFactory.factory(problem_type)
         custom = form.cleaned_data['custom_tweet_set']
@@ -195,6 +245,10 @@ class AnalysisView(View):
         return ds, data, tag
 
     def get_tweet_sets(self):
+        """Gets a list of distinct tweet tags that are available to analyze
+
+        :return: return distinct tags in tweets table in mongoDB
+        """
         table = self.db[self.cfg.test_tweets_table]
         tags = table.distinct('tag')
         result = []
@@ -203,6 +257,13 @@ class AnalysisView(View):
         return result
 
     def save_trained_ai(self, ai, name, tag):
+        """Saves trained AI to a file and all necessary information to db used by django
+
+        :param ai: AI object to store
+        :param name: a name of AI we want to save
+        :param tag: a tag of data that AI was trained for
+        :raises: NameError
+        """
         if name != "" and name is not None:
             save_path = core.convert_rel_to_absolute(
                 self.cfg.ai_save_dir + name + ".ai")
@@ -220,6 +281,10 @@ class AnalysisView(View):
 
 
 class StatisticsView(View):
+    """This view is used for showing charts of the analyzed tweet sets
+
+    It provides an interface for browsing charts generated from actual and predicted data of tweets
+    """
     template_name = "statistics.html"
     default_header = "Twitter sentiment statistics"
 
@@ -230,6 +295,12 @@ class StatisticsView(View):
         self.db = db_client[config.db_database_name]
 
     def get(self, request):
+        """A handler for a GET web request from statistic view
+
+        Provides a web page with unfilled statistic form with a sample chart from stored data
+        :param request: HTTP web GET request
+        :return: a web page with a statistic interface
+        """
         cht = TweetStatistics.get_chart(
             StatisticEnum.sample,
             Tweet.objects.all(),
@@ -245,6 +316,12 @@ class StatisticsView(View):
         return render(request, self.template_name, context)
 
     def post(self, request):
+        """A handler for a POST web request from statistic view
+
+        Provides a web page with filled statistic form and shows generated chart
+        :param request: HTTP web POST request
+        :return: a web page with a statistic interface
+        """
         form = StatisticsForm(request.POST)
         if form.is_valid():
             ai = form.cleaned_data['tweet_sets']
@@ -264,4 +341,5 @@ class StatisticsView(View):
 
 
 def contact(request):
+    """Simple contact view page"""
     return render(request, 'contact.html', {})

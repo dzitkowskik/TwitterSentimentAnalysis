@@ -20,28 +20,26 @@ class StatisticEnum(enum.Enum):
 
     @classmethod
     def choices(cls):
-        # get all members of the class
+        """
+        A method to return all possible choices for Statistic enum values
+
+        :return: a list of tuples of all possible enum choices
+        """
         members = inspect.getmembers(cls, lambda memb: not(inspect.isroutine(memb)))
-        # filter down to just properties
         props = [m for m in members if not(m[0][:2] == '__')]
-        # format into django choice tuple
         return tuple([(p[0], p[1].value) for p in props])
 
 
-# TODO: Implement more statistics similar to sample one
-# 1) ai_model is an object of ArtificialIntelligence class from models
-# 2) get_chart for any stat_type should return an object of Chart class
-# from chartit
-# 3) We need multiple chart types using various columns of data
-# 4) Charts are base on Highcharts so you can find all information
-# how to create and modify charts in their web page:
-# http://www.highcharts.com/docs/getting-started/your-first-chart
-# be careful ! - YOU MUST USE PYTHON SYNTAX FOR THAT !
-# 5) Documentation for django chartit (library we use for charts) is
-# available on: http://chartit.shutupandship.com/docs/ (really poor)
 class TweetStatistics(object):
     @staticmethod
     def get_chart(stat_type, data, ai_model):
+        """
+        A factory method for statistic which creates passed type of chart from passed data.
+        :param stat_type: an object of StatisticEnum class as a type of statistic to create
+        :param data: a data from which a chart should be created
+        :param ai_model: An AI name used for creating passed data
+        :return: an object of django_chartit chart
+        """
         if stat_type == StatisticEnum.sample:
             return TweetStatistics.get_sample_chart(data, ai_model)
         if stat_type == StatisticEnum.followers_vs_x:
@@ -53,15 +51,14 @@ class TweetStatistics(object):
         if stat_type == StatisticEnum.day_of_week:
             return TweetStatistics.get_day_of_week(ai_model)
 
-    '''
-    This function saves the data from the database to a model used to make the graphs.
-    Args:
-      data: the dataset used to fill the model with data.
-      ai_name (model): the saved artificial intelligence.
-    '''
-
     @staticmethod
     def save_data_for_statistics(data, ai_name):
+        """
+        This function saves the data from the database to a model used to make the graphs.
+        Args:
+          data: the dataset used to fill the model with data.
+          ai_name (model): the saved artificial intelligence.
+        """
         if ai_name != "" and ai_name is not None:
             ai = ArtificialIntelligence.objects.get(name=ai_name)
             for record in data:
@@ -131,17 +128,16 @@ class TweetStatistics(object):
         else:
             raise NameError('ai_name cannot be blank')
 
-    '''
-    This function returns a sample chart.
-    Args:
-      data: the data used to build the chart.
-      ai_name (model): the problem type.
-    Returns:
-      cht (Chart): the resulting graph to be shown on the webpage.
-    '''
-
     @staticmethod
     def get_sample_chart(data, ai_model):
+        """
+        This function returns a sample chart.
+        Args:
+          data: the data used to build the chart.
+          ai_name (model): the problem type.
+        Returns:
+          cht (Chart): the resulting graph to be shown on the webpage.
+        """
         if ai_model.problem_type == 1:  # classification
             terms = ['followers_count', 'sentiment_estimated', 'sentiment_actual']
             terms_dict = {'followers_count': ['sentiment_estimated', 'sentiment_actual']}
@@ -188,18 +184,17 @@ class TweetStatistics(object):
 
         return cht
 
-    '''
-    This function returns the day of the week versus predicted and actual sentiment (classification)
-    or the day of the week versus actual retweet count and predicted retweet count (regression).
-    Args:
-      data: the data used to build the chart.
-      ai_name (model): the problem type.
-    Returns:
-      cht (Chart): the resulting graph to be shown on the webpage.
-    '''
-
     @staticmethod
     def get_day_of_week(ai_model):
+        """
+        This function returns the day of the week versus predicted and actual sentiment (classification)
+        or the day of the week versus actual retweet count and predicted retweet count (regression).
+        Args:
+          data: the data used to build the chart.
+          ai_name (model): the problem type.
+        Returns:
+          cht (Chart): the resulting graph to be shown on the webpage.
+        """
         if ai_model.problem_type == 1:  # classification
             data = DayofweekSentiment.objects.filter()
             terms = ['day_of_week', 'sentiment_actual_avg', 'sentiment_predicted_avg']
@@ -247,18 +242,17 @@ class TweetStatistics(object):
 
         return cht
 
-    '''
-    This function returns the hour versus predicted and actual sentiment (classification)
-    or the hour versus actual retweet count and predicted retweet count (regression).
-    Args:
-      data: the data used to build the chart.
-      ai_name (model): the problem type.
-    Returns:
-      cht (Chart): the resulting graph to be shown on the webpage.
-    '''
-
     @staticmethod
     def get_hourly(ai_model):
+        """
+        This function returns the hour versus predicted and actual sentiment (classification)
+        or the hour versus actual retweet count and predicted retweet count (regression).
+        Args:
+          data: the data used to build the chart.
+          ai_name (model): the problem type.
+        Returns:
+          cht (Chart): the resulting graph to be shown on the webpage.
+        """
         if ai_model.problem_type == 1:  # classification
             data = HourSentiment.objects.filter()
             terms = ['hour', 'sentiment_actual_avg', 'sentiment_predicted_avg']
@@ -306,18 +300,17 @@ class TweetStatistics(object):
 
         return cht
 
-    '''
-    This function returns the number of favorites versus predicted and actual sentiment (classification)
-    or the number of favorites versus actual retweet count and predicted retweet count (regression).
-    Args:
-      data: the data used to build the chart.
-      ai_name (model): the problem type.
-    Returns:
-      cht (Chart): the resulting graph to be shown on the webpage.
-    '''
-
     @staticmethod
     def get_favorites_vs_x(data, ai_model):
+        """
+        This function returns the number of favorites versus predicted and actual sentiment (classification)
+        or the number of favorites versus actual retweet count and predicted retweet count (regression).
+        Args:
+          data: the data used to build the chart.
+          ai_name (model): the problem type.
+        Returns:
+          cht (Chart): the resulting graph to be shown on the webpage.
+        """
         if ai_model.problem_type == 1:  # classification
             terms = ['favourites_count', 'sentiment_estimated', 'sentiment_actual']
             terms_dict = {'favourites_count': ['sentiment_estimated', 'sentiment_actual']}
@@ -363,18 +356,17 @@ class TweetStatistics(object):
 
         return cht
 
-    '''
-    This function returns the follower count versus predicted and actual sentiment (classification)
-    or the follower count versus actual retweet count and predicted retweet count (regression).
-    Args:
-      data: the data used to build the chart.
-      ai_name (model): the problem type.
-    Returns:
-      cht (Chart): the resulting graph to be shown on the webpage.
-    '''
-
     @staticmethod
     def get_followers_vs_x(data, ai_model):
+        """
+        This function returns the follower count versus predicted and actual sentiment (classification)
+        or the follower count versus actual retweet count and predicted retweet count (regression).
+        Args:
+          data: the data used to build the chart.
+          ai_name (model): the problem type.
+        Returns:
+          cht (Chart): the resulting graph to be shown on the webpage.
+        """
         if ai_model.problem_type == 1:  # classification
             terms = ['followers_count', 'sentiment_estimated', 'sentiment_actual']
             terms_dict = {'followers_count': ['sentiment_estimated', 'sentiment_actual']}

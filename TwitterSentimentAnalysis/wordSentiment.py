@@ -11,38 +11,14 @@ import core
 
 
 class WordSentimentAnalyzer(object):
-    """The summary line for a class docstring should fit on one line.
+    """Provides a functionality of computing a sentiment from a text based on words
 
-    If the class has public attributes, they should be documented here
-    in an ``Attributes`` section and follow the same formatting as a
-    function's ``Args`` section.
-
-    Attributes:
-      attr1 (str): Description of `attr1`.
-      attr2 (list of str): Description of `attr2`.
-      attr3 (int): Description of `attr3`.
-
+    This class is based on AFINN - an affective lexicon by Finn Arup Nielsen
+    (originally available at https://gist.github.com/1035399) License: GPLv3
     """
+
     @inject.params(config=Config)
     def __init__(self, config):
-        """Example of docstring on the __init__ method.
-
-        The __init__ method may be documented in either the class level
-        docstring, or as a docstring on the __init__ method itself.
-
-        Either form is acceptable, but the two should not be mixed. Choose one
-        convention to document the __init__ method and be consistent with it.
-
-        Note:
-          Do not include the `self` parameter in the ``Args`` section.
-
-        Args:
-          param1 (str): Description of `param1`.
-          param2 (list of str): Description of `param2`. Multiple
-            lines are supported.
-          param3 (int, optional): Description of `param3`, defaults to 0.
-
-        """
         self.__pattern_split = re.compile(r"\W+")
         self.cfg = config
         self.__initialize()
@@ -54,18 +30,12 @@ class WordSentimentAnalyzer(object):
         self.words_dict = dict(map(pairs, words))
 
     def get_word_sentiment(self, text):
-        """Class methods are similar to regular functions.
-
-        Note:
-          Do not include the `self` parameter in the ``Args`` section.
+        """Calculates sentiment as a function of word weights contained in a file
 
         Args:
-          param1: The first parameter.
-          param2: The second parameter.
+          text (string): A text to analize in terms of a sentiment
 
-        Returns:
-          True if successful, False otherwise.
-
+        Returns: A word sentiment grade
         """
         words = self.__pattern_split.split(text.lower())
         sentiments = map(lambda word: self.words_dict.get(word, 0), words)
