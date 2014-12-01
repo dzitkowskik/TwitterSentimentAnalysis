@@ -26,17 +26,17 @@ One of the most important features to measure the popularity of a Tweet is the n
 
 Tweets not only consists of the message itself: they have a huge amount of metadata: 
 \begin{itemize}
-\item The time of creation of the Tweet and the user profile.
-\item The location. 
-\item Whether there is a URL, an image, ...
-\item The hashtags (and the amount of hashtags)
-\item The number of followers and friends
-\item ...
+	\item The time of creation of the Tweet and the user profile.
+	\item The location. 
+	\item Whether there is a URL, an image, ...
+	\item The hashtags (and the amount of hashtags)
+	\item The number of followers and friends
+	\item ...
 \end{itemize}
 
 Using the text, it is possible to calculate a certain sentiment for each Tweet; which can also be seen as a feature of the Tweet. For example: a Tweet with ``awesome day'' will have a more positive sentiment value than a tweet with ``bad day''.
 
-We concentrated on building a system that downloads Tweets relevant to a certain query, calculate a sentiment and save them to a database. We implemented 6 different Machine Learning algorithms: 4 for classification and 2 for regression. The results can be accessed through a website, which is implemented using Django.
+We concentrated on building a basic system that downloads Tweets relevant to a certain query, calculate a sentiment and save them to a database. We implemented 6 different Machine Learning algorithms: 4 for classification and 2 for regression. The classification is used to classify tweets in a certain sentiment class using the favorite count of the Tweet, followers count of the user, retweet count of the Tweet and age of the Tweet as an input. The regression algorithms are used to predict the number of retweets based on the favorite count of the Tweet, followers count of the user, calculated word sentiment and the age of the Tweet. The results can be accessed through a website, which is implemented using Django.
 
 \section{Related work}
 
@@ -44,9 +44,66 @@ In Suh et. al. \cite{want_to_be_retweeted} the authors tried to quantitatively i
 
 Dan Zarrella \cite{science_of_retweets} found that users with more followers indeed get more retweets, but there are certain users without a lot of followers who get a lot of retweets, so the content of the tweets must be of some importance too. He also found that there were significantly more links in the retweets than in the tweets (56.69 \% versus 18.96 \%). Novelty (``newness'' of the ideas and information presented) also turns out to be an important feature. The late afternoon until night (3 PM until midnight) is the most popular time to retweet. 
 
-
-
 \section{Software}
+
+In Figure \ref{software1} you can see a coarse overview of our software. In this section we will describe the different parts of our software and what their respective functionalities are.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=10cm]{images/software}
+\caption{Overview of the built software. \label{software1}}
+\end{center}
+\end{figure}
+
+\subsection{The main logic/API (TwitterSentimentAnalysis)}
+
+The \emph{TwitterSentimentAnalysis}-package contains all the logic and processing of data of our application.
+
+\subsubsection{Data}
+
+This folder contains the data used in the application: 
+\begin{itemize}
+	\item corpus.csv: the downloaded file containing records with the topics, sentiment rating and Tweet-id specified.
+	\item words.txt: the AFINN wordlist containing different words and their sentiment value. This file is used to calculate the sentiment of our Tweets.
+	\item ai-folder: contains the saved (and trained) Artificial Intelligences used on the website.
+\end{itemize}
+
+\subsubsection{test}
+
+This folder contains all the tests written to test the logical part of our software.
+
+\subsubsection{core.py}
+
+core.py takes care of all initializing and sets up connections to Twitter and our database. It reads the necessary parameters from the \emph{configuration.cfg}-file.
+
+\subsubsection{ai.py}
+
+This file contains all the Machine Learning algorithms used to predict the sentiment and the retweet count. We have implemented 6 different Machine Learning algorithms, 4 to classify the Tweets in a certain sentiment class and 2 to predict the retweet count.
+Classification:
+\begin{itemize}
+	\item MultiClassClassificationNeuralNetwork: uses the Pybrain library \cite{pybrain} to construct an Artifical Neural Network with 2 hidden layers and 4 and 9 neurons in the first and second layer respectively. 
+	\item SimpleClassificationNeuralNetwork: uses the native Pybrain NNclassifier class from Pybrain tools to set up an Artificial Neural Network for classification. 
+	\item NaiveBayesClassifier: this class implements Machine Learning using the Naive Bayes Classifier from the NLTK package \cite{nltk}. 
+	\item MaxEntropyClassifier: this class implements Machine Learning using the Maximum Entropy classifier from the NLTK package. 
+\end{itemize}
+
+Regression:
+\begin{itemize}
+	\item SimpleRegressionNeuralNetwork: uses the native Pybrain NNregression class from Pybrain tools to set up an Artificial Neural Network for regression 
+	\item LinearRegression: this class implements regression using the LinearRegression class from the scikit-package \cite{sklearn}.
+\end{itemize}}
+
+All the models can be trained, evaluated (with or without using crossvalidation), saved and loaded.
+
+\subsubsection{datasets.py}
+
+\subsubsection{downloaders.py}
+
+\subsubsection{wordSentiment.py}
+
+
+
+We included Django blabla en nie zelf geschreven dus niet met pep enzo maar wel nodig en aangepast enal
 
 
 \section{Results}
