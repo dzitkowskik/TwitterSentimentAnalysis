@@ -554,7 +554,7 @@ class NaiveBayesClassifier(AI):
         x_test = ds['input']
         y_test = ds['target']
         test_fs = self.to_feature_set(x_test, y_test)
-        result = self.classifier.classify(test_fs)
+        result = self.classifier.classify_many([rec[0] for rec in test_fs])
         middle = len(TweetClassificationDatasetFactory.labels) / 2
         i = 0
         assert(len(ds) == len(data))
@@ -682,12 +682,13 @@ class MaxEntropyClassifier(AI):
         x_test = ds['input']
         y_test = ds['target']
         test_fs = self.to_feature_set(x_test, y_test)
-        result = self.classifier.classify(test_fs)
+        result = self.classifier.classify_many([rec[0] for rec in test_fs])
+        middle = len(TweetClassificationDatasetFactory.labels) / 2
         i = 0
         assert(len(ds) == len(data))
         for record in data:
-            record['sentiment'] = ds['target'][i]
-            record['predicted_sentiment'] = result[i]
+            record['sentiment'] = ds['target'][i] - middle
+            record['predicted_sentiment'] = result[i] - middle
             i += 1
 
 
