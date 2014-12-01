@@ -11,21 +11,32 @@
 \hypersetup{colorlinks=true,citecolor=[rgb]{0,0.4,0}}
 
 
-\title{Online topic-sentiment mining}
-\author{Finn Årup Nielsen}
+\title{Twitter Sentiment Diffusion}
+\author{Matthias Baetens \& Karol Dzitkowski}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We describe a lightweight webservice that performs online topic mining
-with sentiment analyze using standard components of Python.
-It can analyze a small corpus on a few hundred small documents in a
-few hundred milliseconds.
+We build software to evaluate the most important features of a Tweet and their influence on the number of retweets. We used both the standard Tweet-features as well as a calculated value for the sentiment of a Tweet. We used a number of different Machine Learning models and algorithms including neural networks to compare the performance of these methods. Our system can be dynamically accesed using a webpage which is able to download new Tweets, run the different Machine Learning algorithms, perform analysis and generate relevant charts. 
 \end{abstract}
 
 \section{Introduction}
+One of the most important features to measure the popularity of a Tweet is the number of retweets. Next to the number of favorites, which counts how much people like a post, the number of retweets counts the number of times another user reshared the post, and thus wants to identify himself with the post and wants to share it with other. This means it is very interesting to research the possibility to optimize Tweets in order to get more retweets and to spread your message. 
 
+Tweets not only consists of the message itself: they have a huge amount of metadata: 
+\begin{itemize}
+\item The time of creation of the Tweet and the user profile.
+\item The location. 
+\item Whether there is a URL, an image, ...
+\item The hashtags (and the amount of hashtags)
+\item The number of followers and friends
+\item ...
+\end{itemize}
+
+Using the text, it is possible to calculate a certain sentiment for each Tweet; which can also be seen as a feature of the Tweet. For example: a Tweet with ``awesome day'' will have a more positive sentiment value than a tweet with ``bad day''.
+
+We concentrated on building a system that downloads Tweets relevant to a certain query, calculate a sentiment and save them to a database. We implemented 6 different Machine Learning algorithms: 4 for classification and 2 for regression. The results can be accessed through a website, which is implemented using Django.
 
 \section{Related work}
 
@@ -33,31 +44,24 @@ In Suh et. al. \cite{want_to_be_retweeted} the authors tried to quantitatively i
 
 Dan Zarrella \cite{science_of_retweets} found that users with more followers indeed get more retweets, but there are certain users without a lot of followers who get a lot of retweets, so the content of the tweets must be of some importance too. He also found that there were significantly more links in the retweets than in the tweets (56.69 \% versus 18.96 \%). Novelty (``newness'' of the ideas and information presented) also turns out to be an important feature. The late afternoon until night (3 PM until midnight) is the most popular time to retweet. 
 
-\section{Methods}
 
+
+\section{Software}
 
 
 \section{Results}
 
 
-
 \subsection{Code checking}
-
 
 
 \subsection{Testing}
 
 
-
-\subsection{Profiling}
-
-
 \section{Discussion}
 
 
-
 \section{Conclusion}
-
 
 
 \bibliographystyle{IEEEtran}
