@@ -6,10 +6,18 @@
 Welcome to Twitter Sentiment Analysis's documentation!
 ======================================================
 
+This project is a result of work on Twitter Sentiment Diffusion
+in the DTU course "Introduction to Data Mining using Python".
+
+It contains TwitterSentimentAnalysis package as an API and a
+web site written in Django as a visual interface.
+
 Contents:
+---------
 
 .. toctree::
    :maxdepth: 4
+
    TwitterSentimentAnalysis
    tweets
 
