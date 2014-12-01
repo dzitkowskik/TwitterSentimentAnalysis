@@ -7,6 +7,7 @@ from django.utils.datastructures import SortedDict
 from validation import clean_dps, clean_pdps
 from django_chartit_1_7.validation import clean_sortf_mapf_mts
 
+
 class DataPool(object):
     """DataPool holds the data retrieved from various models (tables)."""
 

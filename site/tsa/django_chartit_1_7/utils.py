@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 def _convert_to_rdd(obj):
     """Accepts a dict or a list of dicts and converts it to a  
     RecursiveDefaultDict."""
@@ -15,9 +16,10 @@ def _convert_to_rdd(obj):
         return rddlst
     else:
         return obj
-           
+
+
 class RecursiveDefaultDict(defaultdict):
-    def __init__(self, data = None):
+    def __init__(self, data=None):
         self.default_factory = type(self)
         if data is not None:
             self.data = _convert_to_rdd(data)
@@ -36,5 +38,3 @@ class RecursiveDefaultDict(defaultdict):
     
     def update(self, element):
         super(RecursiveDefaultDict, self).update(_convert_to_rdd(element))
-            
-        
