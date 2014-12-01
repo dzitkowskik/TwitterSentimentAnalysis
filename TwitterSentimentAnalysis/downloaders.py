@@ -16,6 +16,14 @@ from wordSentiment import WordSentimentAnalyzer
 
 
 class TweetDownloader(object):
+    """
+    This class is used for downloading tweets from twitter and is a kind of wrapper for tweepy API.
+    It implements functions from downloading tweets using a query as well as from a predefined list
+    of manually labeled tweets in terms of sentiment.
+
+    TweetDownloader makes use of MongoDB as a storage.
+    """
+
     @inject.params(config=Config, db_client=MongoClient)
     def __init__(self, config, db_client):
         self.cfg = config
@@ -48,6 +56,14 @@ class TweetDownloader(object):
 
     @staticmethod
     def undersample(sentiment, manual_grade, threshold=0.25):
+        """
+        This function defines if a tweet with certain sentiment and manual_grade should be saved or not.
+        It is used for undersampling data with a sentiment close to 0.0
+        :param sentiment: calculated word sentiment
+        :param manual_grade: manually set sentiment (if exists)
+        :param threshold: all values between -+threshold are considered as redundant
+        :return: true if record is redundant and false if it should be saved
+        """
         if abs(sentiment) < threshold and manual_grade is None:
             return True
         else:
@@ -55,6 +71,16 @@ class TweetDownloader(object):
 
     @staticmethod
     def _save_tweet(table, status, active, analyzer, tag, item=None, undersample=False):
+        """
+        Saves a tweet to MongoDB table.
+        :param table: a name of table to save to
+        :param status: tweet
+        :param active: if this tweet is active or not
+        :param analyzer: an object of word sentiment analyzer
+        :param tag: some kind of a label of the set of tweets we are saving
+        :param item: an item containing tweet id with manually set sentiment or None
+        :param undersample: to undersample data or not
+        """
         if status is not None:
             word_sentiment = analyzer.get_word_sentiment(status.text)
             topic = "" if item is None else item[0]
@@ -93,21 +119,24 @@ class TweetDownloader(object):
             analyzer=None,
             tag=None,
             limit=0):
-
+        """
+        This method downloads tweets from a list contained in a file as records of tweet if and manually set
+        sentiment. Data is stored in MongoDB database with all tweet data and calculated sentiment.
+        :param file_name: a path to a file containing records or None if we want to use predefined corpus file
+        :param table_name: a name of a table in MongoDB where we want to put downloaded tweets
+        :param analyzer: an object of word sentiment analyzer or None if we want to use default wordAnalyzer
+        :param tag: a label with which we want to save all our downloaded data
+        :param limit: a max number of tweets we should download (if file contains more records they will be ignored)
+        """
         table = self.db[table_name]
-
         if file_name is None:
             file_name = core.convert_rel_to_absolute(self.cfg.corpus_file)
-
         fetch_list = self.__read_tweet_list(file_name)
         length = len(fetch_list)
-
         if tag is None:
             tag = file_name
-
         if analyzer is None:
             analyzer = WordSentimentAnalyzer()
-
         for idx in range(0, length):
             if 0 < limit < idx:
                 return
@@ -137,21 +166,26 @@ class TweetDownloader(object):
             analyzer=None,
             tag=None,
             undersample=False):
-
+        """
+        This method downloads tweets from a twitter using twitter API through tweepy package.
+        Data will be searched using passed query using search method from twitter API.
+        Data is stored in MongoDB database with all tweet data and calculated sentiment.
+        :param query: query passed to a twitter search method
+        :param table_name: a name of a table in MongoDB where we want to put downloaded tweets
+        :param analyzer: an object of word sentiment analyzer or None if we want to use default wordAnalyzer
+        :param tag: a label with which we want to save all our downloaded data
+        :param limit: a max number of tweets we should download (if file contains more records they will be ignored)
+        """
         table = self.db[table_name]
-
         if analyzer is None:
             analyzer = WordSentimentAnalyzer()
-
         if limit is None:
             limit = 100
-
         if tag is None:
             if query is None:
                 tag = "Timeline"
             else:
                 tag = query
-
         if query is None or query == "":
             for tweet in tweepy.Cursor(self.tweeter_api.user_timeline, count=limit).items(limit):
                 try:
@@ -164,5 +198,4 @@ class TweetDownloader(object):
                     self._save_tweet(table, tweet, True, analyzer, tag, undersample=undersample)
                 except tweepy.error.TweepError, e:
                     print "Error downloading tweet from timeline" + e.message[0]
-
         return
