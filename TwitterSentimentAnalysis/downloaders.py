@@ -8,6 +8,7 @@ import time
 import json
 import core
 import tweepy
+from tweepy import error
 from config import Config
 import inject
 from pymongo import MongoClient
@@ -116,7 +117,7 @@ class TweetDownloader(object):
                     print '--> downloading tweet #%s (%d of %d)' % \
                           (item[2], idx + 1, length)
                     status = self.tweeter_api.get_status(id=item[2])
-                except tweepy.error.TweepError, e:
+                except error.TweepError, e:
                     print 'ERROR - %s (Tweet: %s)' % \
                           (e.message[0], item[2])
                     self._save_tweet(table, None, False, None, tag, item)
@@ -155,7 +156,7 @@ class TweetDownloader(object):
             for tweet in tweepy.Cursor(self.tweeter_api.user_timeline, count=limit).items(limit):
                 try:
                     self._save_tweet(table, tweet, True, analyzer, tag, undersample=undersample)
-                except tweepy.error.TweepError, e:
+                except error.TweepError, e:
                     print "Error downloading tweet from timeline" + e.message[0]
         else:
             for tweet in tweepy.Cursor(self.tweeter_api.search, count=limit, q=query, lang='en').items(limit):

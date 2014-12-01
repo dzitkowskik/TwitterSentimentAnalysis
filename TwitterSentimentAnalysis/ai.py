@@ -43,6 +43,12 @@ class AIEnum(enum.Enum):
 
 
 class AI(object):
+    """
+    This is an abstract class used as a base for all artificial intelligence classes in this project.
+    It contains abstract methods creating an interface for all AI. Also it contains reusable methods
+    implementing a factory pattern for AI classes.
+    """
+
     __metaclass__ = ABCMeta
 
     @staticmethod
@@ -131,7 +137,8 @@ class MultiClassClassificationNeuralNetwork(AI):
       hidden_counts (int): The number of units in the hidden layer.
 
     Returns:
-      self (MultiClassClassificationNeuralNetwork): the function returns an instance of its class, with the neural network initialized.
+      self (MultiClassClassificationNeuralNetwork): the function returns
+      an instance of its class, with the neural network initialized.
     '''
 
     def apply_custom_network(self, hidden_counts):
@@ -244,7 +251,10 @@ class MultiClassClassificationNeuralNetwork(AI):
                 verbose=True,
                 weightdecay=0.01)
 
-            trainer.trainEpochs(self.epochs)
+            trainer.trainUntilConvergence(
+                dataset=ds_train,
+                maxEpochs=self.max_epochs,
+                continueEpochs=self.con_epochs)
             errors[i] = percentError(
                 trainer.testOnClassData(dataset=ds_test),
                 ds_test['class'])
@@ -287,7 +297,8 @@ class MultiClassClassificationNeuralNetwork(AI):
     '''
     This function fills a dataset with the real and predicted values using a specified database.
     Args:
-      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      ds (TweetClassificationDatasetFactory): the dataset used to fill the
+      dictionary with the real and predicted values.
       data (dictionary): dataset gets filled with the real and the predicted values.
     '''
 
@@ -374,7 +385,10 @@ class SimpleClassificationNeuralNetwork(AI):
 
             self.network = NNclassifier(ds_train)
             self.network.setupNN(hidden=self.hidden)
-            self.network.runTraining(self.convergence)
+            self.network.Trainer.trainUntilConvergence(
+                dataset=ds_train,
+                maxEpochs=self.max_epochs,
+                continueEpochs=self.con_epochs)
             tstresult = self.test(ds_test)
             errors[i] = tstresult[0]
             i += 1
@@ -419,7 +433,8 @@ class SimpleClassificationNeuralNetwork(AI):
     '''
     This function fills a dataset with the real and predicted values using a specified database.
     Args:
-      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      ds (TweetClassificationDatasetFactory): the dataset used to
+      fill the dictionary with the real and predicted values.
       data (dictionary): dataset gets filled with the real and the predicted values.
     '''
 
@@ -471,7 +486,6 @@ class NaiveBayesClassifier(AI):
         result = self.classifier.classify_many([rec[0] for rec in test_fs])
         error = percentError(result, y_test)
         return error
-
 
     '''
     This function estimates the performance of the classifier using crossvalidation using a specified dataset.
@@ -546,7 +560,8 @@ class NaiveBayesClassifier(AI):
     '''
     This function fills a dataset with the real and predicted values using a specified database.
     Args:
-      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      ds (TweetClassificationDatasetFactory): the dataset used to
+      fill the dictionary with the real and predicted values.
       data (dictionary): dataset gets filled with the real and the predicted values.
     '''
 
@@ -670,11 +685,11 @@ class MaxEntropyClassifier(AI):
     def get_type(self):
         return ProblemTypeEnum.Classification, AIEnum.MaxEntropyClassifier
 
-
     '''
     This function fills a dataset with the real and predicted values using a specified database.
     Args:
-      ds (TweetClassificationDatasetFactory): the dataset used to fill the dictionary with the real and predicted values.
+      ds (TweetClassificationDatasetFactory): the dataset
+      used to fill the dictionary with the real and predicted values.
       data (dictionary): dataset gets filled with the real and the predicted values.
     '''
 

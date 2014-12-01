@@ -189,7 +189,8 @@ class TweetStatistics(object):
         return cht
 
     '''
-    This function returns the day of the week versus predicted and actual sentiment (classification) or the day of the week versus actual retweet count and predicted retweet count (regression).
+    This function returns the day of the week versus predicted and actual sentiment (classification)
+    or the day of the week versus actual retweet count and predicted retweet count (regression).
     Args:
       data: the data used to build the chart.
       ai_name (model): the problem type.
@@ -247,7 +248,8 @@ class TweetStatistics(object):
         return cht
 
     '''
-    This function returns the hour versus predicted and actual sentiment (classification) or the hour versus actual retweet count and predicted retweet count (regression).
+    This function returns the hour versus predicted and actual sentiment (classification)
+    or the hour versus actual retweet count and predicted retweet count (regression).
     Args:
       data: the data used to build the chart.
       ai_name (model): the problem type.
@@ -305,7 +307,8 @@ class TweetStatistics(object):
         return cht
 
     '''
-    This function returns the number of favorites versus predicted and actual sentiment (classification) or the number of favorites versus actual retweet count and predicted retweet count (regression).
+    This function returns the number of favorites versus predicted and actual sentiment (classification)
+    or the number of favorites versus actual retweet count and predicted retweet count (regression).
     Args:
       data: the data used to build the chart.
       ai_name (model): the problem type.
@@ -361,7 +364,8 @@ class TweetStatistics(object):
         return cht
 
     '''
-    This function returns the follower count versus predicted and actual sentiment (classification) or the follower count versus actual retweet count and predicted retweet count (regression).
+    This function returns the follower count versus predicted and actual sentiment (classification)
+    or the follower count versus actual retweet count and predicted retweet count (regression).
     Args:
       data: the data used to build the chart.
       ai_name (model): the problem type.

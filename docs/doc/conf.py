@@ -18,12 +18,13 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+# sys.path.insert(0, os.path.abspath('.'))
 
 sys.path.append(os.path.abspath('../../'))
 sys.path.append(os.path.abspath('../../site/tsa/'))
 
 from django.conf import settings
+
 settings.configure()
 
 # -- General configuration ------------------------------------------------
@@ -192,22 +193,20 @@ htmlhelp_basename = 'TwitterSentimentAnalysisdoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
-
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
-
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'TwitterSentimentAnalysis.tex', u'Twitter Sentiment Analysis Documentation',
-   u'Karol Dzitkowski, Matthias Baetens', 'manual'),
+    ('index', 'TwitterSentimentAnalysis.tex', u'Twitter Sentiment Analysis Documentation',
+     u'Karol Dzitkowski, Matthias Baetens', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -250,9 +249,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'TwitterSentimentAnalysis', u'Twitter Sentiment Analysis Documentation',
-   u'Karol Dzitkowski, Matthias Baetens', 'TwitterSentimentAnalysis', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'TwitterSentimentAnalysis', u'Twitter Sentiment Analysis Documentation',
+     u'Karol Dzitkowski, Matthias Baetens', 'TwitterSentimentAnalysis', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.

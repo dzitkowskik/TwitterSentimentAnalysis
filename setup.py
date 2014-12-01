@@ -5,7 +5,6 @@
 # 10-10-2014
 __author__ = 'Karol Dzitkowski'
 
-import sys
 from config import Config
 from TwitterSentimentAnalysis import core, downloaders
 from setuptools import setup
