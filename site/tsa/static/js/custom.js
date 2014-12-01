@@ -1,33 +1,33 @@
 function loadAction(){
     // disable or enable fields
-    $("#id_saved_ais").prop('disabled', false);
-    $("#id_ai_types").prop('disabled', true);
-    $("#id_tweet_sets").prop('disabled', true);
-    $("#id_name").prop('disabled', true);
-    $("#id_custom_tweet_set").prop('disabled', true);
-    $("#id_save_results").prop('disabled', true);
+    $("#analysis_form #id_saved_ais").prop('disabled', false);
+    $("#analysis_form #id_ai_types").prop('disabled', true);
+    $("#analysis_form #id_tweet_sets").prop('disabled', true);
+    $("#analysis_form #analysis_form #id_name").prop('disabled', true);
+    $("#analysis_form #id_custom_tweet_set").prop('disabled', true);
+    $("#analysis_form #id_save_results").prop('disabled', true);
     // hide or show form groups
-    $("#saved_ai_form").show();
-    $("#ai_types_form").hide();
-    $("#tweet_sets_form").hide();
-    $("#custom_tweet_set_div").hide();
-    $("#save_results_div").hide();
+    $("#analysis_form #saved_ai_form").show();
+    $("#analysis_form #ai_types_form").hide();
+    $("#analysis_form #tweet_sets_form").hide();
+    $("#analysis_form #custom_tweet_set_div").hide();
+    $("#analysis_form #save_results_div").hide();
 }
 
 function createAction(){
     // disable or enable fields
-    $("#id_saved_ais").prop('disabled', true);
-    $("#id_ai_types").prop('disabled', false);
-    $("#id_tweet_sets").prop('disabled', false);
-    $("#id_name").prop('disabled', false);
-    $("#id_custom_tweet_set").prop('disabled', false);
-    $("#id_save_results").prop('disabled', false);
+    $("#analysis_form #id_saved_ais").prop('disabled', true);
+    $("#analysis_form #id_ai_types").prop('disabled', false);
+    $("#analysis_form #id_tweet_sets").prop('disabled', false);
+    $("#analysis_form #analysis_form #id_name").prop('disabled', false);
+    $("#analysis_form #id_custom_tweet_set").prop('disabled', false);
+    $("#analysis_form #id_save_results").prop('disabled', false);
     // hide or show form groups
-    $("#saved_ai_form").hide();
-    $("#ai_types_form").show();
-    $("#tweet_sets_form").show();
-    $("#custom_tweet_set_div").show();
-    $("#save_results_div").show();
+    $("#analysis_form #saved_ai_form").hide();
+    $("#analysis_form #ai_types_form").show();
+    $("#analysis_form #tweet_sets_form").show();
+    $("#analysis_form #custom_tweet_set_div").show();
+    $("#analysis_form #save_results_div").show();
 }
 
 function customTweetSetShow()
@@ -46,16 +46,16 @@ function customTweetSetHide()
 
 function saveResultsShow()
 {
-    $("label[for='id_name']").show();
-    $("#id_name").show();
-    $("#id_name").prop('disabled', false);
+    $("#analysis_form label[for='id_name']").show();
+    $("#analysis_form #id_name").show();
+    $("#analysis_form #id_name").prop('disabled', false);
 }
 
 function saveResultsHide()
 {
-    $("label[for='id_name']").hide();
-    $("#id_name").hide();
-    $("#id_name").prop('disabled', true);
+    $("#analysis_form label[for='id_name']").hide();
+    $("#analysis_form #id_name").hide();
+    $("#analysis_form #id_name").prop('disabled', true);
 }
 
 $("#id_action_0").change(function(){
