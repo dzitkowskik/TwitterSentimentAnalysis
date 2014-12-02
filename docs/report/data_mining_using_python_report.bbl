@@ -34,7 +34,7 @@ D.~Zarrella, ``Science of retweets,'' 2009. [Online]. Available:
 
 \bibitem{pybrain}
 \BIBentryALTinterwordspacing
-``Pybrain,'' 2010. [Online]. Available: \url{http://pybrain.org/}
+T.~S. et~al, ``Pybrain,'' 2010. [Online]. Available: \url{http://pybrain.org/}
 \BIBentrySTDinterwordspacing
 
 \bibitem{nltk}
@@ -48,6 +48,29 @@ E.~Loper, ``Natural language toolkit.'' [Online]. Available:
 started~by David~Cournapeaul, ``Scikit-learn: Machine learning in python.''
   [Online]. Available:
   \url{http://scikit-learn.org/stable/modules/linear_model.html}
+\BIBentrySTDinterwordspacing
+
+\bibitem{tweepy}
+\BIBentryALTinterwordspacing
+J.~Roesslein, ``Tweepy.'' [Online]. Available: \url{http://www.tweepy.org/}
+\BIBentrySTDinterwordspacing
+
+\bibitem{pymongo}
+\BIBentryALTinterwordspacing
+B.~Hackett, ``Pymongo.'' [Online]. Available:
+  \url{http://api.mongodb.org/python/current/}
+\BIBentrySTDinterwordspacing
+
+\bibitem{AFINN}
+\BIBentryALTinterwordspacing
+F.~A. Nielsen, ``Afinn lexicon.'' [Online]. Available:
+  \url{https://gist.github.com/1035399}
+\BIBentrySTDinterwordspacing
+
+\bibitem{django}
+\BIBentryALTinterwordspacing
+P.~Gollakota, ``Django chartit.'' [Online]. Available:
+  \url{https://github.com/pgollakota/django-chartit}
 \BIBentrySTDinterwordspacing
 
 \end{thebibliography}

@@ -48,13 +48,12 @@ Dan Zarrella \cite{science_of_retweets} found that users with more followers ind
 
 In Figure \ref{software1} you can see a coarse overview of our software. In this section we will describe the different parts of our software and what their respective functionalities are.
 
-\begin{figure}[H]
+\begin{figure}[h!]
 \begin{center}
-\includegraphics[width=10cm]{images/software}
+	\includegraphics[width=0.45\textwidth]{images/software}
 \caption{Overview of the built software. \label{software1}}
 \end{center}
 \end{figure}
-
 \subsection{The main logic/API (TwitterSentimentAnalysis)}
 
 The \emph{TwitterSentimentAnalysis}-package contains all the logic and processing of data of our application.
@@ -91,7 +90,7 @@ Regression:
 \begin{itemize}
 	\item SimpleRegressionNeuralNetwork: uses the native Pybrain NNregression class from Pybrain tools to set up an Artificial Neural Network for regression 
 	\item LinearRegression: this class implements regression using the LinearRegression class from the scikit-package \cite{sklearn}.
-\end{itemize}}
+\end{itemize}
 
 All the models can be trained, evaluated (with or without using crossvalidation), saved and loaded.
 
@@ -125,20 +124,7 @@ In the WordSentimentAnalyzer class the sentiment gets calculated like stated abo
 
 \subsection{The website (site)}
 
-\subsubsection{django_chartit_1_7}
-
-We included this Django package, because it had to be adapted in order to work together with package we wanted to use for our charts. This package is thus not completely written by ourselves, but adapted from INSERT REFERENCE.
-
-\subsubsection{static}
-\\TODO
-
-\subsubsection{tsa}
-\\TODO
-
-\subsubsection{tweets}
-
-The statistics.py file takes care of the generation of the charts based on Django models. 
-
+This folder contains all the code for running the site. We included the \url{django_chartit_1_7} package, because it had to be adapted in order to work together with package we wanted to use for our charts. This package is thus not completely written by ourselves, but adapted from \cite{django}. It contains all the logic of the different views of our site: home, analysis, statistics and contact. 
 
 \section{Results}
 
@@ -178,7 +164,7 @@ The statistics.py file takes care of the generation of the charts based on Djang
 \lstlistoflistings
 
 
-\label{listing:brede_str_nmf}\lstinputlisting{../../matlab/brede/python/brede_str_nmf}
+%\label{listing:brede_str_nmf}\lstinputlisting{../../matlab/brede/python/brede_str_nmf}
 
 
 \newpage
