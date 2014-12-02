@@ -18,9 +18,7 @@ site written in Django as a visual interface.
     
 Scipy, Numpy and can be installed using following instruction: 
     
-    ```bash
     $ [sudo] apt-get install python-gtk2-dev python-numpy python-scipy python-pip
-    ```
     
 # INSTALLATION
 
@@ -89,6 +87,17 @@ All requirements must be satisfied before installation.
     $ python manage.py syncdb
     $ python manage.py runserver
     ```
+
+# DOCUMENTATION
+
+All the documentation can be generated using Sphinx (http://sphinx-doc.org).
+The sources of documentation are available in the folder docs/doc of the project.
+For example to create documentation in HTML format:
+    
+    $ cd <directory>/docs/doc
+    $ make html
+    $ cd _build/html
+    $ open index.html
 
 # LICENCE
 
