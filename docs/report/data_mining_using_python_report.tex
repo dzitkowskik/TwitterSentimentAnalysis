@@ -18,7 +18,7 @@
 \maketitle
 
 \begin{abstract}
-We build software to evaluate the most important features of a Tweet and their influence on the number of retweets. We used both the standard Tweet-features as well as a calculated value for the sentiment of a Tweet. We used a number of different Machine Learning models and algorithms including neural networks to compare the performance of these methods. Our system can be dynamically accesed using a webpage which is able to download new Tweets, run the different Machine Learning algorithms, perform analysis and generate relevant charts. 
+We build software to evaluate the most important features of a Tweet and their influence on the number of retweets. We used both the standard Tweet-features as well as a calculated value for the sentiment of a Tweet. We used a number of different Machine Learning models and algorithms including neural networks to compare the performance of these methods. Our system can be dynamically accessed using a webpage which is able to download new Tweets, run the different Machine Learning algorithms, perform analysis and generate relevant charts. 
 \end{abstract}
 
 \section{Introduction}
@@ -27,7 +27,6 @@ One of the most important features to measure the popularity of a Tweet is the n
 Tweets not only consists of the message itself: they have a huge amount of metadata: 
 \begin{itemize}
 	\item The time of creation of the Tweet and the user profile.
-	\item The location. 
 	\item Whether there is a URL, an image, ...
 	\item The hashtags (and the amount of hashtags)
 	\item The number of followers and friends
@@ -36,7 +35,7 @@ Tweets not only consists of the message itself: they have a huge amount of metad
 
 Using the text, it is possible to calculate a certain sentiment for each Tweet; which can also be seen as a feature of the Tweet. For example: a Tweet with ``awesome day'' will have a more positive sentiment value than a tweet with ``bad day''.
 
-We concentrated on building a basic system that downloads Tweets relevant to a certain query, calculate a sentiment and save them to a database. We implemented 6 different Machine Learning algorithms: 4 for classification and 2 for regression. The classification is used to classify tweets in a certain sentiment class using the favorite count of the Tweet, followers count of the user, retweet count of the Tweet and age of the Tweet as an input. The regression algorithms are used to predict the number of retweets based on the favorite count of the Tweet, followers count of the user, calculated word sentiment and the age of the Tweet. The results can be accessed through a website, which is implemented using Django.
+We concentrated on building a basic system that downloads Tweets relevant to a certain query, calculate a sentiment and save them to a database. We implemented 6 different Machine Learning algorithms: 4 for classification and 2 for regression. The classification is used to classify tweets in a certain sentiment class. The regression algorithms are used to predict the number of retweets. The features used for the predictions are discussed in the section \ref{sec:datasets}. The results can be accessed through a website, which is implemented using Django.
 
 \section{Related work}
 
@@ -56,7 +55,7 @@ In Figure \ref{software1} you can see a coarse overview of our software. In this
 \end{figure}
 \subsection{The main logic/API (TwitterSentimentAnalysis)}
 
-The \emph{TwitterSentimentAnalysis}-package contains all the logic and processing of data of our application.
+The \emph{TwitterSentimentAnalysis}-package contains all the logic and processing of data of our application, while the site takes care of the visualisation of the results.
 
 \subsubsection{Data}
 
@@ -73,7 +72,7 @@ This folder contains all the tests written to test the logical part of our softw
 
 \subsubsection{core.py}
 
-core.py takes care of all initializing and sets up connections to Twitter and our database. It reads the necessary parameters from the \emph{configuration.cfg}-file.
+core.py takes care of all initializing and sets up connections to Twitter and our database.
 
 \subsubsection{ai.py}
 
@@ -82,19 +81,20 @@ Classification:
 \begin{itemize}
 	\item MultiClassClassificationNeuralNetwork: uses the Pybrain library \cite{pybrain} to construct an Artifical Neural Network with 2 hidden layers and 4 and 9 neurons in the first and second layer respectively. 
 	\item SimpleClassificationNeuralNetwork: uses the native Pybrain NNclassifier class from Pybrain tools to set up an Artificial Neural Network for classification. 
-	\item NaiveBayesClassifier: this class implements Machine Learning using the Naive Bayes Classifier from the NLTK package \cite{nltk}. 
-	\item MaxEntropyClassifier: this class implements Machine Learning using the Maximum Entropy classifier from the NLTK package. 
+	\item NaiveBayesClassifier: this class uses the Naive Bayes Classifier from the NLTK package \cite{nltk}. 
+	\item MaxEntropyClassifier: this class uses the Maximum Entropy classifier from the NLTK package. 
 \end{itemize}
 
 Regression:
 \begin{itemize}
-	\item SimpleRegressionNeuralNetwork: uses the native Pybrain NNregression class from Pybrain tools to set up an Artificial Neural Network for regression 
+	\item SimpleRegressionNeuralNetwork: uses the native Pybrain NNregression class from Pybrain tools to set up an Artificial Neural Network. 
 	\item LinearRegression: this class implements regression using the LinearRegression class from the scikit-package \cite{sklearn}.
 \end{itemize}
 
 All the models can be trained, evaluated (with or without using crossvalidation), saved and loaded.
 
 \subsubsection{datasets.py}
+\label{sec:datasets}
 
 These classes take care of the data preprocessing for the regression and classification problems. 
 The sentiment of a Tweet gets calculated using the wordlist the following way: we search for every word in the Tweet if it is part of the wordlist and if it is, it is added to the total sum. This sum is divided by the number of words in the Tweet that are in the wordlist. This renders a result between -5 and 5. The result is then scaled to a value between 0 and 4. If there is a manual grade available (positive or negative, only for the Tweets in the downloaded file), the wordsentiment gets multiplied by 1 or -1, depending if the manual grade is positive or negative. Else, it just takes the sign it had in the beginning. This way we get 9 classes of sentiment, ranging from -4 (highly negative) to +4 (highly positive). 
@@ -124,7 +124,7 @@ In the WordSentimentAnalyzer class the sentiment gets calculated like stated abo
 
 \subsection{The website (site)}
 
-This folder contains all the code for running the site. We included the django\_chartit\_1\_7 package, because it had to be adapted in order to work together with package we wanted to use for our charts. This package is thus not completely written by ourselves, but adapted from \cite{django}. It contains all the logic of the different views of our site: home, analysis, statistics and contact. 
+This folder contains all the code for running the site. We included the django\_chartit\_1\_7 package, because it had to be adapted in order to work together with package we wanted to use for our charts. This package is thus not completely written by ourselves, but adapted from \cite{django}. It contains all the logic of the different views of our site.
 
 \section{Results}
 
@@ -177,7 +177,7 @@ Using the website we were able to generate some results. One of the graphs we lo
 \end{center}
 \end{figure}
 
-It is also interesting to look at the time of the day and the day of the week for both the number of retweets and the performance of our predictions. In Figure \ref{result2} and Figure \ref{result3} these results can be seen. 
+It is also interesting to look at the time of the day and the day of the week for both the number of retweets and the performance of our predictions. In Figure \ref{result2} and the result can be seen for the hour of the day vs the number of retweets. 
 
 \begin{figure}[h!]
 \begin{center}
@@ -186,14 +186,16 @@ It is also interesting to look at the time of the day and the day of the week fo
 \end{center}
 \end{figure}
 
+We can see there is a peak in retweets on the second day of the week and between 12 and 14 o' clock. We think this peak is due to the lunch pause; people just have one hour of spare time wherein they can Tweet and retweet. We got a similar graph for the day of the week, where the second day seemed to be the most popular day to retweet things.
+
+Looking at Figure \ref{result3} we can see the number of followers does not have an influence on the sentiment (or rather the other way around). So more positive or negative tweets don't necessarily imply more followers. We can see our predictions nicely follow the trends of the actual sentiment, although the extreme values don't get predicted as extreme. 
+
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[width=0.4\textwidth]{images/srnn_day_of_week_vs_retweet}
-\caption{Number of retweets vs day of the week. \label{result3}}
+\includegraphics[width=0.4\textwidth]{images/monitor_maxent_followers_vs_sentiment}
+\caption{Number of followers vs sentiment (actual and predicted). \label{result3}}
 \end{center}
 \end{figure}
-
-We can see there is a peak in retweets on the second day of the week and between 12 and 14 o' clock. We think this peak is due to the lunch pause; people just have one hour of spare time wherein they can Tweet. Again, our predictions have difficulties to keep up with this peaks. 
 
 \section{Conclusion}
 
