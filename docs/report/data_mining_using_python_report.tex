@@ -124,9 +124,45 @@ In the WordSentimentAnalyzer class the sentiment gets calculated like stated abo
 
 \subsection{The website (site)}
 
-This folder contains all the code for running the site. We included the \url{django_chartit_1_7} package, because it had to be adapted in order to work together with package we wanted to use for our charts. This package is thus not completely written by ourselves, but adapted from \cite{django}. It contains all the logic of the different views of our site: home, analysis, statistics and contact. 
+This folder contains all the code for running the site. We included the django\_chartit\_1\_7 package, because it had to be adapted in order to work together with package we wanted to use for our charts. This package is thus not completely written by ourselves, but adapted from \cite{django}. It contains all the logic of the different views of our site: home, analysis, statistics and contact. 
 
 \section{Results}
+
+In this section we will talk about the results we had using our software. In this section we concentrate on results gathered from the downloaded set of Tweets, because we are more certain about the sentiment tags given manually to these Tweets, than the basic calculation of the sentiment used in our system. The error rates the different Machine Learning algorithms obtain are gathered in Table \ref{tableclassification} for the classification of the sentiment and Table \ref{tableregression} for the prediction of the retweet count using regression. 
+
+\begin{table}[h!]
+	\centering
+		\begin{tabular}{ | >{\bfseries}l || c | c |}
+		\hline
+		& \emph{MultiClassClassification} & \emph{SimpleClassification} \\ 
+		& \emph{Neural Network} & \emph{Neural Network} \\
+		\hline
+		\hline
+		Error rate & 21.07 & 19.63 \\ 
+		\hline  
+		&  \emph{Naive Bayes Classifier} &  \emph{Maximum Entropy Classifier} \\
+		\hline
+		\hline
+		Error rate &  25.96 & 22.97 \\
+		\hline
+		\end{tabular}
+    \caption{Error rates of the Machine Learning algorithms for classification.}
+    \label{tableclassification}
+\end{table} 
+
+\begin{table}[h]
+	\centering
+		\begin{tabular}{ | >{\bfseries}l || c | c |}
+		\hline
+		&  \emph{Linear Regression} & \emph{SimpleRegression Neural Network} \\ 
+		\hline
+		\hline
+		Error rate & 38.77 & 11.11 \\ 
+		\hline  
+		\end{tabular}
+    \caption{Error rates of the Machine Learning algorithms for regression.}
+    \label{tableregression}
+\end{table} 
 
 
 \subsection{Code checking}
@@ -140,7 +176,7 @@ This folder contains all the code for running the site. We included the \url{dja
 
 \section{Conclusion}
 
-We delivered a basic system which is able to download Tweets, uses Machine Learning to classify the Tweets in different sentiment classes and to predict the retweet count using regression and which shows the results on a webpage. There are a lot of extensions and improvements possible in our system, but because of the flexibility of our system, this is possible. One of the most important things for future work is the improvement of the sentiment calculation: we could also use Machine Learning to calculate the sentiment value, taking into account the context wherein the words occurs; we could for example give different sentiment values to the words ``bad'' and ``really bad''. Another possibility to improve the sentiment value calculation could be to use more wordlists and compare their performance. We could also improve our results by using our API to analyze a larger database instead of just using the website for our results. Our data preprocessing scheme could also be improved to include more advanced ways of dealing with the large sentiment zero class. We think this project is a good basis for further exploration of this field and a lot of interesting results can emerge, using the right techniques. 
+We delivered a basic system which is able to download Tweets, uses Machine Learning to classify the Tweets in different sentiment classes and to predict the retweet count using regression and which shows the results on a webpage. There are a lot of extensions and improvements possible in our system, but because of the flexibility of our system, this is possible. One of the most important things for future work is the improvement of the sentiment calculation: we could also use Machine Learning to calculate the sentiment value, taking into account the context wherein the words occurs; we could for example give different sentiment values to the words ``bad'' and ``really bad''. Another possibility to improve the sentiment value calculation could be to use more wordlists and compare their performance. We could also improve our results by using our API to analyze a larger database instead of just using the website for our results. Our data preprocessing scheme could also be improved to include more advanced ways of dealing with the large sentiment zero class. Some of the features we used for Machine Learning can also be transformed to improve the performance: for example, the number of followers or retweets can quickly become a large number for popular accounts (we think of millions of followers and thousands of retweets). Taking the square root or the log of these values could improve the results of our Artificial Intelligence. We think this project is a good basis for further exploration of this field and a lot of interesting results can emerge, using the right techniques. 
 
 \bibliographystyle{IEEEtran}
 \bibliography{lyngby}

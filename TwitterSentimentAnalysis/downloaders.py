@@ -55,7 +55,7 @@ class TweetDownloader(object):
         return '%dh %dm %ds' % (str_hr, str_min, str_sec)
 
     @staticmethod
-    def undersample(sentiment, manual_grade, threshold=0.25):
+    def undersample(sentiment, manual_grade, threshold=0.4):
         """
         This function defines if a tweet with certain sentiment and manual_grade should be saved or not.
         It is used for undersampling data with a sentiment close to 0.0

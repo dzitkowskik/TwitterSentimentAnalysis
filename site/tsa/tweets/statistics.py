@@ -125,6 +125,16 @@ class TweetStatistics(object):
                     ai=ai
                 ).save()
 
+            print hour_vs_sentiment
+            print hour_vs_retweet_count
+            print dayofweek_vs_sentiment
+            print dayofweek_retweet_count
+            print len(hour_vs_sentiment)
+            print len(hour_vs_retweet_count)
+            print len(dayofweek_vs_sentiment)
+            print len(dayofweek_retweet_count)
+
+
         else:
             raise NameError('ai_name cannot be blank')
 
@@ -151,7 +161,8 @@ class TweetStatistics(object):
             x_axis = "Followers count"
             y_axis = "Retweet count"
 
-        data.values('hour').annotate(Avg('retweet_count_actual'), Avg('retweet_count_estimated'))
+        print data.values('hour').annotate(Avg('retweet_count_actual'), Avg('retweet_count_estimated'))
+
         # Create data structure for charts
         data = DataPool(
             series=[{
@@ -196,14 +207,14 @@ class TweetStatistics(object):
           cht (Chart): the resulting graph to be shown on the webpage.
         """
         if ai_model.problem_type == 1:  # classification
-            data = DayofweekSentiment.objects.filter()
+            data = DayofweekSentiment.objects.filter(ai=ai_model)
             terms = ['day_of_week', 'sentiment_actual_avg', 'sentiment_predicted_avg']
             terms_dict = {'day_of_week': ['sentiment_predicted_avg', 'sentiment_actual_avg']}
             title = 'Actual & estimated sentiment vs day of week'
-            x_axis = "Hour"
+            x_axis = "Day of the week"
             y_axis = "Sentiment"
         else:  # regression
-            data = DayofweekRetweet.objects.filter()
+            data = DayofweekRetweet.objects.filter(ai=ai_model)
             terms = ['day_of_week', 'retweet_actual_avg', 'retweet_predicted_avg']
             terms_dict = {'day_of_week': ['retweet_predicted_avg', 'retweet_actual_avg']}
             title = 'Actual & estimated retweet count vs day of week'
@@ -231,7 +242,7 @@ class TweetStatistics(object):
 
                 'xAxis': {
                     'labels': {
-                        'step': '10',
+                        'step': '5',
                         'maxStaggerLines': '1'
                     },
                     'title': {
@@ -253,15 +264,17 @@ class TweetStatistics(object):
         Returns:
           cht (Chart): the resulting graph to be shown on the webpage.
         """
+        print ai_model
+        print HourSentiment.objects.filter(ai=ai_model).values()
         if ai_model.problem_type == 1:  # classification
-            data = HourSentiment.objects.filter()
+            data = HourSentiment.objects.filter(ai=ai_model)
             terms = ['hour', 'sentiment_actual_avg', 'sentiment_predicted_avg']
             terms_dict = {'hour': ['sentiment_predicted_avg', 'sentiment_actual_avg']}
             title = 'Actual & estimated sentiment vs hour'
             x_axis = "Hour"
             y_axis = "Sentiment"
         else:  # regression
-            data = HourRetweet.objects.filter()
+            data = HourRetweet.objects.filter(ai=ai_model)
             terms = ['hour', 'retweet_actual_avg', 'retweet_predicted_avg']
             terms_dict = {'hour': ['retweet_predicted_avg', 'retweet_actual_avg']}
             title = 'Actual & estimated retweet count vs hour'
@@ -289,7 +302,7 @@ class TweetStatistics(object):
 
                 'xAxis': {
                     'labels': {
-                        'step': '10',
+                        'step': '5',
                         'maxStaggerLines': '1'
                     },
                     'title': {
@@ -324,6 +337,9 @@ class TweetStatistics(object):
             x_axis = "Favorites count"
             y_axis = "Retweet count"
 
+        print data.values()
+        print data.order_by('favourites_count').values()
+
         # Create data structure for charts
         data = DataPool(
             series=[{
@@ -346,7 +362,7 @@ class TweetStatistics(object):
                 'xAxis': {
                     'labels': {
                         'step': '10',
-                        'maxStaggerLines': '1'
+                        'maxStaggerLines': '2'
                     },
                     'title': {
                         'text': x_axis}},
@@ -402,7 +418,7 @@ class TweetStatistics(object):
                 'xAxis': {
                     'labels': {
                         'step': '10',
-                        'maxStaggerLines': '1'
+                        'maxStaggerLines': '2'
                     },
                     'title': {
                         'text': x_axis}},
