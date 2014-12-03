@@ -89,8 +89,8 @@ class Migration(migrations.Migration):
                 ('followers_count', models.IntegerField()),
                 ('retweet_count_actual', models.IntegerField()),
                 ('retweet_count_estimated', models.IntegerField(null=True)),
-                ('sentiment_actual', models.CharField(max_length=30)),
-                ('sentiment_estimated', models.CharField(max_length=30, null=True)),
+                ('sentiment_actual', models.IntegerField(max_length=30)),
+                ('sentiment_estimated', models.IntegerField(max_length=30, null=True)),
                 ('ai', models.ForeignKey(to='tweets.ArtificialIntelligence')),
             ],
             options={

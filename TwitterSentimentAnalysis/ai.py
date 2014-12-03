@@ -107,6 +107,22 @@ class AI(object):
             record['predicted_retweet_count'] = prc if prc > 0 else 0
             i += 1
 
+    @staticmethod
+    def fill_data_classification(target, results, data):
+        """
+        Fills data dictionary with actual and predicted sentiment from target and results
+        :param target: actual sentiments
+        :param results: predicted sentiments
+        :param data: dictionary to fill
+        """
+        middle = len(TweetClassificationDatasetFactory.labels) / 2
+        i = 0
+        assert(len(target) == len(data))
+        for record in data:
+            record['sentiment'] = target[i] - middle
+            record['predicted_sentiment'] = results[i] - middle
+            i += 1
+
     @abstractmethod
     def run(self, ds_train, ds_test):
         pass
@@ -318,13 +334,7 @@ class MultiClassClassificationNeuralNetwork(AI):
         """
         out = self.network.activateOnDataset(ds)
         results = np.ravel(np.argmax(out, 1))
-        middle = len(TweetClassificationDatasetFactory.labels) / 2
-        i = 0
-        assert(len(ds) == len(data))
-        for record in data:
-            record['sentiment'] = ds['target'][i] - middle
-            record['predicted_sentiment'] = results[i] - middle
-            i += 1
+        self.fill_data_classification(ds['target'], results, data)
 
 
 class SimpleClassificationNeuralNetwork(AI):
@@ -444,13 +454,7 @@ class SimpleClassificationNeuralNetwork(AI):
         """
         out = self.network.Trainer.module.activateOnDataset(ds)
         results = np.ravel(np.argmax(out, 1))
-        middle = len(TweetClassificationDatasetFactory.labels) / 2
-        i = 0
-        assert(len(ds) == len(data))
-        for record in data:
-            record['sentiment'] = ds['target'][i] - middle
-            record['predicted_sentiment'] = results[i] - middle
-            i += 1
+        self.fill_data_classification(ds['target'], results, data)
 
 
 class NaiveBayesClassifier(AI):
@@ -562,14 +566,8 @@ class NaiveBayesClassifier(AI):
         x_test = ds['input']
         y_test = ds['target']
         test_fs = self.to_feature_set(x_test, y_test)
-        result = self.classifier.classify_many([rec[0] for rec in test_fs])
-        middle = len(TweetClassificationDatasetFactory.labels) / 2
-        i = 0
-        assert(len(ds) == len(data))
-        for record in data:
-            record['sentiment'] = ds['target'][i] - middle
-            record['predicted_sentiment'] = result[i] - middle
-            i += 1
+        results = self.classifier.classify_many([rec[0] for rec in test_fs])
+        self.fill_data_classification(y_test, results, data)
 
 
 class MaxEntropyClassifier(AI):
@@ -680,14 +678,8 @@ class MaxEntropyClassifier(AI):
         x_test = ds['input']
         y_test = ds['target']
         test_fs = self.to_feature_set(x_test, y_test)
-        result = self.classifier.classify_many([rec[0] for rec in test_fs])
-        middle = len(TweetClassificationDatasetFactory.labels) / 2
-        i = 0
-        assert(len(ds) == len(data))
-        for record in data:
-            record['sentiment'] = ds['target'][i] - middle
-            record['predicted_sentiment'] = result[i] - middle
-            i += 1
+        results = self.classifier.classify_many([rec[0] for rec in test_fs])
+        self.fill_data_classification(y_test, results, data)
 
 
 ##############
