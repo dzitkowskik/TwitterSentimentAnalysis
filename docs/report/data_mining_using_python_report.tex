@@ -116,7 +116,7 @@ For the regression of the retweet count the following features of the Tweets are
 
 \subsubsection{downloaders.py}
 
-This class takes care of downloading the Tweets using Tweepy \cite{tweepy}. It takes into account the rate limits of the Twitter API so our downloads do not get blocked. Tweets are saved to a specified MongoDB table using Pymongo \cite{pymongo}, using a tag as a label when we save. This class also implements the possibility to undersample the data: because the majority of the Tweets has a sentiment of 0, the Artificial Intelligence is trained in a wrong way (a classifier which predicts all tweets to be 0 will have a very low training error and maybe even test error, although we this classifier will be useless). The undersampling  will undersample data with a sentiment close to 0 (standard treshold is set to be 0.25). 
+This class takes care of downloading the Tweets using Tweepy \cite{tweepy}. It takes into account the rate limits of the Twitter API so our downloads do not get blocked. Tweets are saved to a specified MongoDB table using Pymongo \cite{pymongo}, using a tag as a label when we save. This class also implements the possibility to undersample the data: because the majority of the Tweets has a sentiment of 0, the Artificial Intelligence is trained in a wrong way (a classifier which predicts all tweets to be 0 will have a very low training error and maybe even test error, although we this classifier will be useless). The undersampling  will undersample data with a sentiment close to 0 (standard treshold is set to be 0.4). 
 
 \subsubsection{wordSentiment.py}
 
@@ -128,7 +128,7 @@ This folder contains all the code for running the site. We included the django\_
 
 \section{Results}
 
-In this section we will talk about the results we had using our software. In this section we concentrate on results gathered from the downloaded set of Tweets, because we are more certain about the sentiment tags given manually to these Tweets, than the basic calculation of the sentiment used in our system. The error rates the different Machine Learning algorithms obtain are gathered in Table \ref{tableclassification} for the classification of the sentiment and Table \ref{tableregression} for the prediction of the retweet count using regression. 
+In this section we will talk about the results we had using our software. The error rates the different Machine Learning algorithms obtain are gathered in Table \ref{tableclassification} for the classification of the sentiment and Table \ref{tableregression} for the prediction of the retweet count using regression. 
 
 \begin{table}[h!]
 	\centering
@@ -164,57 +164,43 @@ In this section we will talk about the results we had using our software. In thi
     \label{tableregression}
 \end{table} 
 
+We can see that the Artificial Neural Networks perform the best for classification: the smallest error rate is obtained by the SimpleClassification Neural Network using the Pybrain tools, obtaining an error rate just under 20\%. We can see in the results though that the Neural Networks also mainly predict zero sentiments, which are not the results we hoped for. This problem should be solved in any future work on this topic: we could implement more sophisticated tweet filtering to generate train data and we could make a better system to calculate the actual sentiment. 
 
-\subsection{Code checking}
+The prediction of the retweet count is our best performing part: the Neural Network is able to perform regression to predict this feature, obtaining an error rate of just over 11 percent. We can see the Linear Regression performs really poor. Same comments apply to the regression: our data can be preprocessed in a better way and the sentiment calculation could be more complex. 
 
+Using the website we were able to generate some results. One of the graphs we looked at was the number of followers versus the number of retweets, to see if more followers automatically results in more retweets. The graph can be seen in Figure \ref{result1} (predicted using Linear Regression). We can see some peaks in number of retweets, but they occur as often for a smaller number of followers as for larger numbers. Our predicted retweet rate remains pretty small; it doesn't really predict any peaks. This is difficult, because the peaks appear to be pretty random and large compared to the ``normal'' amount of retweets. 
 
-\subsection{Testing}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/giving_tuesday_linear_regression_followers_vs_retweet}
+\caption{Number of followers vs actual and predicted retweet count. \label{result1}}
+\end{center}
+\end{figure}
 
+It is also interesting to look at the time of the day and the day of the week for both the number of retweets and the performance of our predictions. In Figure \ref{result2} and Figure \ref{result3} these results can be seen. 
 
-\section{Discussion}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/srnn_hour_vs_retweet}
+\caption{Number of retweets vs hour of the day. \label{result2}}
+\end{center}
+\end{figure}
 
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/srnn_day_of_week_vs_retweet}
+\caption{Number of retweets vs day of the week. \label{result3}}
+\end{center}
+\end{figure}
+
+We can see there is a peak in retweets on the second day of the week and between 12 and 14 o' clock. We think this peak is due to the lunch pause; people just have one hour of spare time wherein they can Tweet. Again, our predictions have difficulties to keep up with this peaks. 
 
 \section{Conclusion}
 
-We delivered a basic system which is able to download Tweets, uses Machine Learning to classify the Tweets in different sentiment classes and to predict the retweet count using regression and which shows the results on a webpage. There are a lot of extensions and improvements possible in our system, but because of the flexibility of our system, this is possible. One of the most important things for future work is the improvement of the sentiment calculation: we could also use Machine Learning to calculate the sentiment value, taking into account the context wherein the words occurs; we could for example give different sentiment values to the words ``bad'' and ``really bad''. Another possibility to improve the sentiment value calculation could be to use more wordlists and compare their performance. We could also improve our results by using our API to analyze a larger database instead of just using the website for our results. Our data preprocessing scheme could also be improved to include more advanced ways of dealing with the large sentiment zero class. Some of the features we used for Machine Learning can also be transformed to improve the performance: for example, the number of followers or retweets can quickly become a large number for popular accounts (we think of millions of followers and thousands of retweets). Taking the square root or the log of these values could improve the results of our Artificial Intelligence. We think this project is a good basis for further exploration of this field and a lot of interesting results can emerge, using the right techniques. 
+We delivered a basic system which is able to download Tweets, uses Machine Learning to classify the Tweets in different sentiment classes and to predict the retweet count using regression and which shows the results on a webpage. There are a lot of extensions and improvements possible in our system, but because of the flexibility of our system, this is possible. One of the most important things for future work is the improvement of the sentiment calculation: we could also use Machine Learning to calculate the sentiment value, taking into account the context wherein the words occurs; we could for example give different sentiment values to the words ``bad'' and ``really bad''. Another possibility to improve the sentiment calculation could be to use more wordlists and compare their performance. We could also improve our results by using our API to analyze a larger database instead of just using the website for our results. Our data preprocessing scheme could also be improved to include more advanced ways of dealing with the large sentiment zero class. Some of the features we used for Machine Learning can also be transformed to improve the performance: for example, the number of followers or retweets can quickly become a large number for popular accounts (we think of millions of followers and thousands of retweets). Taking the square root or the log of these values could improve the results of our Artificial Intelligence. We think this project is a good basis for further exploration of this field and a lot of interesting results can emerge, using the right techniques. 
 
 \bibliographystyle{IEEEtran}
 \bibliography{lyngby}
 
-
 \clearpage
-\onecolumn
-\appendices
-\section{Code listings}
-
-\definecolor{darkgreen}{rgb}{0, 0.4, 0}
-\lstset{language=Python,
-  numbers=left,
-  frame=bottomline,
-  basicstyle=\scriptsize,
-  identifierstyle=\color{blue},
-  keywordstyle=\bfseries,
-  commentstyle=\color{darkgreen},
-  stringstyle=\color{red},
-  literate={Ö}{{\"O}}1 {é}{{\'e}}1 {Å}{{\AA}}1,
-}
-\lstlistoflistings
-
-
-%\label{listing:brede_str_nmf}\lstinputlisting{../../matlab/brede/python/brede_str_nmf}
-
-
-\newpage
-\section{Automatic generation of documentation}
-
-Demontration using epydoc:
-\begin{verbatim}
-epydoc --pdf -o /home/fnielsen/tmp/epydoc/ --name RBBase wikipedia/api.py
-\end{verbatim}
-This example does not use \verb!brede_str_nmf! but another more
-well-documented module called {\tt api.py} that are used to download
-material from Wikipedia. 
-
-\includepdf[pages={-}]{/home/fnielsen/tmp/epydoc/api.pdf}
-
 \end{document}
